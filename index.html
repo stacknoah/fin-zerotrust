@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>예외요건 판정 워크벤치</title>
+<style>
+  :root {
+    --paper: #fcfcfa;
+    --ink: #1c1e22;
+    --sub: #5d6068;
+    --faint: #8b8e96;
+    --rule: #e2e1dc;
+    --rule-dark: #1c1e22;
+    --accent: #2b55a3;
+    --accent-bg: #eef2f9;
+    --ok: #176e4b;
+    --warn: #8f6400;
+    --bad: #a83226;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: "Apple SD Gothic Neo", "Pretendard", "Malgun Gothic", system-ui, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 15px;
+    line-height: 1.7;
+    word-break: keep-all;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: var(--accent-bg); }
+
+  /* ---------- 상단 ---------- */
+  header.top {
+    border-bottom: 1px solid var(--rule-dark);
+    background: var(--paper);
+  }
+  header.top .in {
+    max-width: 1060px; margin: 0 auto; padding: 22px 24px 18px;
+    display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
+  }
+  .wordmark { font-size: 19px; font-weight: 800; letter-spacing: -0.01em; }
+  .wordmark .tag {
+    font-family: var(--mono); font-size: 11px; font-weight: 500;
+    color: var(--accent); border: 1px solid var(--accent);
+    padding: 1px 7px; margin-left: 10px; vertical-align: 2px;
+  }
+  .statute {
+    margin-left: auto; font-family: var(--mono); font-size: 11.5px; color: var(--faint);
+  }
+
+  /* ---------- 본문 그리드 ---------- */
+  .frame {
+    max-width: 1060px; margin: 0 auto; padding: 0 24px 100px;
+    display: grid; grid-template-columns: 200px 1fr; gap: 56px;
+  }
+  @media (max-width: 900px) {
+    .frame { grid-template-columns: 1fr; gap: 0; }
+  }
+
+  /* 왼쪽 진행 레일 */
+  nav.rail { padding-top: 44px; }
+  nav.rail .item {
+    display: flex; gap: 12px; align-items: baseline;
+    padding: 9px 0; color: var(--faint); font-size: 13px;
+    border-left: 2px solid transparent; padding-left: 14px; margin-left: -16px;
+  }
+  nav.rail .item .no { font-family: var(--mono); font-size: 11px; width: 16px; }
+  nav.rail .item.on { color: var(--ink); font-weight: 700; border-left-color: var(--accent); }
+  nav.rail .item.done { color: var(--sub); }
+  nav.rail .item.done .no::after { content: ""; }
+  @media (max-width: 900px) {
+    nav.rail { padding: 18px 0 0; overflow-x: auto; }
+    nav.rail .list { display: flex; gap: 18px; }
+    nav.rail .item { border-left: none; border-bottom: 2px solid transparent; padding: 4px 0 8px; margin: 0; white-space: nowrap; }
+    nav.rail .item.on { border-bottom-color: var(--accent); }
+  }
+
+  main { padding-top: 44px; min-width: 0; }
+
+  /* 전제 조건 */
+  .premise {
+    font-size: 13px; color: var(--sub); line-height: 1.75;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 20px; margin-bottom: 36px;
+  }
+  .premise b { color: var(--ink); }
+
+  /* 스텝 패널 */
+  .panel { animation: rise .28s ease both; }
+  @media (prefers-reduced-motion: reduce) { .panel { animation: none; } }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .kicker {
+    font-family: var(--mono); font-size: 11px; color: var(--accent);
+    margin-bottom: 10px;
+  }
+  h2.q {
+    font-size: 24px; line-height: 1.4; font-weight: 800; letter-spacing: -0.015em;
+    margin: 0 0 8px;
+  }
+  .qsub { font-size: 13.5px; color: var(--sub); margin: 0 0 28px; max-width: 62ch; }
+
+  /* 선택지: 괘선 행 */
+  .opts { border-top: 1px solid var(--rule-dark); }
+  .opt {
+    display: flex; gap: 16px; align-items: baseline;
+    padding: 15px 4px; border-bottom: 1px solid var(--rule);
+    cursor: pointer; transition: background .12s;
+  }
+  .opt:hover { background: #f5f5f2; }
+  .opt .mark {
+    flex: 0 0 14px; height: 14px; border: 1.5px solid var(--faint);
+    border-radius: 50%; position: relative; top: 2px;
+  }
+  .opt.sel .mark { border-color: var(--accent); }
+  .opt.sel .mark::after {
+    content: ""; position: absolute; inset: 2.5px; background: var(--accent); border-radius: 50%;
+  }
+  .opt .t { font-weight: 700; font-size: 14.5px; }
+  .opt.sel .t { color: var(--accent); }
+  .opt .d { font-size: 12.5px; color: var(--sub); margin-top: 1px; }
+
+  /* SaaS 선택: 활자 그리드 */
+  .saasgrid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    border-top: 1px solid var(--rule-dark); border-left: 1px solid var(--rule);
+    margin-bottom: 34px;
+  }
+  .saascell {
+    border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+    padding: 18px 16px 14px; cursor: pointer; transition: background .12s;
+  }
+  .saascell:hover { background: #f5f5f2; }
+  .saascell .nm { font-weight: 800; font-size: 15px; letter-spacing: -0.01em; }
+  .saascell .ct { font-family: var(--mono); font-size: 10.5px; color: var(--faint); margin-top: 3px; }
+  .saascell.sel { background: var(--accent-bg); box-shadow: inset 0 0 0 1.5px var(--accent); }
+  .saascell.sel .nm { color: var(--accent); }
+
+  /* 근거 항목: 괘선 리스트 */
+  .evi {
+    border-top: 1px solid var(--rule); padding: 18px 0 16px;
+  }
+  .evi:first-of-type { border-top: 1px solid var(--rule-dark); }
+  .evi .head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .evi .feat { font-weight: 800; font-size: 14px; }
+  .avtag { font-family: var(--mono); font-size: 11px; white-space: nowrap; }
+  .avtag.builtin { color: var(--ok); }
+  .avtag.higher_tier { color: var(--warn); }
+  .avtag.third_party { color: var(--accent); }
+  .avtag.none { color: var(--bad); }
+  .avtag.unclear { color: var(--faint); }
+  .conftag { font-family: var(--mono); font-size: 11px; color: var(--faint); }
+  .evi .ctrl { font-size: 13.5px; color: var(--ink); margin: 7px 0 0; max-width: 68ch; }
+  .evi .quote {
+    font-size: 12px; color: var(--sub); line-height: 1.6;
+    border-left: 2px solid var(--rule-dark);
+    padding: 2px 0 2px 14px; margin: 10px 0 0; max-width: 66ch;
+  }
+  .evi .meta { font-size: 11.5px; color: var(--faint); margin-top: 8px; font-family: var(--mono); word-break: break-all; }
+  .evi .meta a { color: var(--faint); text-decoration: underline; text-underline-offset: 2px; }
+  .evi .meta a:hover { color: var(--accent); }
+  .evi .plan { font-size: 12px; color: var(--warn); margin-top: 6px; }
+  .applychk {
+    display: flex; gap: 10px; align-items: flex-start;
+    margin-top: 12px; font-size: 13px; cursor: pointer; max-width: 68ch;
+  }
+  .applychk input {
+    margin-top: 4px; width: 15px; height: 15px; accent-color: var(--accent); flex: 0 0 auto;
+  }
+
+  /* 내비게이션 버튼 */
+  .nav { display: flex; justify-content: space-between; align-items: center; margin-top: 40px; }
+  .nav .r { display: flex; gap: 10px; }
+  button {
+    font-family: inherit; font-size: 14px; font-weight: 700;
+    padding: 11px 26px; cursor: pointer; border-radius: 0;
+    border: 1px solid var(--rule-dark); background: var(--paper); color: var(--ink);
+    transition: transform .06s;
+  }
+  button:active { transform: translateY(1px); }
+  button.primary { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+  button.primary:disabled { background: #c6c7ca; border-color: #c6c7ca; cursor: not-allowed; }
+  button.ghost { border: none; background: none; color: var(--sub); padding-left: 0; }
+  button.ghost:hover { color: var(--ink); }
+
+  /* 판정 */
+  .verdict { border-top: 3px solid var(--rule-dark); padding-top: 26px; margin-bottom: 8px; }
+  .verdict .lbl { font-family: var(--mono); font-size: 11px; color: var(--faint); margin-bottom: 10px; }
+  .verdict .word { font-size: 34px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.25; }
+  .verdict.ok .word { color: var(--ok); }
+  .verdict.cond .word { color: var(--warn); }
+  .verdict.bad .word { color: var(--bad); }
+  .verdict .why { font-size: 13px; color: var(--sub); max-width: 62ch; margin-top: 10px; }
+
+  .findings { margin-top: 26px; border-top: 1px solid var(--rule-dark); }
+  .finding {
+    display: flex; gap: 14px; padding: 13px 2px; border-bottom: 1px solid var(--rule);
+    font-size: 13.5px; line-height: 1.65;
+  }
+  .finding .ic { font-family: var(--mono); font-weight: 700; flex: 0 0 14px; }
+  .finding.r .ic { color: var(--bad); }
+  .finding.w .ic { color: var(--warn); }
+  .finding.g .ic { color: var(--ok); }
+
+  /* 하단 */
+  footer.legal {
+    max-width: 1060px; margin: 0 auto; padding: 26px 24px 60px;
+    border-top: 1px solid var(--rule);
+    font-size: 11.5px; color: var(--faint); line-height: 1.8;
+  }
+
+  /* ---------- 검토서 (인쇄 전용) ---------- */
+  #report { display: none; }
+  @media print {
+    body * { visibility: hidden; }
+    #report, #report * { visibility: visible; }
+    #report { display: block; position: absolute; left: 0; top: 0; width: 100%; background: #fff; }
+    @page { size: A4; margin: 18mm 16mm; }
+  }
+  #report { font-size: 10.5pt; color: #111; line-height: 1.65; font-family: "Apple SD Gothic Neo", "Pretendard", "Malgun Gothic", sans-serif; }
+  #report h1 { font-size: 16pt; border-bottom: 2px solid #111; padding-bottom: 8px; letter-spacing: -0.01em; }
+  #report h2 { font-size: 12pt; margin: 18px 0 6px; }
+  #report table { width: 100%; border-collapse: collapse; font-size: 9.5pt; margin: 8px 0; }
+  #report th { background: #f2f2ef; text-align: left; padding: 6px 8px; border: 1px solid #bbb; font-weight: 700; }
+  #report td { padding: 6px 8px; border: 1px solid #bbb; vertical-align: top; }
+  #report .lawq { border-left: 3px solid #111; padding: 6px 12px; font-size: 9.5pt; margin: 8px 0; color: #222; }
+  #report .cb { display: inline-block; width: 9pt; height: 9pt; border: 1pt solid #333; vertical-align: -1pt; margin-right: 4pt; }
+  #report .sig { margin-top: 30px; display: flex; justify-content: flex-end; gap: 40px; }
+  #report .sig .box { text-align: center; font-size: 9.5pt; }
+  #report .sig .line { border-bottom: 1px solid #333; width: 150px; height: 40px; }
+  #report .notice { font-size: 8.5pt; color: #666; margin-top: 22px; border-top: 1px solid #bbb; padding-top: 8px; }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="in">
+    <div class="wordmark">예외요건 판정 워크벤치<span class="tag">데모</span></div>
+    <div class="statute">전자금융감독규정 시행세칙 제2조의3 제1항 제3호</div>
+  </div>
+</header>
+
+<div class="frame">
+  <nav class="rail"><div class="list" id="rail"></div></nav>
+  <main>
+    <div class="premise">
+      <b>전제 조건.</b> 이 판정은 해당 SaaS가 침해사고대응기관(금융보안원)의 CSP 안전성 평가에서 '충족'을 받았음을 전제로 한다(시행세칙 별표7 제1통제). 충족 여부는 금융보안원 레그테크포털의 SaaS 제공자 평가 현황 목록에서 확인한다. 본 도구는 그 다음 관문인 <b>"이용자의 고유식별정보 또는 개인신용정보를 처리하지 않을 것"</b> 요건의 검토를 구조화한다.
+    </div>
+    <div id="app"></div>
+  </main>
+</div>
+
+<footer class="legal">
+  SaaS별 근거 데이터는 2026년 8월 각 벤더의 공개 관리자 문서 조사 기준이며, 요금제와 기능은 변경될 수 있다. 각 근거의 원문 링크에서 최신 상태를 확인해야 한다. 본 도구는 법적 판단을 대행하지 않으며 판단에 필요한 근거와 구조를 제공한다. 최종 판단과 책임은 검토자에게 있다.
+</footer>
+
+<div id="report"></div>
+
+<script>
+/* ================= 근거 데이터 (공개 문서 조사 결과 주입) ================= */
+const EVIDENCE = [
+ {
+  "saas": "Microsoft 365 (Teams·SharePoint·OneDrive·Copilot)",
+  "entries": [
+   {
+    "layer": "L1",
+    "feature": "필드 단위 고객정보 기능: Microsoft Forms 외부인 대상 폼, Outlook/Exchange 연락처, Microsoft Lists",
+    "exists": "yes",
+    "control": "Microsoft 365 관리센터 > 설정 > 조직 설정 > Microsoft Forms의 External sharing 옵션 4개(외부인 응답 수집, 외부인과 공동 편집, 템플릿 공유, 결과 요약 공유)가 기본 켜짐 상태이며, 관리자가 해제하면 외부인 대상 폼 수집이 차단됨. Forms 자체를 사용자별 라이선스 해제 또는 조직 전체 단위로 완전 비활성화하는 것도 가능. Outlook 연락처·Lists는 기능 자체를 끄는 설정이 없고 접근 권한·라이선스로 관리",
+    "control_availability": "builtin",
+    "plan_note": "관리센터 조직 설정에 포함되어 추가 비용 없음. 단 해당 문서 상단에 'Administrator settings are only available for Office 365 Education and Microsoft 365 Apps for business customers'라는 주석이 있어 엔터프라이즈(E3/E5) 테넌트에서의 노출 위치는 테넌트에서 재확인 권장",
+    "source_url": "https://learn.microsoft.com/en-us/microsoft-forms/administrator-settings-microsoft-forms",
+    "source_quote": "You can control whether or not external users are allowed to collaborate with users in your organization on a form or quiz.",
+    "confidence": "high"
+   },
+   {
+    "layer": "L2",
+    "feature": "네이티브 DLP: Microsoft Purview Data Loss Prevention (Exchange·SharePoint·OneDrive·Teams 메시지)",
+    "exists": "yes",
+    "control": "Purview 포털에서 DLP 정책을 만들어 주민등록번호 등 민감정보 유형이 포함된 Teams 채팅·채널 메시지를 전송 즉시 자동 삭제(차단)하고 정책 팁으로 사용자에게 경고 가능. 문서 공유는 SharePoint·OneDrive 위치를 정책에 포함하면 열람 자체가 차단됨. 정책 위치에 'Teams chat and channel messages'를 추가하는 방식",
+    "control_availability": "higher_tier",
+    "plan_note": "Exchange·SharePoint·OneDrive(Teams로 공유되는 파일 포함) DLP는 Office 365/Microsoft 365 E3부터 포함. Teams 채팅·채널 메시지 본문 DLP는 E5(E5/A5/G5 또는 E5 Compliance·Information Protection and Governance 애드온) 필요",
+    "source_url": "https://learn.microsoft.com/en-us/purview/dlp-microsoft-teams",
+    "source_quote": "Support for DLP protection in Teams Chat requires an E5 license.",
+    "confidence": "high"
+   },
+   {
+    "layer": "L3",
+    "feature": "검색 색인·콘텐츠 인덱싱 노출 제한 (SharePoint 검색·Copilot 참조 범위)",
+    "exists": "yes",
+    "control": "세 가지 수단. (1) 사이트 설정의 'Allow this site to appear in Search results'를 끄면 해당 사이트 콘텐츠가 조직 전체 검색과 사이트 내 검색 모두에서 제외. (2) SharePoint 관리센터 Remove Search Results로 특정 URL을 즉시 제거(다음 크롤 전까지 임시). (3) Restricted SharePoint Search를 켜면 조직 전체 검색과 Copilot 응답이 참조할 수 있는 사이트를 관리자가 만든 허용 목록(최대 100개 사이트)으로 제한. 단 RSS는 권한 자체를 바꾸는 보안 경계는 아니며, 사용자가 소유·최근 접근한 콘텐츠는 계속 노출됨",
+    "control_availability": "builtin",
+    "plan_note": "사이트 단위 검색 노출 차단과 Remove Search Results는 추가 라이선스 없음. Restricted SharePoint Search는 2026-07-31부터 신규 활성화가 차단되며(은퇴 예정), 후속 수단인 Restricted Content Discovery는 SharePoint Advanced Management 라이선스 필요",
+    "source_url": "https://learn.microsoft.com/en-us/sharepoint/restricted-sharepoint-search",
+    "source_quote": "This feature lets you as an administrator decide which SharePoint sites appear in search results across your organization and Copilot chat or agentic experiences.",
+    "confidence": "high"
+   },
+   {
+    "layer": "L3",
+    "feature": "Teams 회의 자동 녹음·전사·AI 요약의 조직 단위 비활성화",
+    "exists": "yes",
+    "control": "Teams 관리센터 > 회의 > 회의 정책에서 Global(조직 전체) 정책의 Meeting recording 토글과 Transcription 토글을 Off로 설정 가능(둘 다 기본값 On). PowerShell로는 Set-CsTeamsMeetingPolicy -Identity Global -AllowCloudRecording $false -AllowTranscription $false. 웨비나·타운홀은 이벤트 정책(-RecordingForWebinar, -TranscriptionForTownhall 등)으로 별도 차단. 참가자 명시 동의 요구(-ExplicitRecordingConsent)도 정책으로 설정 가능. Copilot 회의 요약은 조직자가 Copilot을 끄면 녹음·전사도 함께 꺼지는 구조",
+    "control_availability": "builtin",
+    "plan_note": "회의 정책의 녹음·전사 토글은 기본 Teams 라이선스에 포함. 회의 옵션에서 조직자가 녹음·전사 가능자를 세밀하게 지정하는 기능과 번역 전사 등은 Teams Premium, AI 요약(recap)·Copilot은 별도 애드온",
+    "source_url": "https://learn.microsoft.com/en-us/microsoftteams/meeting-recording",
+    "source_quote": "You can use the Microsoft Teams admin center or PowerShell to control whether your users can record meetings and events.",
+    "confidence": "high"
+   },
+   {
+    "layer": "L3",
+    "feature": "AI 기능(Microsoft 365 Copilot)의 고객 데이터 모델 학습 여부",
+    "exists": "yes",
+    "control": "Microsoft 공식 입장: 프롬프트·응답·Microsoft Graph를 통해 접근한 조직 데이터는 파운데이션 LLM 학습에 사용되지 않음. 기본값이 '학습 미사용'이라 별도 옵트아웃 설정 자체가 존재하지 않는 구조(계약상 커밋). 저장되는 상호작용 기록(프롬프트·응답)은 관리자가 Purview 보존 정책·콘텐츠 검색으로 관리하고 사용자가 직접 삭제 가능. Azure OpenAI의 사람 검토 기반 남용 모니터링도 Copilot 서비스는 옵트아웃된 상태",
+    "control_availability": "builtin",
+    "plan_note": "Copilot 자체는 Microsoft 365 Copilot 애드온 라이선스 필요. 학습 미사용 커밋은 요금제와 무관하게 기본 적용",
+    "source_url": "https://learn.microsoft.com/en-us/microsoft-365/copilot/microsoft-365-copilot-privacy",
+    "source_quote": "Prompts, responses, and data accessed through Microsoft Graph aren't used to train foundation LLMs, including those used by Microsoft 365 Copilot.",
+    "confidence": "high"
+   },
+   {
+    "layer": "L3",
+    "feature": "데이터 보존기간 관리자 설정·단축 (Microsoft Purview 보존 정책·보존 레이블)",
+    "exists": "yes",
+    "control": "Purview 포털에서 관리자가 Exchange 메일, SharePoint·OneDrive 문서, Teams·Viva Engage 메시지, Copilot 상호작용에 대해 보존 정책을 만들 수 있음. 보존만(retain-only), 기간 경과 후 영구삭제(delete-only), 보존 후 삭제(retain and then delete) 세 방식 모두 지원하므로 보존기간 단축·기간 후 자동 영구삭제 설정 가능. 항목 단위로 다른 기간이 필요하면 보존 레이블 사용",
+    "control_availability": "builtin",
+    "plan_note": "조직·위치 단위 보존 정책은 Microsoft 365 E3/A3/G3·Office 365 E3 이상과 Business Premium에 포함(Microsoft Purview service description 기준). 적응형 정책 범위(adaptive scope), 학습 가능 분류기 기반 자동 적용 등은 E5 계열 필요. Teams 메시지 위치는 일부 하위 플랜에서 보존·삭제 기간이 30일 초과여야 하는 조건 있음",
+    "source_url": "https://learn.microsoft.com/en-us/purview/retention",
+    "source_quote": "Retain and then delete: Retain content for a specified period of time and then permanently delete it.",
+    "confidence": "high"
+   }
+  ]
+ },
+ {
+  "saas": "Slack",
+  "entries": [
+   {
+    "layer": "L1",
+    "feature": "리스트(Slack Lists) 커스텀 필드",
+    "exists": "yes",
+    "control": "Slack에는 CRM식 고객 연락처 DB나 외부인 대상 폼 수집 기능은 없고, 필드 단위 정형 데이터 접점은 리스트 기능이 대표적. 담당자·상태 등 커스텀 필드(열)를 가진 표를 만들 수 있어 직원이 고객 명단을 필드 단위로 넣을 수 있음. 소유자·관리자가 워크스페이스 설정에서 리스트 기능 자체를 비활성화할 수 있고, 공유 권한을 리스트 소유자로 제한할 수도 있음",
+    "control_availability": "builtin",
+    "plan_note": "리스트는 유료 요금제(Pro·Business+·Enterprise 계열) 제공, 관리자 비활성화 설정 포함",
+    "source_url": "https://slack.com/help/articles/28932867593875-Manage-list-settings-in-Slack",
+    "source_quote": "Owners and admins can disable lists and limit sharing permissions to list owners only.",
+    "confidence": "high"
+   },
+   {
+    "layer": "L2",
+    "feature": "네이티브 DLP(메시지·파일·캔버스 스캔)",
+    "exists": "yes",
+    "control": "조직 설정 > Security > Data loss prevention에서 관리자가 사전 정의 규칙 또는 PCRE 정규식 기반 커스텀 규칙을 만들어 메시지·텍스트 파일·캔버스를 스캔. 위반 시 대시보드 알림만 표시, 작성자에게 경고 표시, 또는 검토 전까지 메시지·파일 숨김(tombstone) 처리 중 선택 가능. Slack Connect 채널에도 적용됨",
+    "control_availability": "higher_tier",
+    "plan_note": "Enterprise 계열 요금제 전용(도움말 원문 표기 \"Available on Enterprise plans\"). Free·Pro·Business+에는 네이티브 DLP 없음: 해당 요금제에서는 서드파티 DLP 연동 필요",
+    "source_url": "https://slack.com/help/articles/12914005852819-Slack-data-loss-prevention",
+    "source_quote": "With data loss prevention (DLP) for Slack, you can reduce the risk of sharing confidential, malicious, or personally identifiable information in your Slack organization.",
+    "confidence": "high"
+   },
+   {
+    "layer": "L3",
+    "feature": "검색 색인(메시지·파일 전문 검색)",
+    "exists": "yes",
+    "control": "워크스페이스 내 메시지·파일은 기본적으로 전부 검색 색인됨. 관리자가 특정 채널·데이터를 색인에서 제외하거나 색인을 제한하는 조직 단위 설정은 공식 문서에서 확인되지 않음. 존재하는 것은 개인 사용자가 자기 검색 결과에서 특정 채널을 제외하는 개인 환경설정뿐이며, 이는 색인 자체를 막는 게 아니라 본인 검색 결과만 걸러내는 기능",
+    "control_availability": "none",
+    "plan_note": "관리자용 색인 제외 기능은 요금제 무관하게 확인되지 않음(개인 설정만 존재)",
+    "source_url": "https://slack.com/help/articles/4402305240723-Set-your-search-preferences",
+    "source_quote": "From either the desktop app or Slack in your browser, you can exclude certain channels from search results.",
+    "confidence": "medium"
+   },
+   {
+    "layer": "L3",
+    "feature": "허들 AI 노트(자동 녹취·전사·요약)",
+    "exists": "yes",
+    "control": "허들의 AI 노트(전사 포함)는 기본 꺼짐: 참가자가 켜야 동작(원문: \"By default, someone in a huddle needs to turn AI notes on.\"). 관리자는 워크스페이스 설정 > Roles & permissions > Feature access > AI에서 허들 노트 등 AI 기능별로 사용 대상을 지정할 수 있고, Enterprise 조직 관리자는 'No one'으로 지정해 조직 전체 비활성화 가능",
+    "control_availability": "builtin",
+    "plan_note": "AI 허들 노트는 유료 요금제(Pro·Business+·Enterprise+) 제공, 관리자 접근 통제 설정 포함",
+    "source_url": "https://slack.com/help/articles/28244420881555-Manage-access-to-AI-features-in-Slack",
+    "source_quote": "Next to the AI feature you'd like to manage, click Edit and choose who can use it — No one, Only specific people and groups, Everyone except specific people and groups, or Everyone.",
+    "confidence": "high"
+   },
+   {
+    "layer": "L3",
+    "feature": "AI·ML 모델의 고객 데이터 학습",
+    "exists": "yes",
+    "control": "생성형 AI(LLM) 학습에는 고객 데이터를 쓰지 않는 것이 기본이며, 고객이 명시적으로 옵트인하지 않는 한 사용 안 함. 반면 검색 순위·채널·이모지 추천용 전통 ML '글로벌 모델'에는 고객 데이터가 기본으로 사용되고, 제외하려면 조직·워크스페이스 소유자가 feedback@slack.com에 'Slack Global model opt-out request' 제목으로 이메일을 보내 옵트아웃해야 함(관리 콘솔 토글 아님). AI 기능 자체는 관리자가 언제든 끌 수 있음",
+    "control_availability": "builtin",
+    "plan_note": "프라이버시 원칙은 전 요금제 공통 적용(글로벌 모델 옵트아웃은 이메일 요청 방식)",
+    "source_url": "https://slack.com/trust/data-management/privacy-principles",
+    "source_quote": "Slack will not use Customer Data to train generative AI models unless Customer provides affirmative opt-in consent.",
+    "confidence": "high"
+   },
+   {
+    "layer": "L3",
+    "feature": "메시지·파일 보존기간 설정",
+    "exists": "yes",
+    "control": "워크스페이스 소유자(Enterprise는 조직 소유자가 조직 정책으로) 데이터 보존기간을 설정 가능: 무기한 보존(수정·삭제 이력 저장 여부 선택), 지정 일수 경과 후 자동 삭제(커스텀 기간). 설정은 메시지·파일·캔버스·리스트·클립에 적용되고, 보존 설정에 따라 삭제된 데이터는 영구 삭제됨",
+    "control_availability": "builtin",
+    "plan_note": "전 요금제에서 설정 가능하나 옵션이 다름: Free는 90일/1년 선택, Pro·Business+·Enterprise 계열은 무기한·커스텀 기간 및 대화별 재정의 허용 설정 제공",
+    "source_url": "https://slack.com/help/articles/203457187-Customize-data-retention-in-Slack",
+    "source_quote": "Workspace Owners can choose from the following options when setting message retention for conversations.",
+    "confidence": "high"
+   }
+  ]
+ },
+ {
+  "saas": "Notion",
+  "entries": [
+   {
+    "layer": "L1",
+    "feature": "연락처성 데이터베이스·외부 대상 폼(Notion Forms)",
+    "exists": "yes",
+    "control": "데이터베이스에 이메일·전화 등 속성으로 고객정보를 필드 단위로 담을 수 있고, 폼 기능은 워크스페이스 밖의 외부인에게도 링크로 공개해 응답을 데이터베이스로 수집함. 필드 단위 차단 기능은 없고, Enterprise 보안 설정의 공개 게시 차단(Disable publishing sites, forms and public links / Disable public page sharing)으로 외부 대상 폼·공개 페이지 자체를 조직 단위로 막는 것이 실질적 통제 수단",
+    "control_availability": "higher_tier",
+    "plan_note": "폼·데이터베이스 기능 자체는 전 요금제 제공(\"All members on all Notion plans can create and use forms\"). 공개 게시 차단 등 워크스페이스 보안 설정은 Enterprise 요금제 전용",
+    "source_url": "https://www.notion.com/help/forms",
+    "source_quote": "Forms make it easy to collect information from others, even if those people aren't part of your Notion workspace or don't use Notion at all.",
+    "confidence": "high"
+   },
+   {
+    "layer": "L2",
+    "feature": "네이티브 DLP·입력 필터링",
+    "exists": "no",
+    "control": "Notion 자체 제공 DLP나 입력 시점 키워드 필터는 없음. Nightfall AI 등 서드파티 DLP 솔루션을 보안·컴플라이언스 연동으로 설치해 민감정보(카드번호·PII 등) 탐지, 알림, 자동 조치(내용 마스킹·접근 제한)를 하는 방식. AI 프롬프트·AI 생성 결과에 대해서도 DLP 알림 트리거 가능",
+    "control_availability": "third_party",
+    "plan_note": "워크스페이스 전체 대상 보안·컴플라이언스 연동(서드파티 DLP 포함)은 Enterprise 요금제 워크스페이스 소유자만 설치 가능",
+    "source_url": "https://www.notion.com/help/add-security-and-compliance-integrations",
+    "source_quote": "Only Enterprise workspace owners can install workspace-wide security and compliance connections.",
+    "confidence": "high"
+   },
+   {
+    "layer": "L3",
+    "feature": "검색 색인·검색 노출 제어",
+    "exists": "yes",
+    "control": "관리자가 특정 콘텐츠를 색인에서 조직 단위로 제외하는 전용 설정은 확인되지 않음. 검색은 권한 기반이라 사용자는 접근 권한 있는 페이지만 검색됨: teamspace·페이지 권한을 좁히는 것이 사실상의 검색 노출 통제. 페이지 단위로는 공유 메뉴의 Hide in search 토글로 (링크 없이) 검색으로 발견되는 것을 막을 수 있음",
+    "control_availability": "builtin",
+    "plan_note": "권한 기반 검색·Hide in search 토글에 대한 요금제 조건 미확인 (문서에 별도 제한 명시 없음)",
+    "source_url": "https://www.notion.com/help/sharing-and-permissions",
+    "source_quote": "Open the dropdown next to `Everyone at {your workspace}` and toggle on `Hide in search` to hide this page from search results for any users who haven't visited the page before or don't already have the link to the page.",
+    "confidence": "medium"
+   },
+   {
+    "layer": "L3",
+    "feature": "자동 녹취·전사·요약(AI Meeting Notes)",
+    "exists": "yes",
+    "control": "워크스페이스 소유자가 Settings → Notion AI에서 Workspace availability 토글을 꺼 AI Meeting Notes를 조직 전체에서 비활성화 가능. 추가로 전 구성원 대상 녹음 동의 강제 설정(Enforce consent for all workspace members)과, Enterprise에서는 전사본 자동 삭제 스케줄(Automatic transcript deletion) 설정 가능",
+    "control_availability": "builtin",
+    "plan_note": "AI Meeting Notes 기능 자체는 Business·Enterprise 요금제 전용. 조직 단위 비활성화 토글은 해당 요금제의 워크스페이스 소유자 설정, 전사본 자동 삭제 스케줄은 Enterprise 전용",
+    "source_url": "https://www.notion.com/help/ai-meeting-notes",
+    "source_quote": "If you are a workspace owner and do not want the AI Meeting Notes feature available to members of your workspace, you may opt-out your workspace at any time by going to Settings → Notion AI and toggling off Workspace availability.",
+    "confidence": "high"
+   },
+   {
+    "layer": "L3",
+    "feature": "AI 기능의 고객 데이터 모델 학습",
+    "exists": "no",
+    "control": "기본값으로 Notion과 AI 하위처리자(LLM 제공사) 모두 고객 데이터를 모델 학습에 사용하지 않으며, 하위처리자와의 계약으로 학습 사용을 금지. 별도 옵트아웃 조작 불필요(기본이 비학습). LLM 제공사 측 데이터 보존은 Enterprise 워크스페이스는 zero data retention(저장 없음), 비Enterprise는 30일 이내 보존 후 삭제. 데이터를 보존하는 LLM은 관리자가 명시적으로 켜기 전까지 기본 꺼짐",
+    "control_availability": "builtin",
+    "plan_note": "학습 미사용은 전 요금제 공통 기본값. LLM 제공사 zero data retention은 Enterprise 요금제, 그 외 요금제는 30일 이내 보존 후 삭제",
+    "source_url": "https://www.notion.com/help/notion-ai-security-practices",
+    "source_quote": "By default, Notion and its AI Subprocessors do not use Customer Data to train any models.",
+    "confidence": "high"
+   },
+   {
+    "layer": "L3",
+    "feature": "데이터 보존기간(휴지통 보존·영구삭제 시점) 설정",
+    "exists": "yes",
+    "control": "Enterprise 워크스페이스 소유자가 삭제된 페이지가 휴지통에 머무는 기간을 1일~10년 사이로 직접 설정해 영구삭제 시점을 단축·연장 가능(기본 30일). 페이지 버전 기록 보존은 요금제 고정(Free 7일, Plus 30일, Business 90일, Enterprise 무제한)으로 별도 단축 설정은 확인되지 않음. 회의 전사본은 별도로 Enterprise에서 자동 삭제 스케줄 설정 가능",
+    "control_availability": "higher_tier",
+    "plan_note": "커스텀 데이터 보존(휴지통 보존기간) 설정은 Enterprise 요금제 전용",
+    "source_url": "https://www.notion.com/help/custom-data-retention-settings",
+    "source_quote": "As an Enterprise workspace owner, you can decide how long a page stays in Trash before it's permanently deleted and no longer accessible to users.",
+    "confidence": "high"
+   }
+  ]
+ },
+ {
+  "saas": "Zoom",
+  "entries": [
+   {
+    "layer": "L1",
+    "feature": "미팅·웨비나 등록 폼 (외부인 개인정보 필드 수집)",
+    "exists": "yes",
+    "control": "회의·웨비나에 등록 기능을 켜면 참석자에게 이름·이메일을 필수로 수집하고, 커스텀 질문으로 추가 개인정보도 받을 수 있다. 등록은 회의별로 호스트가 켜는 선택 기능이라 안 켜면 수집이 없지만, 관리자가 조직 전체에서 등록 기능 자체를 강제 차단하는 설정은 공식 문서에서 확인하지 못했다. Zoom이 등록 질문으로 신용카드번호·주민번호류 수집을 약관상 금지하고 있긴 하나 기술적 차단은 아니다.",
+    "control_availability": "unclear",
+    "plan_note": "등록 기능은 Pro, Business, Education, Enterprise 계정부터. 조직 단위 차단 설정의 요금제 조건 미확인",
+    "source_url": "https://support.zoom.com/hc/en/article?id=zm_kb&sysparm_article=KB0065026",
+    "source_quote": "First Name and Email Address are always enabled and required.",
+    "confidence": "high"
+   },
+   {
+    "layer": "L2",
+    "feature": "채팅 키워드 필터(Chat Etiquette Tool) 및 서드파티 DLP 연동",
+    "exists": "yes",
+    "control": "네이티브로는 Chat Etiquette Tool이 있다. 관리자가 키워드·정규식(계좌번호, 주민번호 패턴 등) 정책을 만들면 미팅 채팅·웨비나 채팅·Q&A·Team Chat에서 해당 패턴 발송 시 경고 또는 차단한다. 다만 이것은 키워드 기반 필터 수준이고, 본격적인 DLP(콘텐츠 검사·차단·삭제)는 Zoom DLP API를 지원하는 서드파티 DLP 파트너 연동 + Zoom 지원팀에 기능 활성화 요청이 필요하다.",
+    "control_availability": "builtin",
+    "plan_note": "Chat Etiquette Tool은 Pro, Business, Education, Enterprise 계정. 서드파티 DLP 연동의 요금제 조건 미확인(Zoom Support 요청 필요)",
+    "source_url": "https://support.zoom.com/hc/en/article?id=zm_kb&sysparm_article=KB0066482",
+    "source_quote": "When a user sends a message that triggers a policy, the message will be blocked or a warning prompt will be displayed for the user to confirm that they want to send the message, depending on what the admin set.",
+    "confidence": "high"
+   },
+   {
+    "layer": "L3",
+    "feature": "Team Chat 클라우드 저장·검색 색인",
+    "exists": "yes",
+    "control": "검색 색인만 따로 제외하는 전용 설정은 없다. 대신 관리자가 Team Chat의 클라우드 저장(Cloud Storage)을 끄면 메시지·파일이 Zoom 클라우드에 저장되지 않아 클라우드 기반 검색·이력 조회 대상에서 빠진다. 저장을 켠 경우에도 보존기간을 설정해 검색 가능한 이력 범위를 줄일 수 있다.",
+    "control_availability": "builtin",
+    "plan_note": "Team Chat 관리자 설정은 유료 계정에서 제공. 세부 요금제 조건 미확인",
+    "source_url": "https://support.zoom.com/hc/en/article?id=zm_kb&sysparm_article=KB0058688",
+    "source_quote": "Enable this setting to store messages and files in Zoom's cloud. If disabled, messages and files are not stored in Zoom's cloud, but messages sent to offline users can be received for up to 7 days",
+    "confidence": "medium"
+   },
+   {
+    "layer": "L3",
+    "feature": "클라우드 녹화·자동 전사·AI 미팅 요약",
+    "exists": "yes",
+    "control": "관리자가 조직 단위로 끄고 잠글 수 있다. 클라우드 녹화는 계정 설정 > Recording에서 비활성화 후 잠금하면 전 계정에서 녹화·전사(오디오 트랜스크립트 포함)가 막힌다. AI Companion 미팅 요약은 Admin Center > Settings > Zoom AI에서 'Meeting summary with AI' 토글을 끄고, 잠금 아이콘으로 잠그면 사용자·그룹이 다시 켤 수 없다.",
+    "control_availability": "builtin",
+    "plan_note": "클라우드 녹화 관리는 Pro, Business, Enterprise 계정. AI Companion 미팅 요약은 Zoom Workplace Pro 이상 유료 플랜에 포함",
+    "source_url": "https://support.zoom.com/hc/en/article?id=zm_kb&sysparm_article=KB0057960",
+    "source_quote": "click the lock icon next to a setting, and then click Lock to confirm the setting",
+    "confidence": "high"
+   },
+   {
+    "layer": "L3",
+    "feature": "AI Companion의 고객 데이터 모델 학습",
+    "exists": "no",
+    "control": "2023년 약관 논란 이후 Zoom이 공식 입장으로 못박았다. 고객의 오디오·비디오·채팅·화면공유·첨부파일 등 커뮤니케이션 콘텐츠를 Zoom 자체 모델이든 서드파티(OpenAI, Anthropic 등) 모델이든 학습에 사용하지 않는다. 기본값이 학습 미사용이라 별도 옵트아웃 절차가 없고, AI Companion 기능 자체를 관리자가 계정 단위로 비활성화·잠금할 수 있다.",
+    "control_availability": "builtin",
+    "plan_note": "학습 미사용 정책은 전 요금제 공통",
+    "source_url": "https://news.zoom.com/zoom-ai-companion/",
+    "source_quote": "it does not use any customer audio, video, chat, screen-sharing, attachments, or other communications-like customer content (such as poll results, whiteboards, or reactions) to train Zoom's or third-party artificial intelligence models.",
+    "confidence": "high"
+   },
+   {
+    "layer": "L3",
+    "feature": "클라우드 녹화 보존기간 자동 삭제 설정",
+    "exists": "yes",
+    "control": "관리자가 계정·그룹 단위로 클라우드 녹화를 생성일 기준 지정 일수 경과 후 자동 삭제하도록 설정할 수 있다. 삭제된 녹화는 휴지통에 30일 보관 후 영구 삭제된다. Team Chat 쪽도 별도로 클라우드 저장 보존기간과 로컬 기기 보존기간을 관리자가 설정할 수 있어, 녹화·채팅 모두 보존기간 단축이 가능하다.",
+    "control_availability": "builtin",
+    "plan_note": "Pro, Business, Enterprise 계정에서 제공",
+    "source_url": "https://support.zoom.com/hc/en/article?id=zm_kb&sysparm_article=KB0065362",
+    "source_quote": "Delete cloud recordings after a specified number of days: Delete cloud recordings after the specified amount of days from their creation date.",
+    "confidence": "high"
+   }
+  ]
+ },
+ {
+  "saas": "NHN Dooray(두레이)",
+  "entries": [
+   {
+    "layer": "L1",
+    "feature": "주소록·설문 폼 (고객/거래처 연락처 필드, 외부 공개 폼 수집)",
+    "exists": "yes",
+    "control": "고객·거래처 연락처를 필드 단위로 저장하는 주소록 서비스와, 외부 고객에게 공개해 응답을 수집하는 폼(설문) 서비스가 있다. 통제 수단: Admin > 조직 서비스 관리 > 서비스 사용 및 제한에서 주소록을 포함한 서비스별 접근을 플랫폼(웹/모바일)·IP·계정 단위로 차단할 수 있다. 폼은 Admin > 공유 관리에서 외부 공유된 폼 콘텐츠를 확인하고 공유 URL 생성 정책을 설정할 수 있다. DLP(추가 구독)를 FORM·주소록 관련 서비스에 적용해 고유식별정보 입력을 차단하는 것도 가능하다.",
+    "control_availability": "builtin",
+    "plan_note": "서비스별 접근 제한(ACL)은 관리자 기본 기능으로 안내됨. 이 기능 자체의 요금제 조건 미확인",
+    "source_url": "https://dooray.com/main/service/form/",
+    "source_quote": "외부 전체 공개용 폼 작성도 가능합니다. 필요에 따라 조직 내부 혹은 외부 고객의 데이터를 손쉽게 수집할 수 있습니다.",
+    "confidence": "high"
+   },
+   {
+    "layer": "L2",
+    "feature": "고유식별정보(DLP) 게시물 필터",
+    "exists": "yes",
+    "control": "주민등록번호 등 고유식별정보 입력을 걸러내는 DLP 필터를 제공하지만 기본 내장이 아니라 별도 솔루션(추가 구독)이다. 게시물 필터 > 개인정보 DLP > 정책 관리에서 필터 정책을 등록하고, 홈게시판(BOARD)·업무(TASK)·메일(MAIL)·캘린더·위키·드라이브·결재·메신저(MESSENGER)·AI(CHAT_GPT)·폼(FORM)·승인(APPROVAL) 등 서비스별로 정책을 다르게 적용할 수 있다. 운영모드는 차단모드로 설정해 입력 자체를 차단하며, 실제 차단/탐지 동작은 Dooray! Admin에서 설정한다. 테넌트의 신뢰 도메인은 DLP 적용 시 내부 도메인으로 간주된다.",
+    "control_availability": "higher_tier",
+    "plan_note": "기본 플랜 미포함. 추가 구독 필요: 정확한 요금제 단계는 문서에 없고 help@dooray.com 문의로 안내",
+    "source_url": "https://helpdesk.dooray.com/share/pages/9wWo-xwiR66BO5LGshgVTg/4377713768868346809",
+    "source_quote": "추가 구독이 필요한 기능으로 자세한 내용은 help@dooray.com으로 문의해 주세요. 우리 조직의 일부 서비스만 고유식별정보(DLP) 필터 정책을 다르게 적용할 수 있습니다. (중략) 운영모드는 반드시 '차단모드'로 설정되어 있어야 합니다.",
+    "confidence": "high"
+   },
+   {
+    "layer": "L3",
+    "feature": "통합 검색 색인 (관리자의 색인 제외/제한)",
+    "exists": "yes",
+    "control": "업무·위키·메일 등 전 서비스를 대상으로 한 통합 검색이 존재한다(조직이 달라도 검색·멘션은 테넌트 전체에서 동작). 그러나 관리자가 특정 프로젝트·문서를 검색 색인에서 제외하거나 색인 자체를 제한하는 설정은 공식 문서에서 확인되지 않았다. 우회 수단은 서비스 사용 및 제한(ACL)으로 특정 계정·IP의 서비스 접근 자체를 막는 것뿐이며, 색인 단위 통제와는 다르다.",
+    "control_availability": "unclear",
+    "plan_note": "요금제 조건 미확인 (색인 통제 기능 자체가 문서에 없음)",
+    "source_url": "https://helpdesk.dooray.com/share/pages/9wWo-xwiR66BO5LGshgVTg/2895664991100104876",
+    "source_quote": "조직이 달라도 Dooray!모든 서비스를 함께 사용할 수 있습니다. (검색,멘션 등)",
+    "confidence": "low"
+   },
+   {
+    "layer": "L3",
+    "feature": "화상회의 자동 녹취·전사·요약",
+    "exists": "no",
+    "control": "화상회의에 자동 녹취·전사·AI 요약 기능은 공식 문서상 없다. 호스트가 수동으로 [녹화] 버튼을 눌러야 녹화되며, 녹화물은 호스트 메일로 다운로드 링크가 전송되고 14일 후 자동 삭제된다. 회의 채팅은 회의 종료 시 저장 없이 즉시 삭제된다. 녹화 기능만 따로 끄는 관리자 설정은 문서에서 확인되지 않았고(공공기관용은 KISA 보안 권고에 따라 녹화 기능 자체가 제외됨), 대신 테넌트 관리 > 메신저 > 화상 회의에서 화상회의 생성 기능 자체의 사용 여부를 조직 단위로 설정할 수 있다.",
+    "control_availability": "builtin",
+    "plan_note": "화상회의 기능 사용 여부 설정의 요금제 조건 미확인. 공공기관 상품은 녹화 기능 제외",
+    "source_url": "https://helpdesk.dooray.com/share/pages/9wWo-xwiR66BO5LGshgVTg/2909492230597375249",
+    "source_quote": "호스트는 화면 하단 [녹화]를 클릭 하여 회의를 녹화할 수 있습니다. (중략) ※녹화된 자료는 녹화된 날로부터 14일까지 보관되고 이후에는 삭제됩니다. 필요한 경우 다운로드/ 보관 부탁드립니다.",
+    "confidence": "medium"
+   },
+   {
+    "layer": "L3",
+    "feature": "Dooray! AI의 입력 데이터 모델 학습 활용",
+    "exists": "no",
+    "control": "입력 데이터는 암호화되며 AI 모델 학습에 사용되지 않는다고 공식 가이드에 명시돼 있어, 학습 미사용이 기본값이고 별도 옵트아웃 절차가 필요 없다. Dooray! AI 자체가 Business 플랜 이상에서 추가 구독하는 부가상품이라 미구독 시 AI 기능이 아예 없으며, 구독하더라도 구성원별 AI 라이센스를 내부 관리자가 직접 부여·관리하므로 사용 대상을 통제할 수 있다. 관리자는 구성원의 AI 사용 내역을 로그로 확인할 수 있다. 단, 가이드에 개인정보·금융정보 등 민감정보 입력 금지 문구가 있는 만큼 입력 차단은 DLP(AI 서비스 CHAT_GPT 대상 적용 가능)와 병행해야 한다.",
+    "control_availability": "builtin",
+    "plan_note": "Dooray! AI는 Business 플랜 이상 구독 시 추가 구독 가능한 부가상품. 학습 미사용 방침은 구독 시 기본 적용",
+    "source_url": "https://helpdesk.dooray.com/share/pages/9wWo-xwiR66BO5LGshgVTg/3921845293385786920",
+    "source_quote": "입력한 데이터는 암호화되며, AI 모델 학습에 사용되지 않습니다. 개인정보,금융정보 등 민감한 정보는 입력하지 마세요.",
+    "confidence": "high"
+   },
+   {
+    "layer": "L3",
+    "feature": "데이터 보존기간 설정 (휴지통 자동 삭제, 첨부파일 보관 기간)",
+    "exists": "yes",
+    "control": "부분적인 보존기간 통제만 제공된다. 드라이브 휴지통은 조직별로 일정 기간 후 자동 영구 삭제를 설정할 수 있고(유료 플랜은 5/10/15/30일 중 선택, Free는 5일 고정), 메일 휴지통도 관리자가 자동 삭제를 설정하면 구성원 개인 설정보다 우선 적용된다. 메신저 첨부파일은 보관 기간을 설정할 수 있으며(Business 플랜 이상), 내부 발송 메일에는 기밀 설정으로 일정 기간 후 자동 삭제를 걸 수 있다. 반면 업무·위키·메신저 대화 본문 등 원본 데이터 전체에 대한 보존기간 설정·단축 기능은 공식 문서에서 확인되지 않았다.",
+    "control_availability": "builtin",
+    "plan_note": "드라이브 휴지통: Free 5일 고정, 유료 플랜 5/10/15/30일 선택. 메신저 첨부파일 보관 기간: Business 플랜 이상. 본문 데이터 보존기간 설정은 미확인",
+    "source_url": "https://helpdesk.dooray.com/share/pages/9wWo-xwiR66BO5LGshgVTg/2896232119805738090",
+    "source_quote": "조직별로 개인/프로젝트 드라이브 휴지통의 파일을 일정 기간 후 자동으로 영구 삭제하도록 설정하는 기능입니다. 영구 삭제 이후 복구할 수 없습니다. Free 플랜은 5일로 고정되며, 유료 플랜은 5일, 10일, 15일, 30일 중 선택할 수 있습니다.",
+    "confidence": "medium"
+   }
+  ]
+ }
+];
+
+/* ================= 상수 ================= */
+const SAAS_LIST = [
+  { key: 'm365',   name: 'Microsoft 365', cat: 'DOCS / MEET / COPILOT' },
+  { key: 'slack',  name: 'Slack',         cat: 'MESSENGER' },
+  { key: 'notion', name: 'Notion',        cat: 'DOCS / WIKI' },
+  { key: 'zoom',   name: 'Zoom',          cat: 'MEETING' },
+  { key: 'dooray', name: 'NHN 두레이',     cat: 'ALL-IN-ONE' },
+];
+const USAGES = [
+  { key: 'doc',   t: '사내 문서 작성·관리', d: '보고서, 회의록, 사내 위키' },
+  { key: 'chat',  t: '사내 메신저·협업',   d: '부서 간 커뮤니케이션, 파일 공유' },
+  { key: 'meet',  t: '화상회의',           d: '내부 회의, 외부 협력사 회의' },
+  { key: 'pm',    t: '프로젝트·업무 관리',  d: '일정, 업무 배분, 진행 관리' },
+];
+const DATA_NATURE = [
+  { key: 'none',    grade: 0, t: '고객 정보가 업무상 등장하지 않음', d: '순수 내부 업무. 인사·총무·개발 등 고객 접점 없는 부서' },
+  { key: 'id_only', grade: 1, t: '고객 식별정보가 단독으로 등장할 수 있음', d: '이름·연락처 수준이고 거래·신용 내용과 결합되지 않음. 신용정보법상 식별정보는 다른 신용정보와 결합될 때에만 신용정보' },
+  { key: 'combined',grade: 2, t: '고객 식별정보가 거래·상담 내용과 결합될 수 있음', d: '예: 회의록에 적힌 "OOO 고객 대출 연체 건". 결합되면 개인신용정보에 해당' },
+  { key: 'unique',  grade: 3, t: '주민등록번호 등 고유식별정보가 유입될 수 있음', d: '고유식별정보는 결합 여부와 무관하게 그 자체로 요건 저촉' },
+  { key: 'intent',  grade: 4, t: '고객 정보를 다루는 것이 이 업무의 목적임', d: '고객 DB 관리, 고객 상담 기록 등. 처리하지 않는 "이용 목적"이라 볼 수 없음' },
+];
+
+/* ================= 상태 ================= */
+const state = {
+  step: 0, saas: null, usage: null, nature: null,
+  l1use: null,
+  applied: {},
+  comp: {},
+};
+const STEPS = ['대상 선택', '데이터 성격', 'L1 시스템 필드', 'L2 자유 입력', 'L3 부수 생성', '판정'];
+
+/* ================= 유틸 ================= */
+const $ = sel => document.querySelector(sel);
+function entriesFor(saasKey) {
+  const s = SAAS_LIST.find(x => x.key === saasKey);
+  if (!s) return [];
+  const pack = EVIDENCE.find(e => e.saas.toLowerCase().includes(s.key === 'dooray' ? 'dooray' : s.key === 'm365' ? 'microsoft' : s.key));
+  return pack ? pack.entries.map((e, i) => ({ ...e, _i: i })) : [];
+}
+const AV_LABEL = { builtin: '[기본 제공]', higher_tier: '[상위 요금제]', third_party: '[서드파티]', none: '[미제공]', unclear: '[미확인]' };
+const AV_PLAIN = { builtin: '기본 제공', higher_tier: '상위 요금제', third_party: '서드파티', none: '미제공', unclear: '미확인' };
+
+function eviCard(e, withApply) {
+  const conf = e.confidence === 'low' ? '<span class="conftag">[확신도 낮음: 원문 확인 필요]</span>' : '';
+  const plan = e.plan_note && e.plan_note !== '-' ? `<div class="plan">요금제 조건: ${e.plan_note}</div>` : '';
+  let apply = '';
+  if (withApply) {
+    if (e.control_availability === 'builtin' || e.control_availability === 'higher_tier' || e.control_availability === 'third_party') {
+      apply = `<label class="applychk"><input type="checkbox" data-apply="${e._i}" ${state.applied[e._i] ? 'checked' : ''}>
+        <span>이 통제를 도입 시 적용한다. 적용 계획이 검토서에 기록된다.</span></label>`;
+    } else {
+      apply = `<label class="applychk"><input type="checkbox" data-comp="${e._i}" ${state.comp[e._i] ? 'checked' : ''}>
+        <span>이 SaaS에는 해당 통제가 ${e.control_availability === 'none' ? '없다' : '확인되지 않았다'}. 단말·네트워크 등 <b>보완통제를 별도 수립</b>한다(해설서: 기능이 없는 경우 보완 보안대책 적용).</span></label>`;
+    }
+  }
+  return `<div class="evi">
+    <div class="head"><span class="feat">${e.feature}</span>
+      <span class="avtag ${e.control_availability}">${AV_LABEL[e.control_availability]}</span>${conf}</div>
+    <div class="ctrl">${e.control}</div>
+    ${e.source_quote ? `<div class="quote">"${e.source_quote}"</div>` : ''}
+    ${plan}
+    <div class="meta">출처 <a href="${e.source_url}" target="_blank" rel="noopener">${e.source_url}</a></div>
+    ${apply}
+  </div>`;
+}
+
+/* ================= 판정 로직 (결정적) ================= */
+function judge() {
+  const risks = [], oks = [];
+  const ent = entriesFor(state.saas);
+  const nature = DATA_NATURE.find(n => n.key === state.nature);
+
+  if (nature.key === 'intent')
+    return { grade: 'bad', title: '예외 적용 불가', risks: [{lv:'r', t:'고객 정보를 다루는 것이 업무 목적 자체다. 제2조의3 제1항 제3호의 "처리하지 않는 이용 목적"에 해당하지 않는다. 혁신금융서비스(규제 샌드박스) 경로 또는 업무 범위 재설계가 필요하다.'}], oks };
+  if (state.l1use === 'yes')
+    return { grade: 'bad', title: '예외 적용 불가', risks: [{lv:'r', t:'고객 정보를 필드 단위로 다루는 기능(연락처 DB, CRM성 기능) 사용 계획. 구조화된 저장·검색·출력으로서 명백한 처리에 해당한다. 해당 기능을 쓰지 않는 범위로 용도를 좁히면 재검토할 수 있다.'}], oks };
+
+  if (nature.key === 'none') {
+    oks.push({lv:'g', t:'업무상 고객 정보 유입 가능성 없음. 요건 저촉 소지가 낮다. 다만 업무 범위 변경 시 재검토가 필요하다(검토서에 용도 한정 명시).'});
+  }
+  if (nature.key === 'id_only') {
+    oks.push({lv:'g', t:'식별정보 단독은 신용정보법상 다른 신용정보와 결합될 때에만 개인신용정보다. 현재 용도는 저촉 소지가 낮다. 결합 발생 가능성을 입력 제한 기준에 명시할 것.'});
+  }
+  if (nature.key === 'unique') {
+    risks.push({lv:'w', t:'고유식별정보 유입 가능성. 결합 여부와 무관하게 그 자체로 요건 저촉이므로 입력 차단 통제가 필수이며, 미차단 상태 발견 시 즉시 삭제·보고 절차가 필요하다.'});
+  }
+
+  const must = nature.grade >= 2;
+  const l2 = ent.filter(e => e.layer === 'L2' && e.exists !== 'no');
+  const l3 = ent.filter(e => e.layer === 'L3' && e.exists !== 'no');
+  [...l2, ...l3].forEach(e => {
+    const applied = state.applied[e._i], comp = state.comp[e._i];
+    const has = e.control_availability === 'builtin' || e.control_availability === 'higher_tier' || e.control_availability === 'third_party';
+    if (has && applied) oks.push({lv:'g', t:`${e.feature}: 통제 적용 계획 확인(${AV_PLAIN[e.control_availability]}${e.plan_note && e.plan_note !== '-' ? ', ' + e.plan_note : ''})`});
+    else if (!has && comp) risks.push({lv:'w', t:`${e.feature}: 네이티브 통제 ${e.control_availability === 'none' ? '미제공' : '미확인'}. 보완통제 수립을 전제로 한 조건부 항목이다. 보완통제 내용을 검토서에 구체화하고 반기 자체평가에서 이행을 점검한다.`});
+    else if (must) risks.push({lv:'r', t:`${e.feature}: 통제 미적용 상태. 고객 정보 유입 가능성이 있는 용도에서 이 접점이 열려 있다(해설서 6장: 입력 제한·필터링 및 입력 점검 요구).`});
+    else risks.push({lv:'w', t:`${e.feature}: 통제 미적용. 현재 용도는 유입 가능성이 낮으나 적용을 권고한다.`});
+  });
+
+  const hardRisks = risks.filter(r => r.lv === 'r').length;
+  const warns = risks.filter(r => r.lv === 'w').length;
+  if (hardRisks > 0) return { grade: 'cond', title: '조건 미충족, 통제 보완 후 재검토', risks, oks };
+  if (warns > 0) return { grade: 'cond', title: '조건부 적합', risks, oks };
+  return { grade: 'ok', title: '예외 요건 충족 가능', risks, oks };
+}
+
+/* ================= 렌더 ================= */
+function render() {
+  $('#rail').innerHTML = STEPS.map((s, i) =>
+    `<div class="item ${i === state.step ? 'on' : i < state.step ? 'done' : ''}">
+      <span class="no">${String(i + 1).padStart(2, '0')}</span><span>${s}</span></div>`).join('');
+  const app = $('#app');
+  const ent = entriesFor(state.saas);
+
+  if (state.step === 0) {
+    app.innerHTML = `<div class="panel">
+      <h2 class="q">어떤 SaaS를, 어떤 업무에 도입하려 하는가</h2>
+      <p class="qsub">데모에는 금융권 도입이 확인된 SaaS(M365, 두레이)와 도입 검토가 잦은 대표 SaaS를 합쳐 5종의 근거 데이터가 사전 인덱싱되어 있다.</p>
+      <div class="saasgrid">${SAAS_LIST.map(s =>
+        `<div class="saascell ${state.saas === s.key ? 'sel' : ''}" data-saas="${s.key}">
+          <div class="nm">${s.name}</div><div class="ct">${s.cat}</div></div>`).join('')}</div>
+      <div class="opts">${USAGES.map(u =>
+        `<div class="opt ${state.usage === u.key ? 'sel' : ''}" data-usage="${u.key}">
+          <span class="mark"></span><span><span class="t">${u.t}</span><div class="d">${u.d}</div></span></div>`).join('')}</div>
+      <div class="nav"><span></span><button class="primary" id="next" ${state.saas && state.usage ? '' : 'disabled'}>다음</button></div>
+    </div>`;
+  }
+
+  if (state.step === 1) {
+    app.innerHTML = `<div class="panel">
+      <div class="kicker">근거: 시행세칙 제2조의3 제1항 제3호, 신용정보법 제2조(결합 요건), 개인정보보호법 제24조(고유식별정보)</div>
+      <h2 class="q">이 업무에서 SaaS에 들어갈 수 있는 고객 정보의 성격은?</h2>
+      <p class="qsub">조문의 요건은 "이용자의" 고유식별정보·개인신용정보다. 임직원 정보는 조문 문언상 이 요건의 대상이 아니다. 단, 해설서는 표현이 달라 보수적 검토를 권고하며 이 내용은 검토서에 자동 기재된다.</p>
+      <div class="opts">${DATA_NATURE.map(n =>
+        `<div class="opt ${state.nature === n.key ? 'sel' : ''}" data-nature="${n.key}">
+          <span class="mark"></span><span><span class="t">${n.t}</span><div class="d">${n.d}</div></span></div>`).join('')}</div>
+      <div class="nav"><button class="ghost" id="back">이전</button><button class="primary" id="next" ${state.nature ? '' : 'disabled'}>다음</button></div>
+    </div>`;
+  }
+
+  if (state.step === 2) {
+    const l1 = ent.filter(e => e.layer === 'L1');
+    app.innerHTML = `<div class="panel">
+      <div class="kicker">1층 시스템 필드: SaaS가 정해진 항목으로 다루도록 설계된 데이터</div>
+      <h2 class="q">고객 정보를 필드 단위로 관리하는 기능을 사용할 계획인가?</h2>
+      <p class="qsub">연락처 DB, CRM성 데이터베이스, 외부인 대상 폼 수집 등. 이 SaaS의 해당 기능 존재 여부는 아래 근거로 확인한다.</p>
+      ${l1.length ? l1.map(e => eviCard(e, false)).join('') : '<p class="qsub">이 SaaS의 L1 근거 데이터 없음. 직접 확인이 필요하다.</p>'}
+      <div class="opts" style="margin-top:26px">
+        <div class="opt ${state.l1use === 'no' ? 'sel' : ''}" data-l1="no"><span class="mark"></span>
+          <span><span class="t">사용하지 않는다</span><div class="d">해당 기능을 쓰지 않는 범위로 용도를 한정한다. 한정 조건이 검토서에 기재된다</div></span></div>
+        <div class="opt ${state.l1use === 'yes' ? 'sel' : ''}" data-l1="yes"><span class="mark"></span>
+          <span><span class="t">사용한다</span><div class="d">고객 정보를 구조화해 저장·검색하게 된다. 명백한 처리</div></span></div>
+      </div>
+      <div class="nav"><button class="ghost" id="back">이전</button><button class="primary" id="next" ${state.l1use ? '' : 'disabled'}>다음</button></div>
+    </div>`;
+  }
+
+  if (state.step === 3) {
+    const l2 = ent.filter(e => e.layer === 'L2' && e.exists !== 'no');
+    app.innerHTML = `<div class="panel">
+      <div class="kicker">2층 사용자 자유 입력. 해설서 6장: "입력 제한 데이터를 명확화하여 기준을 마련하고 데이터 입력 시 사전에 필터 적용"</div>
+      <h2 class="q">자유 입력 경로의 차단 수단</h2>
+      <p class="qsub">문서·채팅·회의 본문에 고객 정보가 들어가는 것을 막는 수단이다. 근거를 확인하고 적용 여부를 결정한다.</p>
+      ${l2.length ? l2.map(e => eviCard(e, true)).join('') : '<p class="qsub">이 SaaS의 L2 근거 데이터 없음. 직접 확인이 필요하다.</p>'}
+      <div class="nav"><button class="ghost" id="back">이전</button><button class="primary" id="next">다음</button></div>
+    </div>`;
+  }
+
+  if (state.step === 4) {
+    const l3 = ent.filter(e => e.layer === 'L3' && e.exists !== 'no');
+    app.innerHTML = `<div class="panel">
+      <div class="kicker">3층 시스템 부수 생성: 검색 색인, 자동 녹취, AI 학습, 보존 사본</div>
+      <h2 class="q">사용자가 넣지 않아도 SaaS가 만들어내는 데이터</h2>
+      <p class="qsub">고객 정보가 유입되면 이 경로들을 따라 복제·확산된다. 각 경로의 차단·설정 가능 여부를 확인한다.</p>
+      ${l3.length ? l3.map(e => eviCard(e, true)).join('') : '<p class="qsub">이 SaaS의 L3 근거 데이터 없음. 직접 확인이 필요하다.</p>'}
+      <div class="nav"><button class="ghost" id="back">이전</button><button class="primary" id="next">판정</button></div>
+    </div>`;
+  }
+
+  if (state.step === 5) {
+    const v = judge();
+    const cls = v.grade === 'ok' ? 'ok' : v.grade === 'cond' ? 'cond' : 'bad';
+    app.innerHTML = `<div class="panel">
+      <div class="verdict ${cls}">
+        <div class="lbl">판정 결과</div>
+        <div class="word">${v.title}</div>
+        <p class="why">판정은 입력된 답변만으로 결정 트리가 산출했다. 같은 입력이면 언제나 같은 결과가 나온다. 아래 내용이 검토서에 그대로 기록된다.</p>
+      </div>
+      <div class="findings">
+        ${v.risks.map(r => `<div class="finding ${r.lv}"><span class="ic">${r.lv === 'r' ? '×' : '!'}</span><span>${r.t}</span></div>`).join('')}
+        ${v.oks.map(r => `<div class="finding g"><span class="ic">○</span><span>${r.t}</span></div>`).join('')}
+      </div>
+      <div class="nav">
+        <button class="ghost" id="back">이전</button>
+        <div class="r">
+          <button id="restart">처음부터</button>
+          <button class="primary" id="print">검토서 생성</button>
+        </div>
+      </div>
+    </div>`;
+    buildReport(v);
+  }
+
+  bind();
+}
+
+/* ================= 검토서 ================= */
+function buildReport(v) {
+  const s = SAAS_LIST.find(x => x.key === state.saas);
+  const u = USAGES.find(x => x.key === state.usage);
+  const n = DATA_NATURE.find(x => x.key === state.nature);
+  const ent = entriesFor(state.saas);
+  const today = new Date();
+  const dstr = `${today.getFullYear()}. ${today.getMonth()+1}. ${today.getDate()}.`;
+  const ctrls = ent.filter(e => (e.layer === 'L2' || e.layer === 'L3') && e.exists !== 'no').map(e => {
+    const st = state.applied[e._i] ? '적용 예정' : state.comp[e._i] ? '보완통제 수립 예정' : '미적용';
+    return `<tr><td>${e.layer === 'L2' ? '2층 자유 입력' : '3층 부수 생성'}</td><td>${e.feature}</td>
+      <td>${e.control} <span style="color:#777">(${AV_PLAIN[e.control_availability]}${e.plan_note && e.plan_note !== '-' ? ', ' + e.plan_note : ''})</span></td>
+      <td>${st}</td><td style="font-size:8pt">${e.source_url}</td></tr>`;
+  }).join('');
+
+  $('#report').innerHTML = `
+    <h1>내부업무망 SaaS 망분리 예외요건 검토서 <span style="font-size:9pt;color:#777">(데모 문서번호 DEMO-${today.getFullYear()}-001)</span></h1>
+    <table>
+      <tr><th style="width:18%">검토 대상</th><td>${s.name}</td><th style="width:18%">사용 업무</th><td>${u.t}</td></tr>
+      <tr><th>검토 일자</th><td>${dstr}</td><th>판정 결과</th><td><b>${v.title}</b></td></tr>
+    </table>
+    <h2>1. 검토 근거 조문</h2>
+    <div class="lawq">전자금융감독규정 시행세칙 제2조의3 제1항 제3호: "이용자의 고유식별정보 또는 개인신용정보를 처리하지 않는 「클라우드컴퓨팅 발전 및 이용자 보호에 관한 법률 시행령」 제3조제2호에 따른 '응용프로그램 등 소프트웨어를 제공하는 서비스' 이용 목적의 경우" (2026. 4. 20. 신설)</div>
+    <div class="lawq">동 세칙 제2조의3 제4항: 별표 7 망분리 대체 정보보호통제의 이행 여부를 반기에 1회 평가하고 정보보호위원회에 보고할 것</div>
+    <h2>2. 전제 조건 확인</h2>
+    <table><tr><th style="width:70%">항목</th><th>확인</th></tr>
+      <tr><td>침해사고대응기관(금융보안원) CSP 안전성 평가 '충족'. SaaS 제공자 평가 현황 목록 대조</td><td><span class="cb"></span>확인 필요</td></tr>
+      <tr><td>자체 위험성 평가 실시 및 정보보호위원회 승인 (제2조의3 제3항)</td><td><span class="cb"></span>별도 진행</td></tr></table>
+    <h2>3. 유입 데이터 성격 판단</h2>
+    <p>선택된 판단: <b>${n.t}</b>. ${n.d}</p>
+    <p style="font-size:9pt;color:#555">참고: 조문은 "이용자의" 고유식별정보·개인신용정보로 한정하나, 금융보안원 해설서는 한정어 없이 "고유식별정보 및 개인신용정보 처리 불가"로 기재하고 가명정보를 포함한다(조문·해설 문언 불일치). 보수적 관점에서 임직원 고유식별정보와 가명정보도 입력 제한 기준에 포함할 것을 권고한다.</p>
+    <h2>4. 층위별 통제 확인</h2>
+    <p>1층(시스템 필드): 고객정보 필드형 기능 ${state.l1use === 'yes' ? '<b>사용. 요건 저촉</b>' : '미사용. 용도를 해당 기능 제외 범위로 한정'}</p>
+    <table><tr><th>층위</th><th>접점</th><th>통제 수단 (제공 형태)</th><th>적용 상태</th><th>근거 출처</th></tr>${ctrls}</table>
+    <h2>5. 판정 결과 및 미해소 위험</h2>
+    ${v.risks.map(r => `<p>· ${r.t}</p>`).join('')}
+    ${v.oks.map(r => `<p style="color:#176e4b">· ${r.t}</p>`).join('')}
+    <h2>6. 후속 조치</h2>
+    <p>· 본 검토서를 도입 품의에 첨부하고, 미해소 위험 항목은 반기 자체평가(제2조의3 제4항)의 점검 항목으로 이관한다.</p>
+    <p>· 해설서 6장에 따라 입력 제한 데이터 기준을 내규로 명확화하고, SaaS 이용 로그를 주기적으로 점검한다.</p>
+    <div class="sig">
+      <div class="box"><div class="line"></div>검토자</div>
+      <div class="box"><div class="line"></div>정보보호최고책임자(CISO)</div>
+    </div>
+    <div class="notice">본 검토서는 데모 도구가 생성한 초안이다. 근거 데이터는 ${today.getFullYear()}년 8월 공개 문서 조사 기준이며 요금제와 기능은 변경될 수 있다. 본 도구는 법적 판단을 대행하지 않으며, 최종 판단과 책임은 검토자와 소속 기관에 있다.</div>`;
+}
+
+/* ================= 이벤트 ================= */
+function bind() {
+  document.querySelectorAll('[data-saas]').forEach(el => el.onclick = () => { state.saas = el.dataset.saas; render(); });
+  document.querySelectorAll('[data-usage]').forEach(el => el.onclick = () => { state.usage = el.dataset.usage; render(); });
+  document.querySelectorAll('[data-nature]').forEach(el => el.onclick = () => { state.nature = el.dataset.nature; render(); });
+  document.querySelectorAll('[data-l1]').forEach(el => el.onclick = () => { state.l1use = el.dataset.l1; render(); });
+  document.querySelectorAll('[data-apply]').forEach(el => el.onchange = () => { state.applied[el.dataset.apply] = el.checked; });
+  document.querySelectorAll('[data-comp]').forEach(el => el.onchange = () => { state.comp[el.dataset.comp] = el.checked; });
+  const next = $('#next'), back = $('#back'), print = $('#print'), restart = $('#restart');
+  if (next) next.onclick = () => {
+    if (state.step === 1 && state.nature === 'intent') { state.step = 5; render(); window.scrollTo(0, 0); return; }
+    if (state.step === 2 && state.l1use === 'yes') { state.step = 5; render(); window.scrollTo(0, 0); return; }
+    state.step++; render(); window.scrollTo(0, 0);
+  };
+  if (back) back.onclick = () => { state.step--; render(); window.scrollTo(0, 0); };
+  if (print) print.onclick = () => window.print();
+  if (restart) restart.onclick = () => { Object.assign(state, { step: 0, saas: null, usage: null, nature: null, l1use: null, applied: {}, comp: {} }); render(); window.scrollTo(0, 0); };
+}
+render();
+</script>
+</body>
+</html>
