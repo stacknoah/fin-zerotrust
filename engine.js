@@ -216,17 +216,21 @@
 
   /*
    * 기본 모델 선택 근거
-   *   qwen3:4b-instruct-2507  Apache 2.0. 상업 이용 제약 없음.
-   *                           비사고(non-thinking) 전용 태그라 JSON 강제와 충돌하지 않는다.
-   *   비교군(연구 목적)        exaone3.5:2.4b  한국어 특화지만 라이선스가 비상업(NC)이라
-   *                           제품 기본값으로는 쓸 수 없다. 측정·논문 비교에만 사용.
-   *                           gemma3:4b       Gemma Terms of Use(Apache 아님). 배포 시 법무 확인 필요.
+   *   Mi:dm 2.0 Mini (KT)   MIT 라이선스. 상업 이용 제약 없음.
+   *                         한국어 중심 학습 모델이라 결합 판단에 유리하다.
+   *                         2.3B 온디바이스 지향이라 GPU 없이도 실용 속도.
+   *                         2025 금융 AI Challenge 최우수상 팀이 쓴 계열이기도 하다.
+   *   비교군                 qwen3:4b-instruct-2507  Apache 2.0, 범용 다국어 기준선
+   *                         exaone3.5:2.4b          한국어 특화이나 비상업(NC) 라이선스라
+   *                                                 연구·측정 목적에 한정
+   *                         gemma3:4b               Gemma Terms of Use, 배포 시 법무 확인 필요
+   *
    * 주의: 브라우저에서 file://로 열면 Ollama가 요청을 막을 수 있다.
    *       OLLAMA_ORIGINS="*" ollama serve 로 띄우거나 로컬 서버로 데모를 열 것.
    */
   const DEFAULT_LLM = {
     endpoint: 'http://localhost:11434',
-    model: 'qwen3:4b-instruct-2507-q4_K_M',
+    model: 'hf.co/mykor/Midm-2.0-Mini-Instruct-gguf:Q4_K_M',
     timeoutMs: 30000,
   };
 

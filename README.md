@@ -43,7 +43,7 @@ node eval/run.js --docs 30
 |---|---|---|---|
 | 규칙층만 | 100.0% | 42.9% | 60.0% |
 | 규칙 + 휴리스틱 | 100.0% | 59.5% | 74.6% |
-| 규칙 + 로컬 LLM | 측정 대기 | | |
+| 규칙 + 로컬 LLM (Mi:dm 2.0 Mini) | 측정 대기 | | |
 
 케이스 유형별 재현율에서 이 프로젝트의 핵심 근거가 나온다.
 
@@ -62,7 +62,7 @@ node eval/run.js --docs 30
 ```bash
 brew install ollama
 OLLAMA_ORIGINS="*" ollama serve          # 브라우저 데모에서 호출하려면 origin 허용 필요
-ollama pull qwen3:4b-instruct-2507-q4_K_M
+ollama pull hf.co/mykor/Midm-2.0-Mini-Instruct-gguf:Q4_K_M
 ```
 
 모델이 뜬 상태에서 `index.html`을 새로고침하면 검증 데모에 LLM 모드가 열린다. 측정은 이렇게 돌린다.
@@ -71,10 +71,19 @@ ollama pull qwen3:4b-instruct-2507-q4_K_M
 node eval/run.js --llm --docs 30
 ```
 
-기본 모델은 `qwen3:4b-instruct-2507`이다. Apache 2.0이라 상업 이용에 제약이 없고, 비사고(non-thinking) 전용 태그라 JSON 강제와 충돌하지 않는다. 비교군으로 `exaone3.5:2.4b`(한국어 특화이나 라이선스가 비상업이라 연구·측정 목적으로만)와 `gemma3:4b`(Gemma Terms of Use, 배포 시 법무 확인 필요)를 둔다.
+기본 모델은 KT의 **Mi:dm 2.0 Mini (2.3B)**다. MIT 라이선스라 상업 이용에 제약이 없고, 한국어 중심으로 학습돼 결합 판단 같은 한국어 문맥 과제에 유리하다. 온디바이스 지향 모델이라 GPU 없이도 실용 속도가 나온다.
+
+| 모델 | 라이선스 | 상업 이용 | 역할 |
+|---|---|---|---|
+| Mi:dm 2.0 Mini (KT) | MIT | 가능 | 기본값 |
+| Qwen3-4B-Instruct-2507 | Apache 2.0 | 가능 | 범용 다국어 기준선 |
+| EXAONE 3.5 2.4B (LG) | EXAONE License (NC) | 불가 | 한국어 비교군, 연구·측정 한정 |
+| Gemma 3 4B | Gemma Terms of Use | 조건부 | 비교군 |
+
+대회 출품과 논문은 상업적 이용이 아니라서 EXAONE의 비상업 조항이 막지 않는다. 막는 것은 제품화 국면이다. Mi:dm은 MIT라 그 구분 자체가 필요 없다.
 
 ```bash
-node eval/run.js --llm --model exaone3.5:2.4b --docs 30
+node eval/run.js --llm --model qwen3:4b-instruct-2507-q4_K_M --docs 30
 ```
 
 ## 측정 방법: 생성이 곧 라벨

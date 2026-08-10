@@ -24,7 +24,7 @@ function arg(name, def) {
   return i >= 0 && argv[i + 1] && !argv[i + 1].startsWith('--') ? argv[i + 1] : def;
 }
 const useLLM = argv.includes('--llm');
-const MODEL = arg('model', 'qwen3:4b-instruct-2507-q4_K_M');
+const MODEL = arg('model', 'hf.co/mykor/Midm-2.0-Mini-Instruct-gguf:Q4_K_M');
 const ENDPOINT = arg('endpoint', 'http://localhost:11434');
 const DOCS = Number(arg('docs', 30));
 const SEED = Number(arg('seed', 20260810));
