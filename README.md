@@ -43,7 +43,7 @@ node eval/run.js --docs 30
 |---|---|---|---|
 | 규칙층만 | 100.0% | 42.9% | 60.0% |
 | 규칙 + 휴리스틱 | 100.0% | 59.5% | 74.6% |
-| 규칙 + 로컬 LLM (Mi:dm 2.0 Mini) | 측정 대기 | | |
+| 규칙 + 로컬 LLM (Mi:dm 2.0 Base) | 측정 대기 | | |
 
 케이스 유형별 재현율에서 이 프로젝트의 핵심 근거가 나온다.
 
@@ -62,7 +62,7 @@ node eval/run.js --docs 30
 ```bash
 brew install ollama
 OLLAMA_ORIGINS="*" ollama serve          # 브라우저 데모에서 호출하려면 origin 허용 필요
-ollama pull hf.co/mykor/Midm-2.0-Mini-Instruct-gguf:Q4_K_M
+ollama pull hf.co/mykor/Midm-2.0-Base-Instruct-gguf:Q4_K_M
 ```
 
 모델이 뜬 상태에서 `index.html`을 새로고침하면 검증 데모에 LLM 모드가 열린다. 측정은 이렇게 돌린다.
@@ -71,11 +71,14 @@ ollama pull hf.co/mykor/Midm-2.0-Mini-Instruct-gguf:Q4_K_M
 node eval/run.js --llm --docs 30
 ```
 
-기본 모델은 KT의 **Mi:dm 2.0 Mini (2.3B)**다. MIT 라이선스라 상업 이용에 제약이 없고, 한국어 중심으로 학습돼 결합 판단 같은 한국어 문맥 과제에 유리하다. 온디바이스 지향 모델이라 GPU 없이도 실용 속도가 나온다.
+기본 모델은 KT의 **Mi:dm 2.0 Base (11.5B)**다. MIT 라이선스라 국내 모델 중 상업 이용 제약이 가장 적고, 한국어 중심으로 학습돼 결합 판단 같은 한국어 문맥 과제에 유리하다. Q4_K_M 기준 7.03GB로 통합 메모리 16GB 이상이면 실용적으로 돌아간다.
+
+금융사 단말에 직접 배포하는 시나리오에서는 같은 계열의 **Mi:dm 2.0 Mini (2.3B, 1.43GB)**를 쓴다. 두 크기의 성능 차이는 측정 하네스로 잰다.
 
 | 모델 | 라이선스 | 상업 이용 | 역할 |
 |---|---|---|---|
-| Mi:dm 2.0 Mini (KT) | MIT | 가능 | 기본값 |
+| Mi:dm 2.0 Base (KT, 11.5B) | MIT | 가능 | 기본값 |
+| Mi:dm 2.0 Mini (KT, 2.3B) | MIT | 가능 | 온디바이스 배포 시나리오 |
 | Qwen3-4B-Instruct-2507 | Apache 2.0 | 가능 | 범용 다국어 기준선 |
 | EXAONE 3.5 2.4B (LG) | EXAONE License (NC) | 불가 | 한국어 비교군, 연구·측정 한정 |
 | Gemma 3 4B | Gemma Terms of Use | 조건부 | 비교군 |

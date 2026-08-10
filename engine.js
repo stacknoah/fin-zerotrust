@@ -216,10 +216,12 @@
 
   /*
    * 기본 모델 선택 근거
-   *   Mi:dm 2.0 Mini (KT)   MIT 라이선스. 상업 이용 제약 없음.
-   *                         한국어 중심 학습 모델이라 결합 판단에 유리하다.
-   *                         2.3B 온디바이스 지향이라 GPU 없이도 실용 속도.
+   *   Mi:dm 2.0 Base (KT)   MIT 라이선스. 국내 모델 중 라이선스가 가장 깨끗하다.
+   *                         11.5B, Q4_K_M 기준 7.03GB. 통합 메모리 16GB 이상에서 실용적.
+   *                         한국어 중심 학습이라 결합 판단에 유리하다.
    *                         2025 금융 AI Challenge 최우수상 팀이 쓴 계열이기도 하다.
+   *   온디바이스 대안         hf.co/mykor/Midm-2.0-Mini-Instruct-gguf:Q4_K_M (2.3B, 1.43GB)
+   *                         금융사 단말 배포 시나리오용. 성능 차이는 eval/로 측정한다.
    *   비교군                 qwen3:4b-instruct-2507  Apache 2.0, 범용 다국어 기준선
    *                         exaone3.5:2.4b          한국어 특화이나 비상업(NC) 라이선스라
    *                                                 연구·측정 목적에 한정
@@ -230,7 +232,7 @@
    */
   const DEFAULT_LLM = {
     endpoint: 'http://localhost:11434',
-    model: 'hf.co/mykor/Midm-2.0-Mini-Instruct-gguf:Q4_K_M',
+    model: 'hf.co/mykor/Midm-2.0-Base-Instruct-gguf:Q4_K_M',
     timeoutMs: 30000,
   };
 
