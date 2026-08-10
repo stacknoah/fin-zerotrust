@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>예외요건 판정 워크벤치</title>
+<title>결계 — 내부업무망 SaaS 예외요건 판정·검증</title>
 <style>
   :root {
     --paper: #fcfcfa;
@@ -213,6 +213,40 @@
     font-size: 11.5px; color: var(--faint); line-height: 1.8;
   }
 
+  /* 회사 프로필 */
+  .profrow {
+    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+    margin-bottom: 30px; font-size: 13px;
+  }
+  .profrow .pl { font-family: var(--mono); font-size: 11px; color: var(--faint); margin-right: 4px; }
+  .profrow select {
+    font-family: inherit; font-size: 13px; padding: 7px 10px;
+    border: 1px solid var(--rule); background: #fff; color: var(--ink); border-radius: 0;
+  }
+  /* 조치 제안 */
+  .finding .act { color: var(--accent); font-size: 12.5px; margin-top: 4px; }
+  /* 검증 데모 (모의 편집기) */
+  .detector { margin-top: 44px; border-top: 3px solid var(--rule-dark); padding-top: 24px; }
+  .detector h3 { font-size: 16px; font-weight: 800; margin: 0 0 6px; }
+  .detector .note { font-size: 12.5px; color: var(--sub); margin: 0 0 14px; max-width: 66ch; }
+  .detector textarea {
+    width: 100%; min-height: 120px; resize: vertical;
+    font-family: inherit; font-size: 14px; line-height: 1.7; color: var(--ink);
+    border: 1px solid var(--rule-dark); background: #fff; padding: 14px; border-radius: 0;
+  }
+  .detector textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  .det-out { margin-top: 10px; }
+  .det-hit {
+    display: flex; gap: 12px; padding: 10px 2px; border-bottom: 1px solid var(--rule);
+    font-size: 13px; align-items: baseline;
+  }
+  .det-hit .tag { font-family: var(--mono); font-size: 10.5px; white-space: nowrap; font-weight: 700; }
+  .det-hit.viol .tag { color: var(--bad); }
+  .det-hit.warn .tag { color: var(--warn); }
+  .det-hit.info .tag { color: var(--faint); }
+  .det-hit .span { font-family: var(--mono); font-size: 12px; background: #f4f4f1; padding: 1px 6px; }
+  .det-empty { font-size: 12.5px; color: var(--faint); padding: 10px 2px; }
+
   /* ---------- 검토서 (인쇄 전용) ---------- */
   #report { display: none; }
   @media print {
@@ -239,7 +273,7 @@
 
 <header class="top">
   <div class="in">
-    <div class="wordmark">예외요건 판정 워크벤치<span class="tag">데모</span></div>
+    <div class="wordmark">결계<span style="font-weight:500;color:var(--faint);font-size:12px;margin-left:8px">GYEOLGYE · WARD</span><span class="tag">데모</span></div>
     <div class="statute">전자금융감독규정 시행세칙 제2조의3 제1항 제3호</div>
   </div>
 </header>
@@ -648,6 +682,7 @@ const state = {
   l1use: null,
   applied: {},
   comp: {},
+  profile: { sector: 'mid', e5: 'unknown' },
 };
 const STEPS = ['대상 선택', '데이터 성격', 'L1 시스템 필드', 'L2 자유 입력', 'L3 부수 생성', '판정'];
 
@@ -672,7 +707,7 @@ function eviCard(e, withApply) {
         <span>이 통제를 도입 시 적용한다. 적용 계획이 검토서에 기록된다.</span></label>`;
     } else {
       apply = `<label class="applychk"><input type="checkbox" data-comp="${e._i}" ${state.comp[e._i] ? 'checked' : ''}>
-        <span>이 SaaS에는 해당 통제가 ${e.control_availability === 'none' ? '없다' : '확인되지 않았다'}. 단말·네트워크 등 <b>보완통제를 별도 수립</b>한다(해설서: 기능이 없는 경우 보완 보안대책 적용).</span></label>`;
+        <span>이 SaaS에는 해당 통제가 ${e.control_availability === 'none' ? '없다' : '확인되지 않았다'}. <b>결계 검증 도구(로컬 결합 탐지) 등 보완통제를 적용</b>한다(해설서: 기능이 없는 경우 보완 보안대책 적용).</span></label>`;
     }
   }
   return `<div class="evi">
@@ -710,13 +745,19 @@ function judge() {
   const must = nature.grade >= 2;
   const l2 = ent.filter(e => e.layer === 'L2' && e.exists !== 'no');
   const l3 = ent.filter(e => e.layer === 'L3' && e.exists !== 'no');
+  const actionFor = (e, has) => {
+    if (!has) return '결계 검증 도구(로컬 결합 탐지)를 이 접점의 보완통제로 지정하고, 탐지 로그를 반기 자체평가 증적으로 수집';
+    if (e.control_availability === 'higher_tier' && state.profile.e5 === 'no') return '상위 요금제 미보유. 요금제 증설 전까지 결계 검증 도구 또는 단말 DLP를 보완통제로 적용';
+    const first = (e.control || '').split(/[.。]\s|\(/)[0].trim();
+    return '관리자 콘솔에서 설정 적용 후 증적 확보: ' + (first.length > 90 ? first.slice(0, 90) + '…' : first);
+  };
   [...l2, ...l3].forEach(e => {
     const applied = state.applied[e._i], comp = state.comp[e._i];
     const has = e.control_availability === 'builtin' || e.control_availability === 'higher_tier' || e.control_availability === 'third_party';
     if (has && applied) oks.push({lv:'g', t:`${e.feature}: 통제 적용 계획 확인(${AV_PLAIN[e.control_availability]}${e.plan_note && e.plan_note !== '-' ? ', ' + e.plan_note : ''})`});
-    else if (!has && comp) risks.push({lv:'w', t:`${e.feature}: 네이티브 통제 ${e.control_availability === 'none' ? '미제공' : '미확인'}. 보완통제 수립을 전제로 한 조건부 항목이다. 보완통제 내용을 검토서에 구체화하고 반기 자체평가에서 이행을 점검한다.`});
-    else if (must) risks.push({lv:'r', t:`${e.feature}: 통제 미적용 상태. 고객 정보 유입 가능성이 있는 용도에서 이 접점이 열려 있다(해설서 6장: 입력 제한·필터링 및 입력 점검 요구).`});
-    else risks.push({lv:'w', t:`${e.feature}: 통제 미적용. 현재 용도는 유입 가능성이 낮으나 적용을 권고한다.`});
+    else if (!has && comp) risks.push({lv:'w', t:`${e.feature}: 네이티브 통제 ${e.control_availability === 'none' ? '미제공' : '미확인'}. 보완통제 수립을 전제로 한 조건부 항목이다.`, act: actionFor(e, false)});
+    else if (must) risks.push({lv:'r', t:`${e.feature}: 통제 미적용 상태. 고객 정보 유입 가능성이 있는 용도에서 이 접점이 열려 있다(해설서 6장: 입력 제한·필터링 및 입력 점검 요구).`, act: actionFor(e, has)});
+    else risks.push({lv:'w', t:`${e.feature}: 통제 미적용. 현재 용도는 유입 가능성이 낮으나 적용을 권고한다.`, act: actionFor(e, has)});
   });
 
   const hardRisks = risks.filter(r => r.lv === 'r').length;
@@ -741,6 +782,20 @@ function render() {
       <div class="saasgrid">${SAAS_LIST.map(s =>
         `<div class="saascell ${state.saas === s.key ? 'sel' : ''}" data-saas="${s.key}">
           <div class="nm">${s.name}</div><div class="ct">${s.cat}</div></div>`).join('')}</div>
+      <div class="profrow">
+        <span class="pl">회사 프로필</span>
+        <select data-prof="sector">
+          <option value="bank" ${state.profile.sector === 'bank' ? 'selected' : ''}>은행·금융지주</option>
+          <option value="mid" ${state.profile.sector === 'mid' ? 'selected' : ''}>저축은행·캐피탈</option>
+          <option value="fintech" ${state.profile.sector === 'fintech' ? 'selected' : ''}>핀테크·전자금융업자</option>
+        </select>
+        <select data-prof="e5">
+          <option value="yes" ${state.profile.e5 === 'yes' ? 'selected' : ''}>M365 E5급 보안 라이선스 보유</option>
+          <option value="no" ${state.profile.e5 === 'no' ? 'selected' : ''}>상위 보안 라이선스 미보유</option>
+          <option value="unknown" ${state.profile.e5 === 'unknown' ? 'selected' : ''}>라이선스 미확인</option>
+        </select>
+        <span style="color:var(--faint);font-size:11.5px">프로필에 따라 조치 제안이 달라진다</span>
+      </div>
       <div class="opts">${USAGES.map(u =>
         `<div class="opt ${state.usage === u.key ? 'sel' : ''}" data-usage="${u.key}">
           <span class="mark"></span><span><span class="t">${u.t}</span><div class="d">${u.d}</div></span></div>`).join('')}</div>
@@ -809,8 +864,15 @@ function render() {
         <p class="why">판정은 입력된 답변만으로 결정 트리가 산출했다. 같은 입력이면 언제나 같은 결과가 나온다. 아래 내용이 검토서에 그대로 기록된다.</p>
       </div>
       <div class="findings">
-        ${v.risks.map(r => `<div class="finding ${r.lv}"><span class="ic">${r.lv === 'r' ? '×' : '!'}</span><span>${r.t}</span></div>`).join('')}
+        ${v.risks.map(r => `<div class="finding ${r.lv}"><span class="ic">${r.lv === 'r' ? '×' : '!'}</span><span>${r.t}${r.act ? `<div class="act">조치: ${r.act}</div>` : ''}</span></div>`).join('')}
         ${v.oks.map(r => `<div class="finding g"><span class="ic">○</span><span>${r.t}</span></div>`).join('')}
+      </div>
+      <div class="detector">
+        <h3>운영 중 검증: 결합 탐지</h3>
+        <p class="note">도입 후에는 이 판정이 지속 통제로 이어진다. 아래에 문서를 붙여넣으면 유입되는 순간을 탐지한다. 규칙층(주민번호 체크섬, 카드 Luhn, 전화)은 실제 검증 로직이고, 결합층은 본 데모에서 휴리스틱 근사다. 실서비스의 결합 판단은 로컬 소형 LLM이 수행한다.</p>
+        <button id="det-sample" style="margin-bottom:10px">예시 회의록 넣기</button>
+        <textarea id="det-in" placeholder="여기에 문서·회의록 내용을 붙여넣으면 실시간으로 탐지한다"></textarea>
+        <div class="det-out" id="det-out"></div>
       </div>
       <div class="nav">
         <button class="ghost" id="back">이전</button>
@@ -861,7 +923,7 @@ function buildReport(v) {
     <p>1층(시스템 필드): 고객정보 필드형 기능 ${state.l1use === 'yes' ? '<b>사용. 요건 저촉</b>' : '미사용. 용도를 해당 기능 제외 범위로 한정'}</p>
     <table><tr><th>층위</th><th>접점</th><th>통제 수단 (제공 형태)</th><th>적용 상태</th><th>근거 출처</th></tr>${ctrls}</table>
     <h2>5. 판정 결과 및 미해소 위험</h2>
-    ${v.risks.map(r => `<p>· ${r.t}</p>`).join('')}
+    ${v.risks.map(r => `<p>· ${r.t}${r.act ? '<br><span style="color:#2b55a3">조치: ' + r.act + '</span>' : ''}</p>`).join('')}
     ${v.oks.map(r => `<p style="color:#176e4b">· ${r.t}</p>`).join('')}
     <h2>6. 후속 조치</h2>
     <p>· 본 검토서를 도입 품의에 첨부하고, 미해소 위험 항목은 반기 자체평가(제2조의3 제4항)의 점검 항목으로 이관한다.</p>
@@ -873,8 +935,79 @@ function buildReport(v) {
     <div class="notice">본 검토서는 데모 도구가 생성한 초안이다. 근거 데이터는 ${today.getFullYear()}년 8월 공개 문서 조사 기준이며 요금제와 기능은 변경될 수 있다. 본 도구는 법적 판단을 대행하지 않으며, 최종 판단과 책임은 검토자와 소속 기관에 있다.</div>`;
 }
 
+/* ================= 검증 엔진 (규칙층 실동작, 결합층 휴리스틱) ================= */
+function rrnValid(s) {
+  const d = s.replace(/[^0-9]/g, '');
+  if (d.length !== 13) return false;
+  const w = [2,3,4,5,6,7,8,9,2,3,4,5];
+  let sum = 0;
+  for (let i = 0; i < 12; i++) sum += Number(d[i]) * w[i];
+  return (11 - (sum % 11)) % 10 === Number(d[12]);
+}
+function luhnValid(s) {
+  const d = s.replace(/[^0-9]/g, '');
+  if (d.length < 14) return false;
+  let sum = 0, alt = false;
+  for (let i = d.length - 1; i >= 0; i--) {
+    let n = Number(d[i]);
+    if (alt) { n *= 2; if (n > 9) n -= 9; }
+    sum += n; alt = !alt;
+  }
+  return sum % 10 === 0;
+}
+const CREDIT_KW = /(대출|연체|신용|잔액|상환|한도|담보|이자|채무|납부|미납|계좌|예금|적금|카드|보험금|여신|재상담)/;
+const NAME_PAT = /[가-힣]{2,4}\s?(고객님|고객|님|씨)/g;
+function detScan(text) {
+  const hits = [];
+  for (const m of text.matchAll(/\d{6}[-\s]?[1-4]\d{6}/g)) {
+    hits.push({ lv: 'viol', tag: '[고유식별정보]', span: m[0],
+      note: rrnValid(m[0]) ? '주민등록번호 형식·검증값 일치. 결합 여부와 무관하게 그 자체로 요건 저촉' : '주민등록번호 형식 일치, 검증값 불일치(합성 추정). 위반 후보로 기록' });
+  }
+  for (const m of text.matchAll(/\d{4}[-\s]\d{4}[-\s]\d{4}[-\s]\d{4}/g)) {
+    const ok = luhnValid(m[0]);
+    hits.push({ lv: ok ? 'viol' : 'warn', tag: '[카드번호]', span: m[0],
+      note: ok ? 'Luhn 검증 통과. 실번호 가능성' : '카드번호 형식 일치, Luhn 불일치(합성 추정)' });
+  }
+  for (const m of text.matchAll(/01[016789][-\s]?\d{3,4}[-\s]?\d{4}/g)) {
+    hits.push({ lv: 'warn', tag: '[연락처]', span: m[0], note: '식별정보. 단독으로는 위반이 아니며 결합 여부 확인 대상' });
+  }
+  const sents = text.split(/[.\n!?]/);
+  for (const s of sents) {
+    const names = s.match(NAME_PAT);
+    if (names && CREDIT_KW.test(s)) {
+      hits.push({ lv: 'viol', tag: '[결합]', span: s.trim().slice(0, 64),
+        note: `식별정보(${names[0].trim()})가 신용정보 문맥과 같은 문장에서 결합. 개인신용정보에 해당(신용정보법 제2조). 실서비스에서는 이 판단을 로컬 LLM이 수행` });
+    } else if (names) {
+      hits.push({ lv: 'info', tag: '[식별정보]', span: names[0].trim(), note: '이름 단독. 다른 신용정보와 결합될 때에만 신용정보' });
+    }
+  }
+  return hits;
+}
+const DET_SAMPLE = `3월 여신협의회 회의록
+참석: 여신기획부, 리스크관리부
+
+1. 박지현 고객 주택담보대출 연체 3개월 경과 건. 담당자 재상담 예정, 연락처 010-4821-7733.
+2. 신규 상품 한도 정책은 다음 회의에서 확정.
+3. 이수민 님 카드 재발급 요청 접수 (4539-1488-0343-6467).
+4. 사내 워크숍 일정 공유.`;
+function detRender() {
+  const ta = document.getElementById('det-in');
+  const out = document.getElementById('det-out');
+  if (!ta || !out) return;
+  if (!ta.value.trim()) { out.innerHTML = ''; return; }
+  const hits = detScan(ta.value);
+  out.innerHTML = hits.length
+    ? hits.map(h => `<div class="det-hit ${h.lv}"><span class="tag">${h.tag}</span><span class="span">${h.span}</span><span>${h.note}</span></div>`).join('')
+    : '<div class="det-empty">탐지된 항목 없음. 입력 제한 데이터가 발견되지 않았다.</div>';
+}
+
 /* ================= 이벤트 ================= */
 function bind() {
+  document.querySelectorAll('[data-prof]').forEach(el => el.onchange = () => { state.profile[el.dataset.prof] = el.value; });
+  const di = document.getElementById('det-in');
+  if (di) di.oninput = detRender;
+  const ds = document.getElementById('det-sample');
+  if (ds) ds.onclick = () => { document.getElementById('det-in').value = DET_SAMPLE; detRender(); };
   document.querySelectorAll('[data-saas]').forEach(el => el.onclick = () => { state.saas = el.dataset.saas; render(); });
   document.querySelectorAll('[data-usage]').forEach(el => el.onclick = () => { state.usage = el.dataset.usage; render(); });
   document.querySelectorAll('[data-nature]').forEach(el => el.onclick = () => { state.nature = el.dataset.nature; render(); });
