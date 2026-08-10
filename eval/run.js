@@ -7,7 +7,7 @@
  * 사용법
  *   node eval/run.js                      규칙층·휴리스틱만 측정
  *   node eval/run.js --llm                Ollama가 떠 있으면 LLM까지 측정
- *   node eval/run.js --llm --model exaone3.5:2.4b --docs 40   (모델 비교)
+ *   node eval/run.js --llm --models kanana태그,midm태그       여러 모델 한 번에 비교
  *
  * 측정 대상은 "위반 탐지"다. 위반 = combined(결합) 또는 unique_id(고유식별정보).
  * 식별정보 단독(identifier_only)은 위반이 아니므로 정답에서 음성으로 취급한다.
@@ -24,7 +24,14 @@ function arg(name, def) {
   return i >= 0 && argv[i + 1] && !argv[i + 1].startsWith('--') ? argv[i + 1] : def;
 }
 const useLLM = argv.includes('--llm');
-const MODEL = arg('model', 'hf.co/mykor/Midm-2.0-Base-Instruct-gguf:Q4_K_M');
+const MODEL = arg('model', 'hf.co/mradermacher/kanana-2-3b-instruct-GGUF:Q4_K_M');
+// --models a,b 로 여러 모델을 한 번에 비교한다
+const MODELS = arg('models', MODEL).split(',').map(s => s.trim()).filter(Boolean);
+// hf.co/org/repo-GGUF:Q4_K_M 같은 긴 태그를 표에 넣을 짧은 이름으로
+function shortName(tag) {
+  const base = tag.split(':')[0].split('/').pop().replace(/-GGUF$/i, '').replace(/-gguf$/, '');
+  return base.length > 28 ? base.slice(0, 28) : base;
+}
 const ENDPOINT = arg('endpoint', 'http://localhost:11434');
 const DOCS = Number(arg('docs', 30));
 const SEED = Number(arg('seed', 20260810));
@@ -105,14 +112,21 @@ async function runMethod(name, docs, opts) {
   ];
 
   if (useLLM) {
-    const av = await Engine.llmAvailable({ endpoint: ENDPOINT, model: MODEL });
-    if (!av.ok) {
-      console.log(`LLM 사용 불가 (${av.reason}). Ollama가 떠 있는지 확인: ollama serve\n`);
-    } else if (!av.hasModel) {
-      console.log(`모델 ${MODEL} 없음. 설치된 모델: ${av.models.join(', ') || '없음'}`);
-      console.log(`  ollama pull ${MODEL}\n`);
-    } else {
-      methods.push({ name: `규칙+LLM(${MODEL})`, opts: { mode: 'llm', llm: { endpoint: ENDPOINT, model: MODEL } } });
+    for (const model of MODELS) {
+      const av = await Engine.llmAvailable({ endpoint: ENDPOINT, model });
+      if (!av.ok) {
+        console.log(`LLM 사용 불가 (${av.reason}). Ollama가 떠 있는지 확인: OLLAMA_ORIGINS="*" ollama serve\n`);
+        break;
+      }
+      if (!av.hasModel) {
+        console.log(`모델 없음: ${model}`);
+        console.log(`  ollama pull ${model}\n`);
+        continue;
+      }
+      methods.push({
+        name: `LLM: ${shortName(model)}`,
+        opts: { mode: 'llm', llm: { endpoint: ENDPOINT, model } },
+      });
     }
   }
 

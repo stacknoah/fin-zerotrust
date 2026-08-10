@@ -216,23 +216,23 @@
 
   /*
    * 기본 모델 선택 근거
-   *   Mi:dm 2.0 Base (KT)   MIT 라이선스. 국내 모델 중 라이선스가 가장 깨끗하다.
-   *                         11.5B, Q4_K_M 기준 7.03GB. 통합 메모리 16GB 이상에서 실용적.
-   *                         한국어 중심 학습이라 결합 판단에 유리하다.
-   *                         2025 금융 AI Challenge 최우수상 팀이 쓴 계열이기도 하다.
-   *   온디바이스 대안         hf.co/mykor/Midm-2.0-Mini-Instruct-gguf:Q4_K_M (2.3B, 1.43GB)
-   *                         금융사 단말 배포 시나리오용. 성능 차이는 eval/로 측정한다.
-   *   비교군                 qwen3:4b-instruct-2507  Apache 2.0, 범용 다국어 기준선
-   *                         exaone3.5:2.4b          한국어 특화이나 비상업(NC) 라이선스라
-   *                                                 연구·측정 목적에 한정
-   *                         gemma3:4b               Gemma Terms of Use, 배포 시 법무 확인 필요
+   *   Kanana-2-3B (카카오, 2026.07)  국내 모델 중 가장 최신. Q4 2.2GB.
+   *     강점이 한국어(HAE-RAE, KMMLU)와 코딩, 약점이 수학이라 이 과제와 방향이 맞는다.
+   *     우리가 쓰는 능력은 한국어 문맥 이해와 스키마 준수·문자열 정확 복사이고 수학은 안 쓴다.
+   *     크기가 작아 금융사 단말 배포 시나리오까지 그대로 이어진다.
+   *     라이선스는 Kanana Open License. 자기 서비스 운영은 자유(4.2조),
+   *     제3자에게 API·온프레미스·온디바이스로 재판매할 때만 별도 계약 필요(4.1조).
+   *
+   *   대조군  hf.co/mykor/Midm-2.0-Base-Instruct-gguf:Q4_K_M
+   *           KT Mi:dm 2.0 Base 11.5B, MIT. Ko-IFEval 82로 지시 준수 근거가 있고
+   *           Q4 7GB. 결합 판단에서 3B가 무너지면 이쪽으로 올린다.
    *
    * 주의: 브라우저에서 file://로 열면 Ollama가 요청을 막을 수 있다.
    *       OLLAMA_ORIGINS="*" ollama serve 로 띄우거나 로컬 서버로 데모를 열 것.
    */
   const DEFAULT_LLM = {
     endpoint: 'http://localhost:11434',
-    model: 'hf.co/mykor/Midm-2.0-Base-Instruct-gguf:Q4_K_M',
+    model: 'hf.co/mradermacher/kanana-2-3b-instruct-GGUF:Q4_K_M',
     timeoutMs: 30000,
   };
 

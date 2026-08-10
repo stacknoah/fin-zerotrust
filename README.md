@@ -43,7 +43,7 @@ node eval/run.js --docs 30
 |---|---|---|---|
 | 규칙층만 | 100.0% | 42.9% | 60.0% |
 | 규칙 + 휴리스틱 | 100.0% | 59.5% | 74.6% |
-| 규칙 + 로컬 LLM (Mi:dm 2.0 Base) | 측정 대기 | | |
+| 규칙 + 로컬 LLM (Kanana-2-3B) | 측정 대기 | | |
 
 케이스 유형별 재현율에서 이 프로젝트의 핵심 근거가 나온다.
 
@@ -62,7 +62,8 @@ node eval/run.js --docs 30
 ```bash
 brew install ollama
 OLLAMA_ORIGINS="*" ollama serve          # 브라우저 데모에서 호출하려면 origin 허용 필요
-ollama pull hf.co/mykor/Midm-2.0-Base-Instruct-gguf:Q4_K_M
+ollama pull hf.co/mradermacher/kanana-2-3b-instruct-GGUF:Q4_K_M
+ollama pull hf.co/mykor/Midm-2.0-Base-Instruct-gguf:Q4_K_M   # 대조군
 ```
 
 모델이 뜬 상태에서 `index.html`을 새로고침하면 검증 데모에 LLM 모드가 열린다. 측정은 이렇게 돌린다.
@@ -71,22 +72,21 @@ ollama pull hf.co/mykor/Midm-2.0-Base-Instruct-gguf:Q4_K_M
 node eval/run.js --llm --docs 30
 ```
 
-기본 모델은 KT의 **Mi:dm 2.0 Base (11.5B)**다. MIT 라이선스라 국내 모델 중 상업 이용 제약이 가장 적고, 한국어 중심으로 학습돼 결합 판단 같은 한국어 문맥 과제에 유리하다. Q4_K_M 기준 7.03GB로 통합 메모리 16GB 이상이면 실용적으로 돌아간다.
+기본 모델은 카카오의 **Kanana-2-3B** (2026.07)다. 국내 공개 모델 중 가장 최신이고 Q4 기준 2.2GB로 가볍다. 강점이 한국어(HAE-RAE, KMMLU)와 코딩, 약점이 수학이라 이 과제와 방향이 맞는다. 우리가 쓰는 능력은 한국어 문맥 이해와 스키마 준수·문자열 정확 복사이고 수학은 쓰지 않는다. 크기가 작아 금융사 단말 배포 시나리오로 그대로 이어진다는 것도 이점이다.
 
-금융사 단말에 직접 배포하는 시나리오에서는 같은 계열의 **Mi:dm 2.0 Mini (2.3B, 1.43GB)**를 쓴다. 두 크기의 성능 차이는 측정 하네스로 잰다.
+대조군은 KT의 **Mi:dm 2.0 Base (11.5B, MIT)**다. Ko-IFEval 82로 지시 준수 근거가 있고 Q4 7GB다. 3B가 결합 판단에서 무너지면 이쪽으로 올린다.
 
-| 모델 | 라이선스 | 상업 이용 | 역할 |
-|---|---|---|---|
-| Mi:dm 2.0 Base (KT, 11.5B) | MIT | 가능 | 기본값 |
-| Mi:dm 2.0 Mini (KT, 2.3B) | MIT | 가능 | 온디바이스 배포 시나리오 |
-| Qwen3-4B-Instruct-2507 | Apache 2.0 | 가능 | 범용 다국어 기준선 |
-| EXAONE 3.5 2.4B (LG) | EXAONE License (NC) | 불가 | 한국어 비교군, 연구·측정 한정 |
-| Gemma 3 4B | Gemma Terms of Use | 조건부 | 비교군 |
+| 모델 | 크기 | 라이선스 | 공개 | 비고 |
+|---|---|---|---|---|
+| Kanana-2-3B (카카오) | 3B / 2.2GB | Kanana Open | 2026.07 | 기본값. 자기 서비스 운영 자유, 제3자 재판매만 별도 계약 |
+| Mi:dm 2.0 Base (KT) | 11.5B / 7GB | MIT | 2025.07 | 대조군. 제약 없음 |
+| Tri-21B-Think (트릴리온랩스) | 21B / 12.6GB | Apache 2.0 | 2026.02 | 예산 내 최대. 사고형이라 JSON 후처리 필요 |
+| EXAONE 4.x (LG) | 32B+ | NC | | 상업 이용 금지, 크기도 초과 |
 
-대회 출품과 논문은 상업적 이용이 아니라서 EXAONE의 비상업 조항이 막지 않는다. 막는 것은 제품화 국면이다. Mi:dm은 MIT라 그 구분 자체가 필요 없다.
+두 모델을 한 번에 비교하려면:
 
 ```bash
-node eval/run.js --llm --model qwen3:4b-instruct-2507-q4_K_M --docs 30
+node eval/run.js --llm --models hf.co/mradermacher/kanana-2-3b-instruct-GGUF:Q4_K_M,hf.co/mykor/Midm-2.0-Base-Instruct-gguf:Q4_K_M --docs 30
 ```
 
 ## 측정 방법: 생성이 곧 라벨
