@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-15T03:14:15.270Z",
+  "generatedAt": "2026-08-15T03:22:50.059Z",
   "seed": 20260810,
   "docs": 30,
   "goldViolations": 84,
@@ -35,7 +35,8 @@
         }
       },
       "elapsedSec": 0.001,
-      "rejectedCount": 0
+      "rejectedCount": 0,
+      "repaired": 0
     },
     {
       "name": "규칙+휴리스틱",
@@ -68,7 +69,8 @@
         }
       },
       "elapsedSec": 0.001,
-      "rejectedCount": 0
+      "rejectedCount": 0,
+      "repaired": 0
     }
   ]
 }

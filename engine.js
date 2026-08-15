@@ -189,6 +189,28 @@
     return String(s || '').replace(/\s+/g, ' ').trim();
   }
 
+  /*
+   * 모델이 label만 "combined"로 내고 identifier·credit_context를 비우는 실패가 잦다.
+   * 그 경우 통째로 버리는 대신, 우리가 근거 스팬에서 직접 뽑아 채운다.
+   * 단 스팬 안에서 이름과 신용 어휘를 실제로 찾아냈을 때만 채우고
+   * 못 찾으면 그대로 둬서 검증 단계에서 폐기되게 한다.
+   * 모델 말을 믿는 게 아니라 코드가 재확인하는 것이라 검증이 약해지지 않는다.
+   */
+  function repairFinding(f) {
+    if (!f || f.label !== 'combined') return f;
+    const span = norm(f.evidence_span);
+    const id = norm(f.identifier), cc = norm(f.credit_context);
+    if (!span || (id && cc)) return f;
+    const names = findNames(span);
+    const kw = span.match(CREDIT_KW);
+    if (!names.length || !kw) return f;   // 우리도 못 찾으면 폐기 대상
+    return Object.assign({}, f, {
+      identifier: id || names[0].name,
+      credit_context: cc || kw[0],
+      _repaired: true,
+    });
+  }
+
   // LLM 출력 검증. 환각을 구조적으로 걸러낸다
   function verifyFinding(f, text) {
     if (!f || typeof f !== 'object') return { ok: false, reason: 'not_object' };
@@ -289,6 +311,7 @@
     const o = Object.assign({}, DEFAULT_LLM, opts);
     const hits = [], rejected = [];
     const seen = new Set();
+    let repaired = 0;
 
     for (const chunk of makeWindows(text, 3, 2)) {
       let parsed = null;
@@ -303,7 +326,9 @@
 
       const findings = Array.isArray(parsed.findings) ? parsed.findings
                      : Array.isArray(parsed) ? parsed : [];
-      for (const f of findings) {
+      for (const raw0 of findings) {
+        const f = repairFinding(raw0);
+        if (f && f._repaired) repaired++;
         const v = verifyFinding(f, chunk);
         if (!v.ok) { rejected.push({ reason: v.reason, finding: f }); continue; }
         const span = norm(f.evidence_span);
@@ -321,7 +346,7 @@
         });
       }
     }
-    return { hits, rejected };
+    return { hits, rejected, repaired };
   }
 
   /* ────────── 확정: 결정적 규칙이 최종 판단 ────────── */
@@ -365,7 +390,7 @@
       const base = mode === 'hybrid' ? ruleHits.concat(heuristicCombine(text)) : ruleHits;
       try {
         const r = await llmCombine(text, o.llm);
-        return { hits: confirm(base.concat(r.hits)), mode, rejected: r.rejected };
+        return { hits: confirm(base.concat(r.hits)), mode, rejected: r.rejected, repaired: r.repaired };
       } catch (e) {
         return {
           hits: confirm(ruleHits.concat(heuristicCombine(text))),
@@ -379,7 +404,7 @@
   }
 
   return {
-    scan, ruleScan, heuristicCombine, llmCombine, llmAvailable, confirm,
+    scan, ruleScan, heuristicCombine, llmCombine, llmAvailable, confirm, repairFinding,
     rrnValid, luhnValid, verifyFinding, splitUnits,
     SYSTEM_PROMPT, DEFAULT_LLM, CREDIT_KW, NAME_PAT, findNames,
   };

@@ -84,12 +84,14 @@ async function runMethod(name, docs, opts) {
   const agg = { tp: 0, fp: 0, fn: 0 };
   const perType = {};
   const rejected = [];
+  let repaired = 0;
   const t0 = Date.now();
 
   for (const doc of docs) {
     const res = await Engine.scan(doc.text, opts);
     if (res.degraded) throw new Error(res.degraded);
     if (res.rejected && res.rejected.length) rejected.push(...res.rejected);
+    repaired += res.repaired || 0;
     const s = scoreDoc(doc, res.hits);
     agg.tp += s.tp; agg.fp += s.fp; agg.fn += s.fn;
     for (const [k, v] of Object.entries(s.perType)) {
@@ -98,7 +100,7 @@ async function runMethod(name, docs, opts) {
     }
   }
   const elapsed = (Date.now() - t0) / 1000;
-  return { summary: summarize(name, agg), perType, rejected, elapsed };
+  return { summary: summarize(name, agg), perType, rejected, elapsed, repaired };
 }
 
 (async function main() {
@@ -175,6 +177,12 @@ async function runMethod(name, docs, opts) {
     console.log(line);
   }
 
+  const withRepaired = results.filter(r => r.repaired);
+  if (withRepaired.length) {
+    console.log('\n코드 보정(모델이 필드를 비운 것을 스팬에서 직접 추출해 채움):');
+    for (const r of withRepaired) console.log(`  ${r.summary.name}: ${r.repaired}건`);
+  }
+
   const withRejected = results.filter(r => r.rejected.length);
   if (withRejected.length) {
     console.log('\n환각 차단(검증 실패로 폐기된 LLM 출력):');
@@ -188,7 +196,7 @@ async function runMethod(name, docs, opts) {
   const out = {
     generatedAt: new Date().toISOString(),
     seed: SEED, docs: docs.length, goldViolations: goldCount,
-    results: results.map(r => ({ ...r.summary, perType: r.perType, elapsedSec: r.elapsed, rejectedCount: r.rejected.length })),
+    results: results.map(r => ({ ...r.summary, perType: r.perType, elapsedSec: r.elapsed, rejectedCount: r.rejected.length, repaired: r.repaired })),
   };
   require('fs').writeFileSync(path.join(__dirname, 'last-run.json'), JSON.stringify(out, null, 2));
   console.log('\n결과 저장: eval/last-run.json');
