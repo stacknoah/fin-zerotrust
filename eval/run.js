@@ -84,7 +84,7 @@ async function runMethod(name, docs, opts) {
   const agg = { tp: 0, fp: 0, fn: 0 };
   const perType = {};
   const rejected = [];
-  let repaired = 0;
+  let repaired = 0;   // 보정은 제거됐으나 출력 형식 호환을 위해 유지
   const t0 = Date.now();
 
   for (const doc of docs) {

@@ -190,40 +190,13 @@
   }
 
   /*
-   * 모델이 label만 "combined"로 내고 identifier·credit_context를 비우는 실패가 잦다.
-   * 그 경우 통째로 버리는 대신, 우리가 근거 스팬에서 직접 뽑아 채운다.
-   * 단 스팬 안에서 이름과 신용 어휘를 실제로 찾아냈을 때만 채우고
-   * 못 찾으면 그대로 둬서 검증 단계에서 폐기되게 한다.
-   * 모델 말을 믿는 게 아니라 코드가 재확인하는 것이라 검증이 약해지지 않는다.
+   * [시도했다가 되돌린 것] 모델이 identifier·credit_context를 비운 결합 판정을
+   * 코드가 스팬·창에서 뽑아 채우는 보정을 넣어봤으나 측정 결과 악화되어 제거했다.
+   * 30문서 기준 보정 7건이 전부 오탐이었고 재현율은 그대로, 정밀도만 86.4%→79.5%로 떨어졌다.
+   * 원인: 모델이 "회의록 제목", "카드 재발급 요청 접수"처럼 사람이 없는 줄을 결합으로
+   * 라벨링하는데, 보정이 같은 창의 무관한 줄에서 이름을 끌어와 붙였다.
+   * 결론: 필드가 빈 결합 판정은 폐기가 맞다. 폐기 건수는 손실이 아니라 검증층의 작동 지표다.
    */
-  function repairFinding(f, chunk) {
-    if (!f || f.label !== 'combined') return f;
-    const span = norm(f.evidence_span);
-    const id = norm(f.identifier), cc = norm(f.credit_context);
-    if (!span || (id && cc)) return f;
-
-    // 1차: 근거 스팬 안에서 찾는다
-    let names = findNames(span);
-    let kw = span.match(CREDIT_KW);
-
-    // 2차: 스팬에 이름이 없으면 같은 창의 다른 줄에서 찾는다.
-    // 줄 넘김 결합에서 모델이 신용 사실이 적힌 뒷줄만 스팬으로 잡는 일이 잦은데,
-    // 그 줄에는 "해당 고객" 같은 지시어만 있고 실제 이름은 앞줄에 있다.
-    // 다만 아무 이름이나 붙이면 오탐이 되므로 창 안에 이름이 하나뿐일 때만 허용한다.
-    if (!names.length && chunk) {
-      const inChunk = findNames(chunk);
-      const distinct = [...new Set(inChunk.map(n => n.name))];
-      if (distinct.length === 1) names = [{ name: distinct[0] }];
-    }
-    if (!kw && chunk) kw = chunk.match(CREDIT_KW);
-
-    if (!names.length || !kw) return f;   // 우리도 못 찾으면 폐기 대상
-    return Object.assign({}, f, {
-      identifier: id || names[0].name,
-      credit_context: cc || kw[0],
-      _repaired: true,
-    });
-  }
 
   // LLM 출력 검증. 환각을 구조적으로 걸러낸다
   function verifyFinding(f, text) {
@@ -239,7 +212,9 @@
     if (f.label === 'combined') {
       const id = norm(f.identifier), cc = norm(f.credit_context);
       if (!id || !cc) return { ok: false, reason: 'combined_missing_parts' };
-      if (!norm(text).includes(id)) return { ok: false, reason: 'identifier_not_in_source' };
+      // 지목한 사람이 근거 스팬 안에 있어야 한다. 창의 다른 줄에 있는 이름을 끌어다
+      // 붙인 판정은 그 스팬을 개인신용정보라고 부를 근거가 없다
+      if (!span.includes(id)) return { ok: false, reason: 'identifier_not_in_span' };
     }
     return { ok: true };
   }
@@ -341,8 +316,7 @@
       const findings = Array.isArray(parsed.findings) ? parsed.findings
                      : Array.isArray(parsed) ? parsed : [];
       for (const raw0 of findings) {
-        const f = repairFinding(raw0, chunk);
-        if (f && f._repaired) repaired++;
+        const f = raw0;
         const v = verifyFinding(f, chunk);
         if (!v.ok) {
           rejected.push({ reason: v.reason, label: f && f.label, span: norm(f && f.evidence_span).slice(0, 60) });
@@ -421,7 +395,7 @@
   }
 
   return {
-    scan, ruleScan, heuristicCombine, llmCombine, llmAvailable, confirm, repairFinding,
+    scan, ruleScan, heuristicCombine, llmCombine, llmAvailable, confirm,
     rrnValid, luhnValid, verifyFinding, splitUnits,
     SYSTEM_PROMPT, DEFAULT_LLM, CREDIT_KW, NAME_PAT, findNames,
   };
