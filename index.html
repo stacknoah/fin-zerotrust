@@ -8,215 +8,232 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #f4f2ed; --paper: #ffffff;
-    --hair: #ddd9cf; --hair2: #c9c5b8;
-    --ink: #201f1b; --sub: #6b6a62; --faint: #a3a196;
-    --green: #1e6b4e; --green-bg: #e6eee9;
-    --amber: #96690f; --amber-bg: #f1e9d3;
-    --red: #b3392b; --red-bg: #f3e3df;
+    --bg: #f4f5f7; --panel: #ffffff;
+    --line: #e5e7ec; --line2: #d5d8df;
+    --ink: #1a1c20; --sub: #5f6470; --faint: #9aa0ab;
+    --blue: #2f6bff; --blue-dark: #2456d6; --blue-bg: #eef3ff;
+    --green: #0e9f6e; --green-bg: #e6f6f0;
+    --amber: #b45309; --amber-bg: #fdf3e3;
+    --red: #d92d20; --red-bg: #fdecea;
     --mono: "IBM Plex Mono", monospace;
     --sans: "Pretendard Variable", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+    --shadow: 0 1px 2px rgba(16,24,40,.04);
   }
   * { box-sizing: border-box; margin: 0; }
   body {
     background: var(--bg); color: var(--ink); font-family: var(--sans);
-    font-size: 13.5px; line-height: 1.65; word-break: keep-all; -webkit-font-smoothing: antialiased;
+    font-size: 13.5px; line-height: 1.6; word-break: keep-all; -webkit-font-smoothing: antialiased;
   }
   button { font: inherit; }
-  ::selection { background: var(--green-bg); }
-  .wrap { max-width: 1280px; margin: 0 auto; padding: 0 32px; }
+  ::selection { background: var(--blue-bg); }
 
-  /* ── 상단 ── */
-  header.top { border-bottom: 2px solid var(--ink); }
-  header.top .in { display: flex; align-items: baseline; gap: 36px; padding-top: 22px; flex-wrap: wrap; }
-  h1.brand { font-size: 23px; font-weight: 800; letter-spacing: -0.03em; padding-bottom: 16px; }
-  h1.brand small { font-family: var(--mono); font-size: 9px; font-weight: 400; color: var(--faint); letter-spacing: .3em; margin-left: 10px; }
-  #tabs { display: flex; gap: 26px; flex-wrap: wrap; }
+  /* ── 앱바 ── */
+  header.appbar { background: var(--panel); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 30; }
+  header.appbar .in { max-width: 1320px; margin: 0 auto; padding: 0 28px; display: flex; align-items: center; height: 58px; gap: 34px; }
+  h1.brand { font-size: 19px; font-weight: 800; letter-spacing: -0.02em; }
+  h1.brand small { font-family: var(--mono); font-size: 8.5px; font-weight: 500; color: var(--faint); letter-spacing: .26em; margin-left: 8px; }
+  #tabs { display: flex; gap: 4px; height: 100%; }
   .nav-it {
     font-size: 14px; font-weight: 600; color: var(--sub); border: 0; background: none;
-    padding: 0 2px 16px; cursor: pointer; display: flex; align-items: center; gap: 7px;
-    border-bottom: 3px solid transparent; margin-bottom: -2px;
-    transition: color .15s ease;
+    padding: 0 14px; cursor: pointer; display: flex; align-items: center; gap: 7px; height: 58px;
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
   }
   .nav-it:hover { color: var(--ink); }
-  .nav-it.on { color: var(--ink); border-bottom-color: var(--ink); }
-  .nav-it .cnt { font-family: var(--mono); font-size: 10px; font-weight: 600; color: var(--red); }
-  .who { margin-left: auto; font-size: 12px; color: var(--faint); display: flex; gap: 18px; padding-bottom: 16px; }
-  .who a { color: var(--sub); text-decoration: none; border-bottom: 1px solid var(--hair2); padding-bottom: 1px; }
-  .who a:hover { color: var(--ink); border-color: var(--ink); }
+  .nav-it.on { color: var(--blue); border-bottom-color: var(--blue); }
+  .nav-it .cnt {
+    font-size: 10.5px; font-weight: 700; color: #fff; background: var(--red);
+    border-radius: 9px; padding: 0 6px; line-height: 16px;
+  }
+  .who { margin-left: auto; display: flex; gap: 14px; align-items: center; font-size: 12.5px; color: var(--sub); }
+  .who .org { display: flex; align-items: center; gap: 8px; }
+  .who .avatar {
+    width: 26px; height: 26px; border-radius: 50%; background: var(--blue-bg); color: var(--blue);
+    display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800;
+  }
+  .who a { color: var(--sub); text-decoration: none; padding: 6px 10px; border: 1px solid var(--line2); border-radius: 6px; font-weight: 600; font-size: 12px; background: var(--panel); }
+  .who a:hover { border-color: var(--faint); color: var(--ink); }
 
-  /* ── 지표: 상자 없이 괘선 분할 ── */
-  .stats { display: flex; flex-wrap: wrap; border-bottom: 1px solid var(--hair2); }
-  .stat { padding: 20px 34px 18px 0; margin-right: 34px; border-right: 1px solid var(--hair); }
-  .stat:last-child { border-right: none; }
-  .stat b { display: block; font-size: 40px; font-weight: 800; letter-spacing: -0.05em; line-height: 1; font-variant-numeric: tabular-nums; }
-  .stat span.l { display: block; font-size: 12px; color: var(--sub); margin-top: 8px; }
-  .stat.bad b { color: var(--red); }
+  .wrap { max-width: 1320px; margin: 0 auto; padding: 22px 28px 48px; }
 
-  .view { animation: fade .25s ease both; }
+  /* ── 패널 ── */
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow); }
+  .panel-hd { display: flex; align-items: center; gap: 12px; padding: 13px 18px; border-bottom: 1px solid var(--line); }
+  .panel-hd .t { font-size: 14px; font-weight: 700; }
+  .panel-hd .r { margin-left: auto; display: flex; gap: 8px; align-items: center; font-size: 12px; color: var(--faint); }
+  .panel-bd { padding: 16px 18px; }
+
+  /* 지표: 한 패널 안 분할 */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); margin-bottom: 16px; }
+  .stats.panel { padding: 0; overflow: hidden; }
+  .stat { padding: 15px 20px 13px; border-left: 1px solid var(--line); }
+  .stat:first-child { border-left: none; }
+  .stat b { display: block; font-size: 25px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; font-variant-numeric: tabular-nums; }
+  .stat span.l { display: block; font-size: 12px; color: var(--sub); margin-top: 3px; }
+  .stat.bad b { color: var(--red); } .stat.warn b { color: var(--amber); } .stat.ok b { color: var(--green); }
+
+  .view { animation: fade .2s ease both; }
   @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
-  main { padding-bottom: 56px; }
 
   /* 페이지 머리 */
-  .pagehead { padding: 30px 0 22px; display: flex; align-items: flex-end; gap: 24px; flex-wrap: wrap; }
-  .pagehead .tx { max-width: 80ch; }
-  h2.q { font-size: 30px; font-weight: 800; letter-spacing: -0.035em; margin-bottom: 8px; line-height: 1.25; }
-  .qsub { font-size: 13px; color: var(--sub); line-height: 1.75; }
-  .qsub b { color: var(--ink); font-weight: 600; }
-  .pagehead .actions { margin-left: auto; display: flex; gap: 8px; padding-bottom: 4px; }
-  .hint { font-size: 12.5px; color: var(--amber); margin-top: 14px; }
+  .pagehead { padding: 4px 2px 16px; display: flex; align-items: flex-end; gap: 20px; flex-wrap: wrap; }
+  .pagehead .tx { max-width: 84ch; }
+  h2.q { font-size: 19px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 3px; }
+  .qsub { font-size: 12.5px; color: var(--sub); }
+  .pagehead .actions { margin-left: auto; display: flex; gap: 8px; }
+  .hint { font-size: 12.5px; color: var(--sub); margin-top: 12px; padding: 10px 14px; background: var(--blue-bg); border-radius: 6px; }
 
   /* ── 버튼 ── */
   button.act {
-    font-size: 13px; font-weight: 700; padding: 9px 20px; border-radius: 4px;
-    border: 1px solid var(--ink); background: var(--ink); color: var(--bg); cursor: pointer;
-    transition: opacity .15s ease;
+    font-size: 13px; font-weight: 700; padding: 8px 16px; border-radius: 6px;
+    border: 1px solid var(--blue); background: var(--blue); color: #fff; cursor: pointer;
+    transition: background .12s ease, border-color .12s ease;
   }
-  button.act:hover { opacity: .82; }
-  button.ghost2 { background: transparent; color: var(--ink); border-color: var(--hair2); }
-  button.ghost2:hover { opacity: 1; border-color: var(--ink); }
-  button.small { font-size: 11.5px; padding: 5px 13px; }
-  button.danger { background: var(--red); border-color: var(--red); color: #fff; }
-  button:disabled { opacity: .35; cursor: not-allowed; }
-  button:focus-visible, .nav-it:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+  button.act:hover { background: var(--blue-dark); border-color: var(--blue-dark); }
+  button.ghost2 { background: var(--panel); color: var(--ink); border-color: var(--line2); }
+  button.ghost2:hover { background: var(--bg); border-color: var(--faint); }
+  button.small { font-size: 12px; padding: 5px 11px; }
+  button.danger { background: var(--panel); border-color: var(--line2); color: var(--red); }
+  button.danger:hover { background: var(--red-bg); border-color: var(--red); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button:focus-visible, .nav-it:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
 
   textarea, select {
     font-family: var(--mono); font-size: 12px; line-height: 1.7; color: var(--ink);
-    border: 1px solid var(--hair2); border-radius: 4px; padding: 12px 14px; background: var(--paper);
+    border: 1px solid var(--line2); border-radius: 6px; padding: 11px 13px; background: var(--panel);
   }
   textarea { width: 100%; resize: vertical; }
-  textarea:focus, select:focus { outline: 2px solid var(--green); outline-offset: -1px; }
-  select { font-family: var(--sans); font-size: 12.5px; padding: 7px 12px; }
+  textarea:focus, select:focus { outline: 2px solid var(--blue); outline-offset: -1px; border-color: var(--blue); }
+  select { font-family: var(--sans); font-size: 12.5px; padding: 6px 10px; }
+
+  /* 상태 배지 */
+  .badge { display: inline-block; font-size: 11px; font-weight: 700; border-radius: 4px; padding: 2px 8px; white-space: nowrap; }
+  .badge.ok { color: var(--green); background: var(--green-bg); }
+  .badge.warn { color: var(--amber); background: var(--amber-bg); }
+  .badge.bad { color: var(--red); background: var(--red-bg); }
+  .badge.gray { color: var(--sub); background: var(--bg); }
 
   /* ── 지도 ── */
-  .mapgrid { display: grid; grid-template-columns: 1fr 300px; gap: 48px; }
-  .maphead { display: flex; align-items: baseline; border-top: 2px solid var(--ink); padding: 12px 2px 4px; }
-  .maphead .t { font-weight: 700; font-size: 14px; }
-  .maphead .r { margin-left: auto; font-family: var(--mono); font-size: 10px; color: var(--faint); letter-spacing: .08em; }
+  .mapgrid { display: grid; grid-template-columns: 1fr 300px; gap: 16px; align-items: start; }
   svg.map { display: block; width: 100%; }
   svg.map text { font-family: var(--sans); }
-  .zone { fill: var(--paper); stroke: var(--hair2); stroke-width: 1; }
-  .zone.core { fill: var(--green-bg); stroke: var(--green); stroke-width: 1.4; }
+  .zone { fill: #f8f9fb; stroke: var(--line2); stroke-width: 1; }
+  .zone.core { fill: var(--blue-bg); stroke: var(--blue); stroke-width: 1.2; }
   .zone.rogue-z { fill: var(--red-bg); stroke: var(--red); }
   .zlabel { font-size: 10.5px; font-weight: 700; fill: var(--ink); }
   .zlabel.rogue { fill: var(--red); }
   .item { font-size: 10px; fill: var(--sub); }
-  .conduit { stroke: #b5b1a3; stroke-width: 1.4; cursor: pointer; transition: stroke .15s ease, stroke-width .15s ease; }
-  .conduit:hover, .conduit.sel { stroke: var(--ink); stroke-width: 2.3; }
+  .conduit { stroke: #c4c8d0; stroke-width: 1.5; cursor: pointer; transition: stroke .12s ease, stroke-width .12s ease; }
+  .conduit:hover, .conduit.sel { stroke: var(--blue); stroke-width: 2.4; }
   .conduit.rogue { stroke: var(--red); stroke-width: 1.7; stroke-dasharray: 5 4; }
   .cond-label { font-family: var(--mono); font-size: 8.5px; fill: var(--faint); cursor: pointer; }
-  .cond-label:hover { fill: var(--ink); }
+  .cond-label:hover { fill: var(--blue); }
   .cond-label.rogue { fill: var(--red); font-weight: 600; }
   @media (prefers-reduced-motion: no-preference) {
     .conduit.rogue { animation: crawl 1.6s linear infinite; }
     @keyframes crawl { to { stroke-dashoffset: -18; } }
   }
-  .maplegend { display: flex; gap: 30px; font-size: 12px; color: var(--sub); padding: 10px 2px 0; border-top: 1px solid var(--hair); }
-  .maplegend i { display: inline-block; width: 22px; height: 0; border-top: 1.4px solid #b5b1a3; vertical-align: 4px; margin-right: 8px; }
+  .maplegend { display: flex; gap: 24px; font-size: 12px; color: var(--sub); padding: 11px 18px; border-top: 1px solid var(--line); }
+  .maplegend i { display: inline-block; width: 20px; height: 0; border-top: 1.5px solid #c4c8d0; vertical-align: 4px; margin-right: 7px; }
   .maplegend .r i { border-top: 1.7px dashed var(--red); }
 
-  /* 우측: 상자 없는 목록 */
-  .side h3 { font-size: 13px; font-weight: 700; border-top: 2px solid var(--ink); padding: 12px 0 8px; }
-  .side section + section { margin-top: 26px; }
-  .duty { display: flex; gap: 10px; align-items: baseline; font-size: 12.5px; color: var(--sub); padding: 8px 0; border-top: 1px solid var(--hair); }
-  .duty:first-of-type { border-top: none; }
-  .duty b { color: var(--ink); font-weight: 600; }
-  .duty .when { margin-left: auto; font-family: var(--mono); font-size: 10px; color: var(--amber); white-space: nowrap; }
-  .rg { display: flex; align-items: center; gap: 9px; padding: 9px 0; border-top: 1px solid var(--hair); font-size: 12.5px; }
-  .rg:first-of-type { border-top: none; }
-  .rg .host { font-family: var(--mono); font-size: 11.5px; color: var(--red); font-weight: 500; }
-  .rg .sp { margin-left: auto; display: flex; gap: 5px; }
-  .side .none { font-size: 12px; color: var(--faint); padding: 6px 0; }
+  /* 우측 패널 목록 */
+  .side { display: flex; flex-direction: column; gap: 16px; }
+  .rowitem { display: flex; gap: 10px; align-items: center; font-size: 12.5px; color: var(--sub); padding: 10px 18px; border-top: 1px solid var(--line); }
+  .rowitem:first-of-type { border-top: none; }
+  .rowitem b { color: var(--ink); font-weight: 600; }
+  .rowitem .when { margin-left: auto; font-family: var(--mono); font-size: 10.5px; color: var(--amber); white-space: nowrap; }
+  .rowitem .host { font-family: var(--mono); font-size: 11.5px; color: var(--red); font-weight: 500; }
+  .rowitem .sp { margin-left: auto; display: flex; gap: 5px; }
+  .none { font-size: 12px; color: var(--faint); padding: 12px 18px; }
 
-  /* 상세: 괘선 블록 */
-  .detail { margin-top: 30px; border-top: 2px solid var(--ink); padding-top: 16px; display: none; }
-  .detail.rogue { border-top-color: var(--red); }
-  .detail h3 { font-size: 15px; font-weight: 800; margin-bottom: 10px; }
-  .detail h3 .muted { font-weight: 500; color: var(--faint); font-size: 12px; margin-left: 8px; }
-  .detail h3 .badge { font-family: var(--mono); font-size: 10px; font-weight: 600; color: var(--red); margin-left: 10px; }
-  .detail .grid { display: grid; grid-template-columns: 110px 1fr; gap: 4px 18px; font-size: 12.5px; max-width: 760px; }
+  /* 상세 */
+  .detail { margin-top: 16px; display: none; }
+  .detail .grid { display: grid; grid-template-columns: 110px 1fr; gap: 5px 18px; font-size: 12.5px; max-width: 780px; }
   .detail .grid dt { color: var(--faint); }
   .detail .grid dd { color: var(--ink); }
-  .ai-note { margin-top: 12px; padding: 10px 14px; background: var(--red-bg); font-size: 12px; line-height: 1.65; color: #7c2d22; max-width: 736px; }
-  .ai-note .lbl { font-family: var(--mono); font-size: 9px; color: var(--red); display: block; margin-bottom: 3px; letter-spacing: .1em; }
-  .content-log { margin-top: 12px; padding: 10px 14px; background: var(--green-bg); font-size: 12px; color: #17513c; max-width: 736px; }
+  .ai-note { margin-top: 12px; padding: 10px 14px; background: var(--red-bg); border-radius: 6px; font-size: 12px; line-height: 1.6; color: #912018; max-width: 752px; }
+  .ai-note .lbl { font-weight: 700; color: var(--red); display: block; margin-bottom: 2px; }
+  .content-log { margin-top: 12px; padding: 10px 14px; background: var(--green-bg); border-radius: 6px; font-size: 12px; color: #05603a; max-width: 752px; }
 
-  /* ── 장부: 표 ── */
+  /* ── 표 ── */
   table.ledger, table.res { width: 100%; border-collapse: collapse; font-size: 12.5px; }
   table.ledger th, table.res th {
-    border-top: 2px solid var(--ink); border-bottom: 1px solid var(--hair2);
-    text-align: left; padding: 10px 12px 8px; font-weight: 700; font-size: 11.5px; color: var(--ink);
+    background: #f9fafb; border-bottom: 1px solid var(--line);
+    text-align: left; padding: 9px 14px; font-weight: 600; font-size: 11.5px; color: var(--sub);
   }
-  table.ledger td, table.res td { border-bottom: 1px solid var(--hair); padding: 11px 12px; vertical-align: top; }
-  tr.row-rogue td { background: var(--red-bg); }
+  table.ledger td, table.res td { border-bottom: 1px solid var(--line); padding: 11px 14px; vertical-align: top; }
+  table.ledger tr:last-child td, table.res tr:last-child td { border-bottom: none; }
+  table.ledger tbody tr:hover td { background: #fafbfc; }
+  tr.row-rogue td { background: #fffafa; }
   tr.row-blocked { opacity: .5; }
-  .st { font-family: var(--mono); font-size: 10.5px; font-weight: 600; white-space: nowrap; }
-  .st.ok { color: var(--green); } .st.rogue { color: var(--red); } .st.blocked { color: var(--faint); }
   .aiwhy { font-size: 11.5px; color: var(--sub); margin-top: 2px; }
   .mono { font-family: var(--mono); font-size: 11.5px; }
   td .nm { font-weight: 700; }
-  td .idcode { font-family: var(--mono); font-size: 10px; color: var(--faint); display: block; }
+  td .idcode { font-family: var(--mono); font-size: 10px; color: var(--faint); display: block; margin-top: 1px; }
   .due-soon { color: var(--amber); font-weight: 700; }
   .cnt-has { color: var(--green); font-weight: 700; }
 
   /* ── 내용 검사 ── */
   .det-mode { display: flex; gap: 14px; align-items: center; font-size: 12px; flex-wrap: wrap; color: var(--sub); }
   .det-mode label { display: flex; gap: 5px; align-items: center; cursor: pointer; }
-  .det-mode input { accent-color: var(--green); }
-  .det-mode .ok-dot { font-family: var(--mono); font-size: 10px; color: var(--green); }
-  .det-mode .off-dot { font-family: var(--mono); font-size: 10px; color: var(--faint); }
-  .det-out { margin-top: 16px; border-top: 2px solid var(--ink); }
-  .det-hit { display: flex; gap: 12px; padding: 10px 4px; border-bottom: 1px solid var(--hair); font-size: 12.5px; align-items: baseline; }
+  .det-mode input { accent-color: var(--blue); }
+  .det-mode .ok-dot { font-size: 11px; color: var(--green); font-weight: 600; }
+  .det-mode .off-dot { font-size: 11px; color: var(--faint); }
+  .det-hit { display: flex; gap: 12px; padding: 10px 18px; border-bottom: 1px solid var(--line); font-size: 12.5px; align-items: baseline; }
+  .det-hit:last-of-type { border-bottom: none; }
   .det-hit .tag { font-family: var(--mono); font-size: 9.5px; white-space: nowrap; font-weight: 600; }
   .det-hit.viol .tag { color: var(--red); } .det-hit.warn .tag { color: var(--amber); } .det-hit.info .tag { color: var(--faint); }
-  .det-hit .span { font-family: var(--mono); font-size: 11.5px; background: var(--paper); border: 1px solid var(--hair); padding: 1px 7px; }
+  .det-hit .span { font-family: var(--mono); font-size: 11.5px; background: var(--bg); border-radius: 4px; padding: 1px 7px; }
   .det-hit .note { font-size: 11.5px; color: var(--sub); }
-  .det-empty { color: var(--faint); font-size: 12px; padding: 10px 4px; }
+  .det-empty { color: var(--faint); font-size: 12px; padding: 11px 18px; }
 
-  /* ── 위저드 ── */
+  /* ── 모달 ── */
   .overlay {
-    position: fixed; inset: 0; background: rgba(32,31,27,.5);
+    position: fixed; inset: 0; background: rgba(16,24,40,.45);
     display: none; align-items: flex-start; justify-content: center;
     padding: 48px 16px; overflow-y: auto; z-index: 50;
   }
   .overlay.open { display: flex; }
   .modal {
-    background: var(--paper); border: 1px solid var(--hair2);
-    max-width: 700px; width: 100%; padding: 28px 32px 26px;
-    animation: fade .2s ease both;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+    max-width: 700px; width: 100%; padding: 24px 28px;
+    box-shadow: 0 12px 32px rgba(16,24,40,.16);
+    animation: fade .18s ease both;
   }
-  .modal h3 { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 2px; }
-  .modal .wsub { font-size: 11.5px; color: var(--faint); margin-bottom: 18px; }
+  .modal h3 { font-size: 17px; font-weight: 800; letter-spacing: -0.01em; margin-bottom: 2px; }
+  .modal .wsub { font-size: 11.5px; color: var(--faint); margin-bottom: 16px; }
   .modal .wsub a { color: var(--sub); }
-  .wsteps { display: flex; gap: 6px; margin-bottom: 18px; }
-  .wsteps .s { flex: 1; font-family: var(--mono); font-size: 9px; color: var(--faint); border-bottom: 2px solid var(--hair); padding-bottom: 6px; }
-  .wsteps .s.on { color: var(--ink); border-color: var(--ink); font-weight: 600; }
-  .opt { display: flex; gap: 12px; align-items: baseline; padding: 13px 4px; border-bottom: 1px solid var(--hair); cursor: pointer; }
+  .wsteps { display: flex; gap: 5px; margin-bottom: 18px; }
+  .wsteps .s { flex: 1; font-size: 10px; color: var(--faint); border-bottom: 2px solid var(--line); padding-bottom: 6px; }
+  .wsteps .s.on { color: var(--blue); border-color: var(--blue); font-weight: 700; }
+  .opt { display: flex; gap: 12px; align-items: baseline; padding: 12px 10px; border: 1px solid transparent; border-bottom: 1px solid var(--line); cursor: pointer; }
   .opt:hover { background: var(--bg); }
-  .opt .mark { flex: 0 0 13px; height: 13px; border: 1.5px solid var(--faint); border-radius: 50%; position: relative; top: 2px; }
-  .opt.sel .mark { border-color: var(--ink); }
-  .opt.sel .mark::after { content: ""; position: absolute; inset: 2.5px; background: var(--ink); border-radius: 50%; }
+  .opt.sel { background: var(--blue-bg); border-radius: 6px; border-bottom-color: transparent; }
+  .opt .mark { flex: 0 0 13px; height: 13px; border: 1.5px solid var(--faint); border-radius: 50%; position: relative; top: 2px; background: var(--panel); }
+  .opt.sel .mark { border-color: var(--blue); }
+  .opt.sel .mark::after { content: ""; position: absolute; inset: 2.5px; background: var(--blue); border-radius: 50%; }
   .opt .t { font-weight: 700; font-size: 13px; }
+  .opt.sel .t { color: var(--blue-dark); }
   .opt .d { font-size: 11.5px; color: var(--sub); margin-top: 1px; }
-  .evi { border-top: 1px solid var(--hair); padding: 13px 2px 11px; }
+  .evi { border-top: 1px solid var(--line); padding: 13px 2px 11px; }
   .evi .head { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
-  .evi .feat { font-weight: 800; font-size: 12.5px; }
-  .avtag { font-family: var(--mono); font-size: 9.5px; }
+  .evi .feat { font-weight: 700; font-size: 12.5px; }
+  .avtag { font-size: 10.5px; font-weight: 600; }
   .avtag.builtin { color: var(--green); } .avtag.higher_tier { color: var(--amber); }
   .avtag.third_party { color: var(--sub); } .avtag.none { color: var(--red); } .avtag.unclear { color: var(--faint); }
   .evi .ctrl { font-size: 12px; color: var(--sub); margin-top: 4px; }
   .applychk { display: flex; gap: 8px; align-items: flex-start; margin-top: 9px; font-size: 12px; cursor: pointer; }
-  .applychk input { margin-top: 3px; accent-color: var(--green); }
+  .applychk input { margin-top: 3px; accent-color: var(--blue); }
   .wnav { display: flex; justify-content: space-between; margin-top: 20px; }
-  .verdict-line { border-top: 2px solid var(--ink); padding-top: 15px; margin-top: 6px; }
-  .verdict-line .word { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; }
+  .verdict-line { border-top: 1px solid var(--line); padding-top: 15px; margin-top: 6px; }
+  .verdict-line .word { font-size: 20px; font-weight: 800; letter-spacing: -0.01em; }
   .verdict-line.ok .word { color: var(--green); } .verdict-line.cond .word { color: var(--amber); } .verdict-line.bad .word { color: var(--red); }
-  .finding { display: flex; gap: 10px; padding: 8px 2px; border-bottom: 1px solid var(--hair); font-size: 12px; }
+  .finding { display: flex; gap: 10px; padding: 8px 2px; border-bottom: 1px solid var(--line); font-size: 12px; }
   .finding .ic { font-family: var(--mono); font-weight: 600; }
   .finding.r .ic { color: var(--red); } .finding.w .ic { color: var(--amber); } .finding.g .ic { color: var(--green); }
 
   /* ── 반기 보고 ── */
-  .report-page { background: var(--paper); border: 1px solid var(--hair2); padding: 34px 38px; max-width: 840px; color: #1c1e22; }
+  .report-page { padding: 30px 34px; max-width: 840px; color: #1c1e22; }
   .report-page h3 { border-bottom: 2px solid #1c1e22; padding-bottom: 6px; font-size: 16px; margin-bottom: 6px; }
   .report-page h4 { margin: 18px 0 6px; font-size: 13.5px; }
   .report-page p { font-size: 12px; }
@@ -225,21 +242,20 @@
   .report-page td { border: 1px solid #bbb; padding: 5px 8px; }
   .report-page tr.flag td { background: var(--red-bg); }
 
-  footer.legal { border-top: 1px solid var(--hair); padding: 20px 0 48px; font-size: 10.5px; color: var(--faint); line-height: 1.8; }
+  footer.legal { max-width: 1320px; margin: 0 auto; padding: 0 28px 40px; font-size: 10.5px; color: var(--faint); line-height: 1.8; }
 
   @media (max-width: 980px) {
-    .wrap { padding: 0 18px; }
-    .mapgrid { grid-template-columns: 1fr; gap: 26px; }
+    header.appbar .in { padding: 0 16px; gap: 16px; height: auto; flex-wrap: wrap; padding-top: 10px; }
+    .nav-it { height: 44px; padding: 0 10px; }
     .who { display: none; }
-    #tabs { gap: 16px; }
-    .stat { padding-right: 20px; margin-right: 20px; }
-    .stat b { font-size: 30px; }
-    h2.q { font-size: 24px; }
+    .wrap { padding: 16px 16px 40px; }
+    .mapgrid { grid-template-columns: 1fr; }
+    footer.legal { padding: 0 16px 32px; }
   }
   @media print {
     body * { visibility: hidden; }
     .report-page, .report-page * { visibility: visible; }
-    .report-page { position: absolute; left: 0; top: 0; border: none; }
+    .report-page { position: absolute; left: 0; top: 0; }
   }
   @media (prefers-reduced-motion: reduce) {
     .view, .modal { animation: none; }
@@ -249,16 +265,20 @@
 </head>
 <body>
 
-<header class="top"><div class="wrap in">
+<header class="appbar"><div class="in">
   <h1 class="brand">살피<small>SALPI</small></h1>
   <nav id="tabs"></nav>
-  <span class="who"><span>페이몬 정보보호팀 (데모)</span><a href="workbench.html">판정 워크벤치</a></span>
+  <span class="who">
+    <span class="org"><span class="avatar">페</span>페이몬 정보보호팀</span>
+    <a href="workbench.html">판정 워크벤치</a>
+  </span>
 </div></header>
 
 <div class="wrap">
-  <div class="stats" id="strip"></div>
+  <div class="stats panel" id="strip"></div>
   <main id="main"></main>
-  <footer class="legal">
+</div>
+<footer class="legal">
     가상 전자금융업자의 합성 데이터로 구성된 데모다. 판정과 대조는 결정적 로직으로 수행되고,
     로그 목적지 분류와 위반 사유 문장, 결합 판단은 실서비스에서 로컬 소형 LLM(Kanana)이 담당한다.
     데모 일부는 내장 근사다. 본 도구는 법적 판단을 대행하지 않는다. 근거: 전자금융감독규정 시행세칙 제2조의3.
@@ -606,26 +626,26 @@ function renderMap(){
       </div>
     </div>
     <div class="mapgrid">
-      <div>
-        <div class="maphead"><span class="t">망분리 경계 실측도</span><span class="r">${new Date().toISOString().slice(0,10)}</span></div>
-        <svg class="map" viewBox="0 0 900 ${H}" width="100%">${boxes}${lines}</svg>
+      <div class="panel">
+        <div class="panel-hd"><span class="t">망분리 경계 실측도</span><span class="r">${new Date().toISOString().slice(0,10)}</span></div>
+        <div class="panel-bd" style="padding:10px 14px 4px"><svg class="map" viewBox="0 0 900 ${H}" width="100%">${boxes}${lines}</svg></div>
         <div class="maplegend">
           <span><i></i>승인 통로</span>
           <span class="r"><i></i>미등록 연결</span>
         </div>
       </div>
       <div class="side">
-        <section>
-          <h3>다가오는 의무</h3>
-          ${dueList.length ? dueList.map(c=>`<div class="duty"><span><b>${c.id}</b> ${c.review.type.replace(' (제4항)','')}</span><span class="when">${c.review.due.slice(5)}</span></div>`).join('') : '<div class="none">없음</div>'}
-        </section>
-        <section>
-          <h3>미등록 연결 조치</h3>
-          ${state.rogues.length ? state.rogues.map(r=>`<div class="rg"><span class="host">${esc(r.host)}</span><span class="sp">${
+        <div class="panel">
+          <div class="panel-hd"><span class="t">다가오는 의무</span></div>
+          ${dueList.length ? dueList.map(c=>`<div class="rowitem"><span><b>${c.id}</b> ${c.review.type.replace(' (제4항)','')}</span><span class="when">${c.review.due.slice(5)}</span></div>`).join('') : '<div class="none">없음</div>'}
+        </div>
+        <div class="panel">
+          <div class="panel-hd"><span class="t">미등록 연결 조치</span></div>
+          ${state.rogues.length ? state.rogues.map(r=>`<div class="rowitem"><span class="host">${esc(r.host)}</span><span class="sp">${
             r.cls.saasLike?`<button class="act small" onclick='openWizard({host:${JSON.stringify(r.host)}, name:${JSON.stringify(r.host)}, fromRogue:true, cls:${JSON.stringify(r.cls)}})'>판정</button>`:''}
             <button class="act danger small" onclick='quickBlock(${JSON.stringify(r.host)})'>차단</button></span></div>`).join('')
           : `<div class="none">${state.scanned?'전부 조치됨':'로그 대조 실행 전'}</div>`}
-        </section>
+        </div>
       </div>
     </div>
     <div class="detail" id="detail"></div>
@@ -638,28 +658,28 @@ function showDetail(sel){
   const boxEl = $('#detail'); if (!boxEl) return;
   if (sel.startsWith('R-')) {
     const r = state.rogues[Number(sel.slice(2))]; if (!r) return;
-    boxEl.className = 'detail rogue'; boxEl.style.display = 'block';
-    boxEl.innerHTML = `<h3><span class="mono" style="font-size:13px">${esc(r.host)}</span><span class="badge">미등록 연결</span></h3>
-      <div class="grid">
+    boxEl.className = 'detail panel'; boxEl.style.display = 'block';
+    boxEl.innerHTML = `<div class="panel-hd"><span class="t mono" style="font-size:13px">${esc(r.host)}</span><span class="badge bad">미등록 연결</span></div>
+      <div class="panel-bd"><div class="grid">
         <dt>관측</dt><dd>${r.info.count}회, 단말 ${r.info.srcs.size}대, 포트 ${[...r.info.ports].join(', ')}</dd>
         <dt>분류</dt><dd>${r.cls.kind}</dd>
         <dt>판정</dt><dd>승인 대장에 없음</dd></div>
       <div class="ai-note"><span class="lbl">위험 요약</span>${r.cls.risk}</div>
       <div style="margin-top:12px;display:flex;gap:8px">
         ${r.cls.saasLike ? `<button class="act small" onclick='openWizard({host:${JSON.stringify(r.host)}, name:${JSON.stringify(r.host)}, fromRogue:true, cls:${JSON.stringify(r.cls)}})'>판정하기 (등재 절차)</button>` : ''}
-        <button class="act danger small" onclick='quickBlock(${JSON.stringify(r.host)})'>차단 확정</button></div>`;
+        <button class="act danger small" onclick='quickBlock(${JSON.stringify(r.host)})'>차단 확정</button></div></div>`;
   } else {
     const c = LEDGER.find(x => x.id === sel); if (!c) return;
     const n = contentCount(c.id);
-    boxEl.className = 'detail'; boxEl.style.display = 'block';
-    boxEl.innerHTML = `<h3>${c.id} ${esc(c.name)}<span class="muted">${c.type}</span></h3>
-      <div class="grid">
+    boxEl.className = 'detail panel'; boxEl.style.display = 'block';
+    boxEl.innerHTML = `<div class="panel-hd"><span class="t">${c.id} ${esc(c.name)}</span><span class="badge gray">${c.type}</span></div>
+      <div class="panel-bd"><div class="grid">
         <dt>근거 조문</dt><dd>${c.basis}</dd>
         <dt>연결</dt><dd>${c.domains.join(', ')} 포트 ${c.ports}, ${c.dir}</dd>
         <dt>승인</dt><dd>${c.approved}</dd>
         <dt>적용 통제</dt><dd>${c.controls}${c.pendingRisks?` <b style="color:var(--amber)">미해소 ${c.pendingRisks}건</b>`:''}</dd>
         <dt>다음 의무</dt><dd>${c.review.type} ${c.review.due} ${c.review.soon?'<b style="color:var(--amber)">임박</b>':''}</dd></div>
-      ${c.zone==='saas' ? `<div class="content-log">내용검사 기록 <b>${n}건</b>${n?`. 반기 보고에 자동 반영됩니다`:`. 내용 검사 탭에서 이 통로를 점검할 수 있습니다`}</div>` : ''}`;
+      ${c.zone==='saas' ? `<div class="content-log">내용검사 기록 <b>${n}건</b>${n?`. 반기 보고에 자동 반영됩니다`:`. 내용 검사 탭에서 이 통로를 점검할 수 있습니다`}</div>` : ''}</div>`;
   }
 }
 function quickBlock(host){
@@ -674,10 +694,10 @@ function renderLedger(){
   const rogueRows = state.rogues.map(r => `
     <tr class="row-rogue">
       <td><span class="nm mono" style="color:var(--red)">${esc(r.host)}</span><span class="idcode">미등록</span></td>
-      <td>${r.cls.kind}</td>
+      <td><span class="badge bad">${r.cls.kind}</span></td>
       <td colspan="2"><div class="aiwhy" style="margin:0">${r.cls.risk}</div></td>
       <td>관측 ${r.info.count}회, 단말 ${r.info.srcs.size}대</td>
-      <td><span class="st rogue">조치 대기</span></td>
+      <td><span class="badge bad">조치 대기</span></td>
       <td style="white-space:nowrap">${r.cls.saasLike?`<button class="act small" onclick='openWizard({host:${JSON.stringify(r.host)}, name:${JSON.stringify(r.host)}, fromRogue:true, cls:${JSON.stringify(r.cls)}})'>판정</button> `:''}<button class="act danger small" onclick='quickBlock(${JSON.stringify(r.host)})'>차단</button></td>
     </tr>`).join('');
   $('#main').innerHTML = `<section class="view">
@@ -689,13 +709,13 @@ function renderLedger(){
       </div>
       <div class="actions"><button class="act" onclick="openWizard({name:'새 SaaS'})">SaaS 통로 등재</button></div>
     </div>
-    <table class="ledger">
-      <tr><th style="width:17%">통로</th><th style="width:11%">유형</th><th style="width:15%">근거 조문</th><th style="width:17%">연결</th><th style="width:12%">승인</th><th>다음 의무</th><th style="width:12%"></th></tr>
+    <div class="panel" style="overflow:hidden"><table class="ledger">
+      <tr><th style="width:17%">통로</th><th style="width:10%">유형</th><th style="width:15%">근거 조문</th><th style="width:17%">연결</th><th style="width:11%">승인</th><th>다음 의무</th><th style="width:12%"></th></tr>
       ${rogueRows}
       ${LEDGER.map(c => { const n = contentCount(c.id); return `
       <tr>
         <td><span class="nm">${esc(c.name)}</span><span class="idcode">${c.id}</span></td>
-        <td>${c.type}</td>
+        <td><span class="badge gray">${c.type}</span></td>
         <td>${c.basis}</td>
         <td class="mono" style="font-size:11px">${c.domains[0]} :${c.ports}</td>
         <td>${c.approved.slice(0,10)}</td>
@@ -703,7 +723,7 @@ function renderLedger(){
           ${c.zone==='saas'?`<div class="${n?'cnt-has':''}" style="font-size:11.5px;margin-top:2px">내용검사 ${n}건${c.pendingRisks?`, 미해소 ${c.pendingRisks}건`:''}</div>`:''}</td>
         <td></td>
       </tr>`; }).join('')}
-    </table></section>`;
+    </table></div></section>`;
 }
 
 /* ── 로그 대조 ── */
@@ -719,7 +739,8 @@ function renderLogs(){
         <button class="act" id="run">대조 실행</button>
       </div>
     </div>
-    <textarea id="logbox" style="height:150px" placeholder="방화벽 또는 프록시 로그를 붙여넣으세요"></textarea>
+    <div class="panel"><div class="panel-hd"><span class="t">로그 입력</span></div><div class="panel-bd">
+    <textarea id="logbox" style="height:150px" placeholder="방화벽 또는 프록시 로그를 붙여넣으세요"></textarea></div></div>
     <div id="result">${state.scanned?renderLogResult(reconcile($('#logbox')?.value||SAMPLE_LOG)):''}</div></section>`;
   $('#sample').onclick = () => { $('#logbox').value = SAMPLE_LOG; };
   $('#run').onclick = () => {
@@ -730,17 +751,17 @@ function renderLogs(){
   };
 }
 function renderLogResult(rec){
-  return `<table class="res" style="margin-top:18px">
+  return `<div class="panel" style="margin-top:16px;overflow:hidden"><table class="res">
     <tr><th>목적지</th><th>관측</th><th>판정</th><th>대응 / 분류와 사유</th><th></th></tr>
     ${rec.rows.map(r => {
       if (r.status==='ok') return `<tr><td class="mono">${esc(r.host)}</td><td>${r.info.count}회 ${r.info.srcs.size}대</td>
-        <td><span class="st ok">승인됨</span></td><td>${r.conduit.id} ${esc(r.conduit.name)} (${r.conduit.basis})</td><td></td></tr>`;
+        <td><span class="badge ok">승인됨</span></td><td>${r.conduit.id} ${esc(r.conduit.name)} (${r.conduit.basis})</td><td></td></tr>`;
       if (r.status==='blocked') return `<tr class="row-blocked"><td class="mono">${esc(r.host)}</td><td>${r.info.count}회</td>
-        <td><span class="st blocked">차단 확정</span></td><td>${r.blk.kind}</td><td></td></tr>`;
+        <td><span class="badge gray">차단 확정</span></td><td>${r.blk.kind}</td><td></td></tr>`;
       return `<tr class="row-rogue"><td class="mono"><b>${esc(r.host)}</b></td><td>${r.info.count}회 ${r.info.srcs.size}대</td>
-        <td><span class="st rogue">미등록</span></td><td><b>${r.rogue.cls.kind}</b><div class="aiwhy">${r.rogue.cls.risk}</div></td>
+        <td><span class="badge bad">미등록</span></td><td><b>${r.rogue.cls.kind}</b><div class="aiwhy">${r.rogue.cls.risk}</div></td>
         <td style="white-space:nowrap">${r.rogue.cls.saasLike?`<button class="act small" onclick='openWizard({host:${JSON.stringify(r.host)}, name:${JSON.stringify(r.host)}, fromRogue:true, cls:${JSON.stringify(r.rogue.cls)}})'>판정</button> `:''}<button class="act danger small" onclick='quickBlock(${JSON.stringify(r.host)})'>차단</button></td></tr>`;
-    }).join('')}</table>
+    }).join('')}</table></div>
     <div class="hint">미등록 연결이 경계 지도와 대장에 반영되었습니다. SaaS형 연결은 판정을 눌러 등재 절차를 시작할 수 있습니다.</div>`;
 }
 
@@ -756,16 +777,16 @@ function renderContent(){
         탐지 기록은 마스킹되어 해당 통로의 반기 자체평가 증적으로 저장됩니다.</p>
       </div>
     </div>
-    <div style="display:flex;gap:14px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+    <div class="panel"><div class="panel-hd">
       <span style="font-size:12.5px;color:var(--sub)">대상 SaaS</span>
       <select id="det-target">
         ${saas.map(c=>`<option value="${c.id}">${c.id} ${esc(c.name)}</option>`).join('')}
       </select>
       <span class="det-mode" id="det-mode"></span>
-      <button class="act ghost2 small" id="det-sample" style="margin-left:auto">예시 회의록 넣기</button>
-    </div>
-    <textarea id="det-in" style="height:130px" placeholder="검사할 문서나 회의록을 붙여넣으세요"></textarea>
-    <div id="det-out" class="det-out" style="display:none"></div>
+      <span class="r"><button class="act ghost2 small" id="det-sample">예시 회의록 넣기</button></span>
+    </div><div class="panel-bd">
+    <textarea id="det-in" style="height:130px" placeholder="검사할 문서나 회의록을 붙여넣으세요"></textarea></div></div>
+    <div id="det-out" class="det-out panel" style="display:none;margin-top:14px"></div>
     <div id="det-note"></div></section>`;
   $('#det-sample').onclick = () => {
     $('#det-in').value = `3월 여신협의회 회의록\n1. 박지현 고객 주택담보대출 연체 3개월 경과 건. 연락처 010-4821-7733.\n2. 신규 상품 한도 정책은 다음 회의에서 확정.\n3. 정해나 고객 재방문 상담 진행.\n   - 해당 고객은 신용대출 상환 지연 이력이 있음.\n4. 사내 워크숍 일정 공유.`;
@@ -822,7 +843,7 @@ function renderReport(){
       </div>
       <div class="actions"><button class="act" onclick="window.print()">인쇄 / PDF 저장</button></div>
     </div>
-    <div class="report-page">
+    <div class="panel report-page">
       <h3>망분리 적용 예외 운영 현황 및 반기 자체평가 보고 (초안)</h3>
       <p style="color:#555">기준일 ${now.toISOString().slice(0,10)}, 근거: 시행세칙 제2조의3 제3항과 제4항</p>
       <h4>1. 예외 운영 현황</h4>
