@@ -28,7 +28,7 @@
 
   /* ── 상단 ── */
   header.top { border-bottom: 2px solid var(--ink); }
-  header.top .in { display: flex; align-items: baseline; gap: 36px; padding: 22px 0 0; flex-wrap: wrap; }
+  header.top .in { display: flex; align-items: baseline; gap: 36px; padding-top: 22px; flex-wrap: wrap; }
   h1.brand { font-size: 23px; font-weight: 800; letter-spacing: -0.03em; padding-bottom: 16px; }
   h1.brand small { font-family: var(--mono); font-size: 9px; font-weight: 400; color: var(--faint); letter-spacing: .3em; margin-left: 10px; }
   #tabs { display: flex; gap: 26px; flex-wrap: wrap; }
@@ -51,10 +51,7 @@
   .stat:last-child { border-right: none; }
   .stat b { display: block; font-size: 40px; font-weight: 800; letter-spacing: -0.05em; line-height: 1; font-variant-numeric: tabular-nums; }
   .stat span.l { display: block; font-size: 12px; color: var(--sub); margin-top: 8px; }
-  .stat .d { font-family: var(--mono); font-size: 9px; letter-spacing: .1em; color: var(--faint); margin-top: 2px; display: block; }
-  .stat.bad b, .stat.bad .d { color: var(--red); }
-  .stat.warn .d { color: var(--amber); }
-  .stat.ok .d { color: var(--green); }
+  .stat.bad b { color: var(--red); }
 
   .view { animation: fade .25s ease both; }
   @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
@@ -63,7 +60,6 @@
   /* 페이지 머리 */
   .pagehead { padding: 30px 0 22px; display: flex; align-items: flex-end; gap: 24px; flex-wrap: wrap; }
   .pagehead .tx { max-width: 80ch; }
-  .no { font-family: var(--mono); font-size: 10px; color: var(--sub); letter-spacing: .22em; display: block; margin-bottom: 8px; }
   h2.q { font-size: 30px; font-weight: 800; letter-spacing: -0.035em; margin-bottom: 8px; line-height: 1.25; }
   .qsub { font-size: 13px; color: var(--sub); line-height: 1.75; }
   .qsub b { color: var(--ink); font-weight: 600; }
@@ -547,15 +543,15 @@ function renderStrip(){
   const reviewDue = LEDGER.filter(c => c.review.soon && !c.review.type.includes('반기')).length;
   const detects = Object.values(state.contentLog).reduce((n,a)=>n+a.length,0);
   const items = [
-    { n: LEDGER.length, l:'승인 콘딧', d:'LEDGER' },
-    { n: saasDue, l:'SaaS 반기평가 도래', d:'DUE', cls: saasDue?'warn':'' },
-    { n: reviewDue, l:'재승인 임박', d:'COMMITTEE', cls: reviewDue?'warn':'' },
-    { n: state.rogues.length, l:'미등록 연결', d: state.scanned?'ROGUE':'대조 전', cls: state.rogues.length?'bad':'' },
-    { n: detects, l:'내용검사 기록', d:'MASKED', cls: detects?'ok':'' },
+    { n: LEDGER.length, l:'승인 콘딧' },
+    { n: saasDue, l:'SaaS 반기평가 도래', cls: saasDue?'warn':'' },
+    { n: reviewDue, l:'재승인 임박', cls: reviewDue?'warn':'' },
+    { n: state.rogues.length, l: state.scanned?'미등록 연결':'미등록 연결 (대조 전)', cls: state.rogues.length?'bad':'' },
+    { n: detects, l:'내용검사 기록', cls: detects?'ok':'' },
   ];
-  if (state.blocked.length) items.push({ n: state.blocked.length, l:'차단 확정', d:'BLOCK' });
+  if (state.blocked.length) items.push({ n: state.blocked.length, l:'차단 확정' });
   $('#strip').innerHTML = items.map(it =>
-    `<div class="stat ${it.cls||''}"><b>${it.n}</b><span class="l">${it.l}</span><span class="d">${it.d}</span></div>`).join('');
+    `<div class="stat ${it.cls||''}"><b>${it.n}</b><span class="l">${it.l}</span></div>`).join('');
 }
 function renderTabs(){
   $('#tabs').innerHTML = TABS.map(t =>
@@ -604,7 +600,6 @@ function renderMap(){
   $('#main').innerHTML = `<section class="view">
     <div class="pagehead">
       <div class="tx">
-        <span class="no">01 / PERIMETER</span>
         <h2 class="q">경계 지도</h2>
         <p class="qsub">내부업무망에 뚫린 승인된 통로 전부. 선 하나가 승인된 예외(콘딧) 하나다. 클릭하면 근거와 통제가 나온다.
         ${state.scanned ? '<b>붉은 점선은 로그 대조가 찾아낸, 대장에 없는 연결</b>이다.' : '로그 대조를 실행하면 대장에 없는 연결이 이 지도에 나타난다.'}</p>
@@ -688,7 +683,6 @@ function renderLedger(){
   $('#main').innerHTML = `<section class="view">
     <div class="pagehead">
       <div class="tx">
-        <span class="no">02 / LEDGER</span>
         <h2 class="q">콘딧 대장</h2>
         <p class="qsub">승인 ${LEDGER.length}건${state.rogues.length?`, 미등록 ${state.rogues.length}건`:''}${state.blocked.length?`, 차단 ${state.blocked.length}건`:''}.
         예외 유형별 근거 조문, 승인, 통제, 다음 의무를 한 장부로. 반기 자체평가(제4항)가 SaaS에만 붙는 것까지 구분한다.</p>
@@ -717,7 +711,6 @@ function renderLogs(){
   $('#main').innerHTML = `<section class="view">
     <div class="pagehead">
       <div class="tx">
-        <span class="no">03 / RECONCILE</span>
         <h2 class="q">로그 대조</h2>
         <p class="qsub">선언된 망분리와 실제 트래픽의 대조. 방화벽이나 프록시 로그를 붙여넣으면 목적지를 추출해 대장과 대조한다.
         판정은 결정적 집합 비교이고, 미확인 목적지의 분류와 사유만 AI가 맡는다.</p>
@@ -759,7 +752,6 @@ function renderContent(){
   $('#main').innerHTML = `<section class="view">
     <div class="pagehead">
       <div class="tx">
-        <span class="no">04 / INSPECTION</span>
         <h2 class="q">내용 검사</h2>
         <p class="qsub">SaaS 콘딧을 지나는 데이터의 결합 탐지. 통로 관리(대장)가 "어디로 다니는가"라면 내용 검사는 "무엇이 지나가는가"다.
         탐지 기록은 해당 콘딧의 반기 자체평가 증적이 된다. 판정은 규칙과 검증이, 결합 판단은 로컬 LLM이 맡는다. 실측 F1 85.4.</p>
@@ -826,7 +818,6 @@ function renderReport(){
   $('#main').innerHTML = `<section class="view">
     <div class="pagehead">
       <div class="tx">
-        <span class="no">05 / REPORT</span>
         <h2 class="q">반기 보고</h2>
         <p class="qsub">정보보호위원회 제출 초안. 대장(통로 현황), 로그 대조(실측), 내용 검사(살피 증적)가 한 문서로 조립된다.</p>
       </div>
