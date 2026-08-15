@@ -244,6 +244,27 @@
 
   footer.legal { max-width: 1320px; margin: 0 auto; padding: 0 28px 40px; font-size: 10.5px; color: var(--faint); line-height: 1.8; }
 
+  /* ── 로그인 ── */
+  .login-screen {
+    position: fixed; inset: 0; background: var(--bg); z-index: 100;
+    display: flex; align-items: center; justify-content: center; padding: 20px;
+  }
+  .login-card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+    padding: 38px 36px 28px; width: 372px; box-shadow: 0 4px 20px rgba(16,24,40,.07);
+  }
+  .login-card .logo { font-size: 26px; font-weight: 800; letter-spacing: -0.03em; }
+  .login-card .logo small { font-family: var(--mono); font-size: 9px; color: var(--faint); letter-spacing: .26em; margin-left: 9px; }
+  .login-card .ld { font-size: 12.5px; color: var(--sub); margin: 4px 0 24px; }
+  .login-card label { display: block; font-size: 12px; font-weight: 600; color: var(--sub); margin: 14px 0 5px; }
+  .login-card input {
+    width: 100%; font-family: var(--sans); font-size: 13.5px; color: var(--ink);
+    border: 1px solid var(--line2); border-radius: 6px; padding: 10px 12px; background: var(--panel);
+  }
+  .login-card input:focus { outline: 2px solid var(--blue); outline-offset: -1px; border-color: var(--blue); }
+  .login-card button { width: 100%; margin-top: 22px; padding: 11px; font-size: 14px; }
+  .login-card .demo-note { font-size: 11px; color: var(--faint); margin-top: 16px; line-height: 1.7; text-align: center; }
+
   @media (max-width: 980px) {
     header.appbar .in { padding: 0 16px; gap: 16px; height: auto; flex-wrap: wrap; padding-top: 10px; }
     .nav-it { height: 44px; padding: 0 10px; }
@@ -265,12 +286,27 @@
 </head>
 <body>
 
+<div class="login-screen" id="login" style="display:none">
+  <form class="login-card" onsubmit="doLogin(event)">
+    <div class="logo">살피<small>SALPI</small></div>
+    <p class="ld">금융권 망분리 경계 관제</p>
+    <label for="lg-id">아이디</label>
+    <input id="lg-id" type="text" value="paymon.sec" autocomplete="off">
+    <label for="lg-pw">비밀번호</label>
+    <input id="lg-pw" type="password" value="demo-pass" autocomplete="off">
+    <button class="act" type="submit">로그인</button>
+    <p class="demo-note">데모 환경입니다. 입력값과 관계없이<br>데모 계정(페이몬 정보보호팀)으로 입장합니다.</p>
+  </form>
+</div>
+
+<div id="appshell" style="display:none">
 <header class="appbar"><div class="in">
   <h1 class="brand" onclick="state.tab='map'; state.sel=null; render(); window.scrollTo(0,0)" style="cursor:pointer">살피<small>SALPI</small></h1>
   <nav id="tabs"></nav>
   <span class="who">
     <span class="org"><span class="avatar">페</span>페이몬 정보보호팀</span>
     <a href="workbench.html">판정 워크벤치</a>
+    <a href="#" onclick="logout(); return false">로그아웃</a>
   </span>
 </div></header>
 
@@ -283,6 +319,7 @@
     로그 목적지 분류와 위반 사유 문장, 결합 판단은 실서비스에서 로컬 소형 LLM(Kanana)이 담당한다.
     데모 일부는 내장 근사다. 본 도구는 법적 판단을 대행하지 않는다. 근거: 전자금융감독규정 시행세칙 제2조의3.
   </footer>
+</div>
 </div>
 
 <div class="overlay" id="overlay"><div class="modal" id="modal"></div></div>
@@ -872,7 +909,17 @@ function render(){
   renderStrip(); renderTabs();
   ({ map:renderMap, ledger:renderLedger, logs:renderLogs, content:renderContent, report:renderReport })[state.tab]();
 }
-render();
+
+/* ── 데모 로그인 ── */
+function doLogin(e){ e.preventDefault(); sessionStorage.setItem('salpi_auth','1'); boot(); }
+function logout(){ sessionStorage.removeItem('salpi_auth'); location.reload(); }
+function boot(){
+  const authed = sessionStorage.getItem('salpi_auth');
+  $('#login').style.display = authed ? 'none' : 'flex';
+  $('#appshell').style.display = authed ? '' : 'none';
+  if (authed) render();
+}
+boot();
 </script>
 </body>
 </html>
