@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<style>
+  body {
+    width: 340px; margin: 0; font: 13px/1.6 "Apple SD Gothic Neo", sans-serif;
+    color: #1b1e24; background: #fcfcfa;
+  }
+  header { padding: 12px 14px; border-bottom: 2px solid #1b1e24; }
+  header b { font-size: 14px; }
+  header .n { color: #a83226; font-weight: 800; }
+  #list { max-height: 340px; overflow-y: auto; }
+  .row { padding: 8px 14px; border-bottom: 1px solid #e2e1dc; }
+  .row .tag { font-family: Menlo, monospace; font-size: 11px; color: #a83226; font-weight: 700; }
+  .row .meta { font-size: 11px; color: #8b8e96; }
+  .row .span { font-family: Menlo, monospace; font-size: 11.5px; background: #f4f4f1; padding: 1px 5px; }
+  .empty { padding: 22px 14px; color: #8b8e96; text-align: center; }
+  footer { display: flex; gap: 8px; padding: 10px 14px; }
+  button {
+    flex: 1; font: 12px "Apple SD Gothic Neo", sans-serif; font-weight: 700;
+    padding: 7px 0; border: 1px solid #1b1e24; background: #fff; cursor: pointer; border-radius: 0;
+  }
+  button.primary { background: #1b1e24; color: #fff; }
+  .note { padding: 0 14px 12px; font-size: 10.5px; color: #8b8e96; }
+</style>
+</head>
+<body>
+<header><b>결계 WARD</b> · 탐지 기록 <span class="n" id="count"></span></header>
+<div id="list"></div>
+<footer>
+  <button class="primary" id="export">기록 내보내기 (증적)</button>
+  <button id="clear">비우기</button>
+</footer>
+<div class="note">기록은 마스킹되어 이 브라우저에만 저장된다. 내보낸 파일은 반기 자체평가 증적으로 첨부할 수 있다.</div>
+<script src="popup.js"></script>
+</body>
+</html>

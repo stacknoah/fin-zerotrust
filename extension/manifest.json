@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "결계 WARD — 개인신용정보 입력 감시",
+  "version": "0.1.0",
+  "description": "내부업무망 SaaS 입력창에서 고객 식별정보와 신용정보의 결합을 입력 시점에 탐지한다. 전자금융감독규정 시행세칙 별표7 대체통제(입력 필터)의 보완통제. 모든 판단은 브라우저 안에서 이뤄지며 어떤 데이터도 외부로 전송하지 않는다.",
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.notion.so/*",
+        "*://*.notion.site/*",
+        "*://*.slack.com/*",
+        "*://*.teams.microsoft.com/*",
+        "*://*.zoom.us/*",
+        "*://*.dooray.com/*",
+        "*://localhost/*",
+        "*://127.0.0.1/*"
+      ],
+      "js": ["engine.js", "content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "결계 WARD 탐지 기록"
+  },
+  "permissions": ["storage"]
+}
