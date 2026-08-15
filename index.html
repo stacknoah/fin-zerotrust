@@ -3,207 +3,288 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>살피 — 망분리 경계 관제 (데모)</title>
+<meta name="color-scheme" content="dark">
+<title>살피 SALPI</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sun-typeface/SUIT@2/fonts/variable/woff2/SUIT-Variable.css">
 <style>
   :root {
-    --paper: #fcfcfa; --ink: #1c1e22; --sub: #5d6068; --faint: #8b8e96;
-    --rule: #e2e1dc; --rule-dark: #1c1e22;
-    --accent: #2b55a3; --accent-bg: #eef2f9;
-    --ok: #176e4b; --ok-bg: #eef6f1; --warn: #8f6400; --warn-bg: #faf5e6;
-    --bad: #a83226; --bad-bg: #fbeeec;
+    --bg: #0f1014; --rail: #131419; --surface: #17181e; --surface2: #1d1f26;
+    --line: #262832; --line2: #32343f;
+    --text: #e9eaef; --sub: #9a9daa; --faint: #5f626e;
+    --accent: #5b9dff; --accent-ink: #0b0d12; --accent-dim: rgba(91,157,255,.12);
+    --ok: #3fd39a; --ok-dim: rgba(63,211,154,.11);
+    --warn: #f0b429; --warn-dim: rgba(240,180,41,.1);
+    --bad: #f0655a; --bad-dim: rgba(240,101,90,.1);
+    --r: 8px;
+    --sans: "SUIT Variable", "Apple SD Gothic Neo", "Pretendard", "Malgun Gothic", system-ui, sans-serif;
     --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   }
   * { box-sizing: border-box; }
+  html, body { height: 100%; }
   body {
-    margin: 0; font-family: "Apple SD Gothic Neo", "Pretendard", "Malgun Gothic", system-ui, sans-serif;
-    background: var(--paper); color: var(--ink); font-size: 14.5px; line-height: 1.65;
-    word-break: keep-all; -webkit-font-smoothing: antialiased;
+    margin: 0; font-family: var(--sans); background: var(--bg); color: var(--text);
+    font-size: 14px; line-height: 1.6; word-break: keep-all; -webkit-font-smoothing: antialiased;
   }
-  header.top { border-bottom: 1px solid var(--rule-dark); }
-  header.top .in {
-    max-width: 1120px; margin: 0 auto; padding: 20px 24px 14px;
-    display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
-  }
-  .wordmark { font-size: 19px; font-weight: 800; }
-  .wordmark .en { font-weight: 500; color: var(--faint); font-size: 12px; margin-left: 8px; }
-  .wordmark .tag {
-    font-family: var(--mono); font-size: 11px; font-weight: 500; color: var(--accent);
-    border: 1px solid var(--accent); padding: 1px 7px; margin-left: 10px; vertical-align: 2px;
-  }
-  .statute { margin-left: auto; font-family: var(--mono); font-size: 11px; color: var(--faint); }
+  button { font: inherit; }
+  ::selection { background: var(--accent-dim); }
 
-  .strip { border-bottom: 1px solid var(--rule); }
-  .strip .in {
-    max-width: 1120px; margin: 0 auto; padding: 10px 24px;
-    display: flex; gap: 26px; font-size: 12.5px; color: var(--sub); flex-wrap: wrap;
+  /* ── 뼈대: 좌측 레일 + 무대 ── */
+  .shell { display: grid; grid-template-columns: 224px 1fr; min-height: 100dvh; }
+  .rail {
+    background: var(--rail); border-right: 1px solid var(--line);
+    padding: 22px 14px 18px; display: flex; flex-direction: column; gap: 4px;
+    position: sticky; top: 0; height: 100dvh;
   }
-  .strip b { font-size: 16px; color: var(--ink); margin-right: 4px; }
-  .strip .alert b { color: var(--bad); }
-  .strip .warn b { color: var(--warn); }
-  .strip .okc b { color: var(--ok); }
-
-  nav.tabs { max-width: 1120px; margin: 18px auto 0; padding: 0 24px; display: flex; gap: 4px; flex-wrap: wrap; }
-  nav.tabs button {
-    font: inherit; font-size: 13.5px; font-weight: 700; padding: 9px 16px;
-    border: 1px solid var(--rule); border-bottom: none; background: #f4f4f1; color: var(--sub);
-    cursor: pointer; border-radius: 0;
+  .brand { padding: 0 10px 18px; }
+  .brand .ko { font-size: 21px; font-weight: 800; letter-spacing: -0.02em; }
+  .brand .en { font-family: var(--mono); font-size: 10px; color: var(--faint); letter-spacing: .14em; display: block; margin-top: 2px; }
+  .brand .demo {
+    display: inline-block; margin-top: 10px; font-family: var(--mono); font-size: 10px;
+    color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 1px 9px;
   }
-  nav.tabs button.on { background: var(--paper); color: var(--ink); border-color: var(--rule-dark); position: relative; }
-  nav.tabs button.on::after { content:''; position:absolute; left:0; right:0; bottom:-1px; height:2px; background:var(--paper); }
-  nav.tabs button .n { font-family: var(--mono); font-size: 11px; color: var(--bad); margin-left: 5px; }
-  main { max-width: 1120px; margin: 0 auto; padding: 22px 24px 80px; border-top: 1px solid var(--rule-dark); }
+  .nav-it {
+    display: flex; align-items: center; gap: 8px; width: 100%;
+    padding: 9px 10px; border: 0; border-radius: var(--r); background: transparent;
+    color: var(--sub); font-size: 13.5px; font-weight: 600; cursor: pointer; text-align: left;
+    transition: background .15s ease, color .15s ease;
+  }
+  .nav-it:hover { background: var(--surface2); color: var(--text); }
+  .nav-it.on { background: var(--accent-dim); color: var(--accent); }
+  .nav-it .cnt {
+    margin-left: auto; font-family: var(--mono); font-size: 10.5px; font-weight: 700;
+    color: var(--bad); background: var(--bad-dim); border-radius: 999px; padding: 1px 7px;
+  }
+  .rail-foot { margin-top: auto; padding: 14px 10px 0; border-top: 1px solid var(--line); font-size: 11px; color: var(--faint); line-height: 1.7; }
+  .rail-foot a { color: var(--sub); text-decoration: none; border-bottom: 1px solid var(--line2); }
+  .rail-foot a:hover { color: var(--accent); border-color: var(--accent); }
 
-  h2.q { font-size: 19px; font-weight: 800; margin: 4px 0 4px; letter-spacing: -0.01em; }
-  .qsub { font-size: 13px; color: var(--sub); margin: 0 0 18px; max-width: 76ch; }
-  .hint { font-size: 12.5px; color: var(--warn); margin-top: 10px; }
+  .stage { min-width: 0; display: flex; flex-direction: column; }
+  main { flex: 1; padding: 26px 30px 60px; max-width: 1180px; width: 100%; }
 
-  /* 지도 */
-  .mapwrap { border: 1px solid var(--rule); background: #fff; }
-  svg text { font-family: "Apple SD Gothic Neo", sans-serif; }
-  .zone-box { fill: #f7f7f4; stroke: #c9c9c2; }
-  .zone-core { fill: #eef2f9; stroke: var(--accent); stroke-width: 1.5; }
-  .conduit { stroke: #9aa3b5; stroke-width: 2; cursor: pointer; }
-  .conduit:hover { stroke: var(--accent); stroke-width: 3; }
-  .conduit.saas { stroke: #4a7c59; }
-  .conduit.rogue { stroke: var(--bad); stroke-width: 2.5; stroke-dasharray: 6 4; }
-  .cond-label { font-size: 10.5px; fill: #5d6068; cursor: pointer; }
+  /* ── 상단 상태 지표 ── */
+  .stats {
+    display: flex; border-bottom: 1px solid var(--line); background: var(--bg);
+    padding: 0 30px; overflow-x: auto;
+  }
+  .stat { padding: 16px 22px 14px 0; margin-right: 22px; white-space: nowrap; }
+  .stat b { display: block; font-family: var(--mono); font-size: 22px; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .stat span { font-size: 11.5px; color: var(--faint); }
+  .stat.warn b { color: var(--warn); } .stat.bad b { color: var(--bad); } .stat.ok b { color: var(--ok); }
+
+  /* ── 페이지 머리와 전환 ── */
+  .view { animation: rise .26s cubic-bezier(.16,1,.3,1) both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  h2.q { font-size: 17px; font-weight: 800; letter-spacing: -0.01em; margin: 0 0 4px; }
+  .qsub { font-size: 12.5px; color: var(--sub); margin: 0 0 20px; max-width: 78ch; }
+  .hint { font-size: 12.5px; color: var(--warn); margin-top: 12px; }
+
+  /* ── 지도 ── */
+  .mapwrap { border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); overflow: hidden; }
+  svg text { font-family: var(--sans); }
+  .zone-box { fill: var(--surface2); stroke: var(--line2); }
+  .zone-core { fill: var(--accent-dim); stroke: var(--accent); stroke-width: 1.2; }
+  .zone-rogue { fill: var(--bad-dim); stroke: var(--bad); }
+  .conduit { stroke: #454a5c; stroke-width: 1.6; cursor: pointer; transition: stroke .15s ease, stroke-width .15s ease; }
+  .conduit:hover, .conduit.sel { stroke: var(--accent); stroke-width: 2.6; }
+  .conduit.rogue { stroke: var(--bad); stroke-width: 2; stroke-dasharray: 7 5; }
+  .cond-label { font-size: 10.5px; fill: #7c8090; cursor: pointer; font-family: var(--mono); }
   .cond-label.rogue { fill: var(--bad); font-weight: 700; }
+  @media (prefers-reduced-motion: no-preference) {
+    .conduit.rogue { animation: crawl 1.4s linear infinite; }
+    @keyframes crawl { to { stroke-dashoffset: -24; } }
+  }
 
   .detail {
-    border: 1px solid var(--rule-dark); border-left: 4px solid var(--accent);
-    padding: 14px 18px; margin-top: 14px; background: #fff; display: none;
+    border: 1px solid var(--line2); border-left: 3px solid var(--accent); border-radius: var(--r);
+    padding: 16px 20px; margin-top: 14px; background: var(--surface); display: none;
   }
   .detail.rogue { border-left-color: var(--bad); }
-  .detail h3 { margin: 0 0 6px; font-size: 15px; }
-  .detail .grid { display: grid; grid-template-columns: 130px 1fr; gap: 3px 14px; font-size: 13px; }
+  .detail h3 { margin: 0 0 8px; font-size: 15px; }
+  .detail h3 .muted { font-weight: 500; color: var(--faint); font-size: 12px; margin-left: 8px; }
+  .detail .grid { display: grid; grid-template-columns: 120px 1fr; gap: 4px 16px; font-size: 13px; }
   .detail .grid dt { color: var(--faint); }
-  .detail .grid dd { margin: 0; }
-  .detail .ai-note { margin-top: 10px; padding: 9px 12px; background: var(--bad-bg); font-size: 12.5px; line-height: 1.6; }
-  .detail .ai-note .lbl { font-family: var(--mono); font-size: 10px; color: var(--bad); display: block; margin-bottom: 3px; }
-  .detail .content-log { margin-top: 10px; padding: 9px 12px; background: var(--ok-bg); font-size: 12.5px; }
+  .detail .grid dd { margin: 0; color: var(--text); }
+  .ai-note { margin-top: 12px; padding: 10px 14px; background: var(--bad-dim); border-radius: 6px; font-size: 12.5px; line-height: 1.6; }
+  .ai-note .lbl { font-family: var(--mono); font-size: 10px; color: var(--bad); display: block; margin-bottom: 4px; letter-spacing: .06em; }
+  .content-log { margin-top: 12px; padding: 10px 14px; background: var(--ok-dim); border-radius: 6px; font-size: 12.5px; }
 
-  /* 카드 */
-  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 12px; }
-  .card { border: 1px solid var(--rule); background: #fff; padding: 13px 16px; font-size: 13px; }
-  .card.rogue { border-color: var(--bad); background: var(--bad-bg); }
-  .card .hd { display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px; }
-  .card .id { font-family: var(--mono); font-size: 11px; color: var(--faint); }
-  .card .nm { font-weight: 800; font-size: 14.5px; }
-  .card .type { margin-left: auto; font-family: var(--mono); font-size: 10.5px; color: var(--accent); white-space: nowrap; }
+  /* ── 카드 ── */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+  .card {
+    border: 1px solid var(--line); border-radius: var(--r); background: var(--surface);
+    padding: 14px 16px; font-size: 12.5px; transition: border-color .15s ease, transform .15s ease;
+  }
+  .card:hover { border-color: var(--line2); transform: translateY(-1px); }
+  .card.rogue { border-color: var(--bad); background: var(--bad-dim); }
+  .card .hd { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+  .card .id { font-family: var(--mono); font-size: 10.5px; color: var(--faint); }
+  .card .nm { font-weight: 800; font-size: 14px; }
+  .card .type { margin-left: auto; font-family: var(--mono); font-size: 10px; color: var(--accent); white-space: nowrap; }
   .card.rogue .type { color: var(--bad); }
-  .card .row { display: flex; gap: 8px; font-size: 12.5px; color: var(--sub); }
-  .card .row b { color: var(--ink); font-weight: 600; }
-  .card .due { margin-top: 6px; font-size: 12px; }
+  .card .row { color: var(--sub); margin-top: 1px; }
+  .card .row b { color: var(--text); font-weight: 600; }
+  .card .due { margin-top: 8px; font-size: 11.5px; color: var(--faint); }
   .card .due.soon { color: var(--warn); font-weight: 700; }
-  .card .due.none { color: var(--faint); }
-  .card .content-stat { margin-top: 6px; font-size: 12px; color: var(--ok); }
-  .card .content-stat.has { font-weight: 700; }
+  .card .content-stat { margin-top: 6px; font-size: 11.5px; color: var(--faint); }
+  .card .content-stat.has { color: var(--ok); font-weight: 700; }
 
+  /* ── 버튼과 입력 ── */
   button.act {
-    font: inherit; font-size: 14px; font-weight: 700; padding: 10px 22px;
-    border: 1px solid var(--ink); background: var(--ink); color: var(--paper); cursor: pointer; border-radius: 0;
+    font-size: 13px; font-weight: 700; padding: 9px 18px; border-radius: var(--r);
+    border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink);
+    cursor: pointer; transition: filter .15s ease;
   }
-  button.ghost2 { background: var(--paper); color: var(--ink); }
+  button.act:hover { filter: brightness(1.12); }
+  button.ghost2 { background: transparent; color: var(--text); border-color: var(--line2); }
+  button.ghost2:hover { border-color: var(--sub); filter: none; }
   button.small { font-size: 12px; padding: 5px 12px; }
-  button.danger { border-color: var(--bad); background: var(--bad); }
-  button:disabled { opacity: .45; cursor: not-allowed; }
+  button.danger { border-color: var(--bad); background: var(--bad); color: #fff; }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button:focus-visible, .nav-it:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-  textarea {
-    width: 100%; font-family: var(--mono); font-size: 11.5px; line-height: 1.6;
-    border: 1px solid var(--rule-dark); padding: 10px; resize: vertical; background: #fff;
+  textarea, select {
+    font-family: var(--mono); font-size: 12px; line-height: 1.6; color: var(--text);
+    border: 1px solid var(--line2); border-radius: var(--r); padding: 10px 12px; background: var(--surface);
   }
+  textarea { width: 100%; resize: vertical; }
+  textarea:focus, select:focus { outline: 1px solid var(--accent); border-color: var(--accent); }
+  select { font-family: var(--sans); font-size: 13px; padding: 6px 10px; }
+
+  /* ── 대조 결과 표 ── */
   table.res { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 13px; }
-  table.res th { background: #14213d; color: #fff; text-align: left; padding: 7px 10px; font-weight: 700; }
-  table.res td { border-bottom: 1px solid var(--rule); padding: 7px 10px; vertical-align: top; }
+  table.res th {
+    background: var(--surface2); color: var(--sub); text-align: left; padding: 8px 12px;
+    font-weight: 700; font-size: 11.5px; border-bottom: 1px solid var(--line2);
+  }
+  table.res td { border-bottom: 1px solid var(--line); padding: 9px 12px; vertical-align: top; }
+  tr.row-rogue { background: var(--bad-dim); }
+  tr.row-blocked { opacity: .5; }
   .st { font-family: var(--mono); font-size: 11px; font-weight: 700; white-space: nowrap; }
   .st.ok { color: var(--ok); } .st.rogue { color: var(--bad); } .st.blocked { color: var(--faint); }
-  .aiwhy { font-size: 12px; color: var(--sub); }
+  .aiwhy { font-size: 12px; color: var(--sub); margin-top: 2px; }
+  .mono { font-family: var(--mono); font-size: 12px; }
 
-  /* 내용 검사 */
-  .det-mode { display: flex; gap: 14px; align-items: center; margin: 10px 0; font-size: 12.5px; flex-wrap: wrap; }
+  /* ── 내용 검사 ── */
+  .det-mode { display: flex; gap: 14px; align-items: center; font-size: 12.5px; flex-wrap: wrap; color: var(--sub); }
   .det-mode label { display: flex; gap: 5px; align-items: center; cursor: pointer; }
+  .det-mode input { accent-color: var(--accent); }
   .det-mode .ok-dot { font-family: var(--mono); font-size: 11px; color: var(--ok); }
   .det-mode .off-dot { font-family: var(--mono); font-size: 11px; color: var(--faint); }
-  .det-hit { display: flex; gap: 10px; padding: 9px 4px; border-bottom: 1px solid var(--rule); font-size: 13px; align-items: baseline; }
+  .det-hit { display: flex; gap: 12px; padding: 10px 4px; border-bottom: 1px solid var(--line); font-size: 13px; align-items: baseline; }
   .det-hit .tag { font-family: var(--mono); font-size: 10.5px; white-space: nowrap; font-weight: 700; }
   .det-hit.viol .tag { color: var(--bad); } .det-hit.warn .tag { color: var(--warn); } .det-hit.info .tag { color: var(--faint); }
-  .det-hit .span { font-family: var(--mono); font-size: 12px; background: #f4f4f1; padding: 1px 6px; }
-  .det-empty { color: var(--faint); font-size: 12.5px; padding: 8px 2px; }
+  .det-hit .span { font-family: var(--mono); font-size: 12px; background: var(--surface2); border-radius: 4px; padding: 1px 7px; }
+  .det-hit .note { font-size: 12px; color: var(--sub); }
+  .det-empty { color: var(--faint); font-size: 12.5px; padding: 10px 2px; }
 
-  /* 위저드 모달 */
+  /* ── 위저드 ── */
   .overlay {
-    position: fixed; inset: 0; background: rgba(20,25,35,.45); display: none;
-    align-items: flex-start; justify-content: center; padding: 40px 16px; overflow-y: auto; z-index: 50;
+    position: fixed; inset: 0; background: rgba(8,9,12,.66); display: none;
+    align-items: flex-start; justify-content: center; padding: 48px 16px; overflow-y: auto; z-index: 50;
   }
   .overlay.open { display: flex; }
-  .modal { background: var(--paper); border: 1px solid var(--rule-dark); max-width: 720px; width: 100%; padding: 22px 26px 26px; }
-  .modal h3 { margin: 0 0 2px; font-size: 17px; }
-  .modal .wsub { font-size: 12.5px; color: var(--sub); margin-bottom: 14px; }
-  .wsteps { display: flex; gap: 5px; margin-bottom: 16px; }
-  .wsteps .s { flex: 1; font-family: var(--mono); font-size: 10px; color: var(--faint); border-bottom: 3px solid var(--rule); padding-bottom: 4px; }
+  .modal {
+    background: var(--surface); border: 1px solid var(--line2); border-radius: 12px;
+    max-width: 700px; width: 100%; padding: 24px 28px 26px;
+    animation: rise .22s cubic-bezier(.16,1,.3,1) both;
+  }
+  .modal h3 { margin: 0 0 2px; font-size: 16px; }
+  .modal .wsub { font-size: 12px; color: var(--faint); margin-bottom: 16px; }
+  .modal .wsub a { color: var(--sub); }
+  .wsteps { display: flex; gap: 5px; margin-bottom: 18px; }
+  .wsteps .s { flex: 1; font-family: var(--mono); font-size: 9.5px; color: var(--faint); border-bottom: 3px solid var(--line); padding-bottom: 5px; }
   .wsteps .s.on { color: var(--accent); border-color: var(--accent); font-weight: 700; }
-  .opt { display: flex; gap: 12px; align-items: baseline; padding: 11px 4px; border-bottom: 1px solid var(--rule); cursor: pointer; }
-  .opt:hover { background: #f5f5f2; }
+  .opt { display: flex; gap: 12px; align-items: baseline; padding: 12px 6px; border-bottom: 1px solid var(--line); cursor: pointer; border-radius: 4px; }
+  .opt:hover { background: var(--surface2); }
   .opt .mark { flex: 0 0 13px; height: 13px; border: 1.5px solid var(--faint); border-radius: 50%; position: relative; top: 2px; }
   .opt.sel .mark { border-color: var(--accent); }
   .opt.sel .mark::after { content: ""; position: absolute; inset: 2.5px; background: var(--accent); border-radius: 50%; }
   .opt .t { font-weight: 700; font-size: 13.5px; }
   .opt.sel .t { color: var(--accent); }
   .opt .d { font-size: 12px; color: var(--sub); margin-top: 1px; }
-  .evi { border-top: 1px solid var(--rule); padding: 12px 0 10px; }
+  .evi { border-top: 1px solid var(--line); padding: 13px 0 11px; }
   .evi .head { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
   .evi .feat { font-weight: 800; font-size: 13px; }
-  .avtag { font-family: var(--mono); font-size: 10.5px; }
+  .avtag { font-family: var(--mono); font-size: 10px; }
   .avtag.builtin { color: var(--ok); } .avtag.higher_tier { color: var(--warn); }
   .avtag.third_party { color: var(--accent); } .avtag.none { color: var(--bad); } .avtag.unclear { color: var(--faint); }
-  .evi .ctrl { font-size: 12.5px; color: var(--ink); margin-top: 4px; }
-  .applychk { display: flex; gap: 8px; align-items: flex-start; margin-top: 8px; font-size: 12.5px; cursor: pointer; }
+  .evi .ctrl { font-size: 12.5px; color: var(--sub); margin-top: 4px; }
+  .applychk { display: flex; gap: 8px; align-items: flex-start; margin-top: 9px; font-size: 12.5px; cursor: pointer; }
   .applychk input { margin-top: 3px; accent-color: var(--accent); }
-  .wnav { display: flex; justify-content: space-between; margin-top: 18px; }
-  .verdict-line { border-top: 3px solid var(--rule-dark); padding-top: 14px; margin-top: 6px; }
-  .verdict-line .word { font-size: 22px; font-weight: 800; }
+  .wnav { display: flex; justify-content: space-between; margin-top: 20px; }
+  .verdict-line { border-top: 2px solid var(--line2); padding-top: 16px; margin-top: 6px; }
+  .verdict-line .word { font-size: 21px; font-weight: 800; letter-spacing: -0.01em; }
   .verdict-line.ok .word { color: var(--ok); } .verdict-line.cond .word { color: var(--warn); } .verdict-line.bad .word { color: var(--bad); }
-  .finding { display: flex; gap: 10px; padding: 8px 2px; border-bottom: 1px solid var(--rule); font-size: 12.5px; }
+  .finding { display: flex; gap: 10px; padding: 8px 2px; border-bottom: 1px solid var(--line); font-size: 12.5px; }
   .finding .ic { font-family: var(--mono); font-weight: 700; }
   .finding.r .ic { color: var(--bad); } .finding.w .ic { color: var(--warn); } .finding.g .ic { color: var(--ok); }
 
-  /* 보고서 */
-  .report-page { background: #fff; border: 1px solid var(--rule); padding: 26px 30px; max-width: 820px; }
-  .report-page h3 { border-bottom: 2px solid var(--ink); padding-bottom: 6px; margin-top: 0; }
-  .report-page h4 { margin: 16px 0 6px; }
-  .report-page table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin: 8px 0; }
-  .report-page th { background: #f2f2ef; border: 1px solid #bbb; padding: 5px 8px; text-align: left; }
-  .report-page td { border: 1px solid #bbb; padding: 5px 8px; }
-  footer.legal {
-    max-width: 1120px; margin: 0 auto; padding: 20px 24px 50px;
-    font-size: 11px; color: var(--faint); line-height: 1.7; border-top: 1px solid var(--rule);
+  /* ── 반기 보고: 어두운 무대 위 흰 종이 ── */
+  .report-page {
+    background: #fff; color: #1c1e22; border-radius: 4px; padding: 30px 34px; max-width: 820px;
+    box-shadow: 0 8px 40px rgba(0,0,0,.4);
   }
-  a.plain { color: var(--accent); }
+  .report-page h3 { border-bottom: 2px solid #1c1e22; padding-bottom: 6px; margin-top: 0; font-size: 17px; }
+  .report-page h4 { margin: 18px 0 6px; font-size: 14px; }
+  .report-page p { font-size: 12.5px; }
+  .report-page table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin: 8px 0; }
+  .report-page th { background: #f4f4f1; border: 1px solid #bbb; padding: 5px 8px; text-align: left; color: #1c1e22; }
+  .report-page td { border: 1px solid #bbb; padding: 5px 8px; }
+  .report-page tr.flag td { background: #fbeeec; }
+
+  footer.legal {
+    padding: 18px 30px 40px; font-size: 11px; color: var(--faint); line-height: 1.7;
+    border-top: 1px solid var(--line); max-width: 1180px;
+  }
+  footer.legal a { color: var(--sub); }
+
+  @media (max-width: 860px) {
+    .shell { grid-template-columns: 1fr; }
+    .rail { position: static; height: auto; flex-direction: row; flex-wrap: wrap; align-items: center; padding: 12px 14px; }
+    .brand { padding: 0 8px 0 0; } .brand .en, .brand .demo { display: none; }
+    .rail-foot { display: none; }
+    .nav-it { width: auto; }
+    main, .stats, footer.legal { padding-left: 16px; padding-right: 16px; }
+  }
   @media print {
     body * { visibility: hidden; }
     .report-page, .report-page * { visibility: visible; }
-    .report-page { position: absolute; left: 0; top: 0; border: none; }
+    .report-page { position: absolute; left: 0; top: 0; box-shadow: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .view, .modal { animation: none; }
+    * { transition: none !important; }
   }
 </style>
 </head>
 <body>
 
-<header class="top"><div class="in">
-  <div class="wordmark">살피<span class="en">SALPI · 망분리 경계 관제</span><span class="tag">데모</span></div>
-  <div class="statute">전자금융감독규정 시행세칙 제2조의3 · 가상 회사: 페이몬(전자금융업자)</div>
-</div></header>
-
-<div class="strip"><div class="in" id="strip"></div></div>
-<nav class="tabs" id="tabs"></nav>
-<main id="main"></main>
+<div class="shell">
+  <aside class="rail">
+    <div class="brand">
+      <div class="ko">살피</div>
+      <span class="en">SALPI</span>
+      <span class="demo">데모</span>
+    </div>
+    <nav id="tabs"></nav>
+    <div class="rail-foot">
+      <div>페이몬, 가상 전자금융업자</div>
+      <div>전자금융감독규정 시행세칙 제2조의3</div>
+      <div style="margin-top:8px"><a href="workbench.html">판정 워크벤치 전문</a></div>
+    </div>
+  </aside>
+  <div class="stage">
+    <header class="stats" id="strip"></header>
+    <main id="main"></main>
+    <footer class="legal">
+      가상 전자금융업자의 합성 데이터로 구성된 데모다. 판정과 대조는 결정적 로직으로 수행되고,
+      로그 목적지 분류와 위반 사유 문장, 결합 판단은 실서비스에서 로컬 소형 LLM(Kanana)이 담당한다.
+      데모 일부는 내장 근사다. 본 도구는 법적 판단을 대행하지 않는다.
+    </footer>
+  </div>
+</div>
 
 <div class="overlay" id="overlay"><div class="modal" id="modal"></div></div>
-
-<footer class="legal">
-  가상 전자금융업자의 합성 데이터로 구성된 데모다. 판정(대장 대조·등재 결정 트리)은 결정적 로직으로 수행되고,
-  로그 목적지 분류·위반 사유 문장·결합 판단은 실서비스에서 로컬 소형 LLM(Kanana)이 담당한다(데모 일부는 내장 근사).
-  전체 판정 워크벤치는 <a class="plain" href="workbench.html">workbench.html</a>에 있다. 본 도구는 법적 판단을 대행하지 않는다.
-</footer>
 
 <script src="engine.js"></script>
 <script src="evidence.js"></script>
@@ -212,46 +293,46 @@
 const LEDGER = [
   { id:'C-01', name:'금융결제원', type:'외부기관 연결', basis:'제2조의3 ①항 1호', zone:'fin',
     domains:['kftc.or.kr'], ports:'8583', dir:'양방향',
-    approved:'2024-03-12 · 의결 제2024-03호', controls:'전용회선, 포트 한정, 구간 암호화',
+    approved:'2024-03-12 의결 제2024-03호', controls:'전용회선, 포트 한정, 구간 암호화',
     review:{ type:'위원회 재승인', due:'2027-03' } },
   { id:'C-02', name:'한국신용정보원', type:'외부기관 연결', basis:'제2조의3 ①항 1호', zone:'fin',
     domains:['kcredit.or.kr'], ports:'443', dir:'양방향',
-    approved:'2024-06-20 · 의결 제2024-11호', controls:'전용회선, 포트 한정',
+    approved:'2024-06-20 의결 제2024-11호', controls:'전용회선, 포트 한정',
     review:{ type:'위원회 재승인', due:'2027-06' } },
   { id:'C-03', name:'나이스정보통신 (VAN)', type:'외부기관 연결', basis:'제2조의3 ①항 1호', zone:'fin',
     domains:['nicevan.co.kr'], ports:'9443', dir:'양방향',
-    approved:'2023-11-02 · 의결 제2023-19호', controls:'전용회선, 포트 한정',
+    approved:'2023-11-02 의결 제2023-19호', controls:'전용회선, 포트 한정',
     review:{ type:'위원회 재승인', due:'2026-11', soon:true } },
   { id:'C-04', name:'유지보수 원격접속', type:'원격접속', basis:'제2조의3 ①항 2호', zone:'remote',
     domains:['vpn.paymon.co.kr'], ports:'443', dir:'인바운드',
-    approved:'2025-02-14 · 의결 제2025-02호', controls:'별표7 원격접속: 유휴차단·서약서·기록·다중인증',
+    approved:'2025-02-14 의결 제2025-02호', controls:'별표7 원격접속: 유휴차단, 서약서, 기록, 다중인증',
     review:{ type:'위원회 재승인', due:'2027-02' } },
   { id:'C-05', name:'NHN 두레이', type:'내부업무망 SaaS', basis:'제2조의3 ①항 3호', zone:'saas', saasKey:'dooray',
     domains:['dooray.com'], ports:'443', dir:'아웃바운드',
-    approved:'2026-05-30 · 의결 제2026-07호 · 금보원 충족 확인', controls:'별표7 SaaS 10개 통제 + 살피 내용검사(보완통제)',
+    approved:'2026-05-30 의결 제2026-07호, 금보원 충족 확인', controls:'별표7 SaaS 10개 통제 + 살피 내용검사(보완통제)',
     review:{ type:'반기 자체평가 (제4항)', due:'2026-11-30', soon:true } },
   { id:'C-06', name:'Microsoft 365', type:'내부업무망 SaaS', basis:'제2조의3 ①항 3호', zone:'saas', saasKey:'m365',
     domains:['office.com','office365.com','sharepoint.com','teams.microsoft.com'], ports:'443', dir:'아웃바운드',
-    approved:'2026-06-15 · 의결 제2026-09호 · 금보원 충족 확인', controls:'별표7 SaaS 10개 통제 + Purview DLP(E5)',
+    approved:'2026-06-15 의결 제2026-09호, 금보원 충족 확인', controls:'별표7 SaaS 10개 통제 + Purview DLP(E5)',
     review:{ type:'반기 자체평가 (제4항)', due:'2026-12-15', soon:true } },
   { id:'C-07', name:'오픈뱅킹 API GW (DMZ)', type:'외부연결 불가피', basis:'제2조의3 ②항 2호 나목', zone:'dmz',
     domains:['openapi.paymon.co.kr'], ports:'443', dir:'양방향',
-    approved:'2023-08-01 · 의결 제2023-12호', controls:'DMZ 격리, WAF, 포트 한정',
+    approved:'2023-08-01 의결 제2023-12호', controls:'DMZ 격리, WAF, 포트 한정',
     review:{ type:'위원회 재승인', due:'2026-08', soon:true } },
   { id:'C-08', name:'계열사 공동 회계시스템', type:'계열사 공동', basis:'제2조의3 ②항 2호 다목', zone:'dmz',
     domains:['erp.paymon-holdings.com'], ports:'8443', dir:'양방향',
-    approved:'2024-01-25 · 의결 제2024-01호', controls:'포트 한정, 구간 암호화',
+    approved:'2024-01-25 의결 제2024-01호', controls:'포트 한정, 구간 암호화',
     review:{ type:'위원회 재승인', due:'2027-01' } },
 ];
 
-/* 미확인 도메인 분류 — 실서비스는 로컬 LLM(Kanana), 데모는 내장 근사 */
+/* 미확인 도메인 분류. 실서비스는 로컬 LLM(Kanana), 데모는 내장 근사 */
 const CLASSIFY = {
   'chatgpt.com': { kind:'생성형 AI SaaS', saasLike:true,
     risk:'대장에 없는 SaaS. 금융보안원 충족 목록 미확인이며, 업무 데이터가 외부 AI 학습으로 유출될 수 있는 통로' },
   'notion.so': { kind:'협업 SaaS', saasLike:true,
-    risk:'대장에 없는 SaaS. 제1항 3호 예외 후보이나 승인 절차(적격 판정·위험성 평가·위원회) 없이 사용 중' },
+    risk:'대장에 없는 SaaS. 제1항 3호 예외 후보이나 승인 절차(적격 판정, 위험성 평가, 위원회) 없이 사용 중' },
   'anydesk.com': { kind:'원격제어 도구', saasLike:false,
-    risk:'①항 2호 원격접속 요건(전용회선급·별표7 통제)을 충족하지 않는 개인 원격제어. 가장 위험한 유형' },
+    risk:'①항 2호 원격접속 요건(전용회선급, 별표7 통제)을 충족하지 않는 개인 원격제어. 가장 위험한 유형' },
   'dropbox.com': { kind:'개인 클라우드 저장소', saasLike:true,
     risk:'승인되지 않은 파일 반출 통로. 제15조 망분리 원칙 위반 상태' },
 };
@@ -336,13 +417,13 @@ function reconcile(text){
 
 /* ═══════════════ 등재 위저드 (살피 판정의 이식) ═══════════════ */
 const USAGES = [
-  { key:'doc',  t:'사내 문서 작성·관리' }, { key:'chat', t:'사내 메신저·협업' },
-  { key:'meet', t:'화상회의' },            { key:'pm',   t:'프로젝트·업무 관리' },
+  { key:'doc',  t:'사내 문서 작성과 관리' }, { key:'chat', t:'사내 메신저와 협업' },
+  { key:'meet', t:'화상회의' },              { key:'pm',   t:'프로젝트와 업무 관리' },
 ];
 const NATURES = [
   { key:'none',     grade:0, t:'고객 정보가 업무상 등장하지 않음', d:'순수 내부 업무' },
-  { key:'id_only',  grade:1, t:'고객 식별정보가 단독으로 등장할 수 있음', d:'이름·연락처 수준, 신용정보와 결합 안 됨' },
-  { key:'combined', grade:2, t:'고객 식별정보가 거래·상담 내용과 결합될 수 있음', d:'결합되면 개인신용정보 (신용정보법 제2조)' },
+  { key:'id_only',  grade:1, t:'고객 식별정보가 단독으로 등장할 수 있음', d:'이름, 연락처 수준. 신용정보와 결합 안 됨' },
+  { key:'combined', grade:2, t:'고객 식별정보가 거래나 상담 내용과 결합될 수 있음', d:'결합되면 개인신용정보 (신용정보법 제2조)' },
   { key:'unique',   grade:3, t:'주민등록번호 등 고유식별정보가 유입될 수 있음', d:'그 자체로 요건 저촉' },
   { key:'intent',   grade:4, t:'고객 정보를 다루는 것이 이 업무의 목적임', d:'"처리하지 않는 이용 목적"이 아님' },
 ];
@@ -366,27 +447,27 @@ function wizJudge(w){
   if (w.nature === 'intent')
     return { grade:'bad', title:'예외 적용 불가', risks:[{lv:'r', t:'고객 정보를 다루는 것이 업무 목적 자체. 제1항 3호의 "처리하지 않는 이용 목적"에 해당하지 않음. 혁신금융서비스 경로 또는 차단.'}], oks };
   if (w.l1 === 'yes')
-    return { grade:'bad', title:'예외 적용 불가', risks:[{lv:'r', t:'고객정보 필드형 기능 사용 계획 — 구조화된 저장·검색으로서 명백한 처리.'}], oks };
+    return { grade:'bad', title:'예외 적용 불가', risks:[{lv:'r', t:'고객정보 필드형 기능 사용 계획. 구조화된 저장과 검색으로서 명백한 처리.'}], oks };
   const risky = ['combined','unique'].includes(w.nature);
-  if (w.nature === 'unique') risks.push({lv:'w', t:'고유식별정보 유입 가능성 — 입력 차단 통제 필수.'});
+  if (w.nature === 'unique') risks.push({lv:'w', t:'고유식별정보 유입 가능성. 입력 차단 통제 필수.'});
   const ctrl = w.entries.filter(e => (e.layer==='L2'||e.layer==='L3') && e.exists!=='no');
   if (!ctrl.length) {
-    // 근거 미수집 SaaS: 실서비스는 E 파이프라인(LLM 문서 추출)이 수집
-    if (risky) risks.push({lv:'r', t:'통제 근거 미수집 상태에서 고객 정보 유입 가능 용도 — 등재 불가. 근거 수집(E 파이프라인) 후 재판정하거나 차단.'});
-    else risks.push({lv:'w', t:'통제 근거 미수집 — 조건부 등재. 벤더 문서 근거 수집을 등재 조건으로 부기.'});
+    // 근거 미수집 SaaS. 실서비스는 E 파이프라인(LLM 문서 추출)이 수집
+    if (risky) risks.push({lv:'r', t:'통제 근거 미수집 상태에서 고객 정보 유입 가능 용도. 등재 불가. 근거 수집(E 파이프라인) 후 재판정하거나 차단.'});
+    else risks.push({lv:'w', t:'통제 근거 미수집. 조건부 등재하고 벤더 문서 근거 수집을 등재 조건으로 부기.'});
   }
   for (const e of ctrl) {
     const has = ['builtin','higher_tier','third_party'].includes(e.control_availability);
     const applied = w.applied[e._i], comp = w.comp[e._i];
     if (has && applied) oks.push({lv:'g', t:`${e.feature}: 적용 계획 확인`});
-    else if (!has && comp) risks.push({lv:'w', t:`${e.feature}: 벤더 미제공 — 살피 내용검사를 보완통제로 지정`});
-    else if (risky) risks.push({lv:'r', t:`${e.feature}: 통제 미적용 — 유입 가능 용도에서 접점 열림`});
+    else if (!has && comp) risks.push({lv:'w', t:`${e.feature}: 벤더 미제공. 살피 내용검사를 보완통제로 지정`});
+    else if (risky) risks.push({lv:'r', t:`${e.feature}: 통제 미적용. 유입 가능 용도에서 접점 열림`});
     else risks.push({lv:'w', t:`${e.feature}: 통제 미적용 (권고)`});
   }
   const hard = risks.filter(r => r.lv==='r').length;
-  if (hard) return { grade:'bad', title:'조건 미충족 — 등재 불가', risks, oks };
-  if (risks.length) return { grade:'cond', title:'조건부 적합 — 등재 가능', risks, oks };
-  return { grade:'ok', title:'예외 요건 충족 — 등재 가능', risks, oks };
+  if (hard) return { grade:'bad', title:'조건 미충족, 등재 불가', risks, oks };
+  if (risks.length) return { grade:'cond', title:'조건부 적합, 등재 가능', risks, oks };
+  return { grade:'ok', title:'예외 요건 충족, 등재 가능', risks, oks };
 }
 
 function renderWizard(){
@@ -399,16 +480,16 @@ function renderWizard(){
   let body = '';
 
   if (w.step === 0) {
-    body = `<p style="font-size:13px">등재 대상: <b>${esc(w.name)}</b> ${w.host?`<span style="font-family:var(--mono);font-size:11px;color:var(--faint)">(${esc(w.host)})</span>`:''}</p>
-      ${w.cls ? `<p style="font-size:12.5px;color:var(--sub)">로그 대조 발견 건 — 분류: ${w.cls.kind}. 등재하려면 제1항 3호 적격 판정을 통과해야 한다.</p>` : ''}
-      <p style="font-size:12.5px;color:var(--sub)">${w.entries.length ? `통제 근거 ${w.entries.length}건 보유 (사전 수집).` : '통제 근거 미수집 — 실서비스에서는 E 파이프라인(LLM 벤더 문서 추출)이 이 자리에서 근거를 수집한다.'}</p>` + nav(true);
+    body = `<p style="font-size:13px">등재 대상: <b>${esc(w.name)}</b> ${w.host?`<span class="mono" style="color:var(--faint)">(${esc(w.host)})</span>`:''}</p>
+      ${w.cls ? `<p style="font-size:12.5px;color:var(--sub)">로그 대조 발견 건. 분류: ${w.cls.kind}. 등재하려면 제1항 3호 적격 판정을 통과해야 한다.</p>` : ''}
+      <p style="font-size:12.5px;color:var(--sub)">${w.entries.length ? `통제 근거 ${w.entries.length}건 보유 (사전 수집).` : '통제 근거 미수집. 실서비스에서는 E 파이프라인(LLM 벤더 문서 추출)이 이 자리에서 근거를 수집한다.'}</p>` + nav(true);
   }
   if (w.step === 1) body = USAGES.map(u=>`<div class="opt ${w.usage===u.key?'sel':''}" data-w="usage:${u.key}"><span class="mark"></span><span class="t">${u.t}</span></div>`).join('') + nav(!!w.usage);
   if (w.step === 2) body = NATURES.map(n=>`<div class="opt ${w.nature===n.key?'sel':''}" data-w="nature:${n.key}"><span class="mark"></span><span><span class="t">${n.t}</span><div class="d">${n.d}</div></span></div>`).join('') + nav(!!w.nature);
   if (w.step === 3) body = `
-    <p style="font-size:13px">고객 정보를 필드 단위로 다루는 기능(연락처 DB·CRM·외부 폼)을 사용하는가?</p>
+    <p style="font-size:13px">고객 정보를 필드 단위로 다루는 기능(연락처 DB, CRM, 외부 폼)을 사용하는가?</p>
     <div class="opt ${w.l1==='no'?'sel':''}" data-w="l1:no"><span class="mark"></span><span class="t">사용하지 않는다</span></div>
-    <div class="opt ${w.l1==='yes'?'sel':''}" data-w="l1:yes"><span class="mark"></span><span><span class="t">사용한다</span><div class="d">명백한 처리 — 즉시 불가</div></span></div>` + nav(!!w.l1);
+    <div class="opt ${w.l1==='yes'?'sel':''}" data-w="l1:yes"><span class="mark"></span><span><span class="t">사용한다</span><div class="d">명백한 처리. 즉시 불가</div></span></div>` + nav(!!w.l1);
   if (w.step === 4) {
     const ctrl = w.entries.filter(e => (e.layer==='L2'||e.layer==='L3') && e.exists!=='no');
     body = ctrl.length ? ctrl.map(e => {
@@ -417,7 +498,7 @@ function renderWizard(){
       return `<div class="evi"><div class="head"><span class="feat">${esc(e.feature)}</span><span class="avtag ${e.control_availability}">${AV[e.control_availability]}</span></div>
         <div class="ctrl">${esc(e.control.slice(0,140))}${e.control.length>140?'…':''}</div>
         <label class="applychk"><input type="checkbox" data-wc="${has?'applied':'comp'}:${e._i}" ${(has?w.applied:w.comp)[e._i]?'checked':''}>
-        <span>${has?'이 통제를 적용한다':'벤더 미제공 — <b>살피 내용검사를 보완통제로 지정</b>한다'}</span></label></div>`;
+        <span>${has?'이 통제를 적용한다':'벤더 미제공. <b>살피 내용검사를 보완통제로 지정</b>한다'}</span></label></div>`;
     }).join('') + nav(true, '판정')
     : `<p style="font-size:13px;color:var(--sub)">이 SaaS의 통제 근거가 아직 없다. 실서비스에서는 여기서 E 파이프라인이 벤더 공개 문서를 읽어 근거 카드를 채운다(원문 인용 강제). 데모에서는 미수집 상태로 판정에 넘긴다.</p>` + nav(true, '판정');
   }
@@ -437,7 +518,7 @@ function renderWizard(){
   }
 
   $('#modal').innerHTML = `<h3>SaaS 콘딧 등재 판정</h3>
-    <div class="wsub">시행세칙 제2조의3 ①항 3호 적격 검토 — 살피 판정 엔진 · <a class="plain" href="workbench.html" target="_blank">전체 워크벤치</a></div>
+    <div class="wsub">시행세칙 제2조의3 ①항 3호 적격 검토, 살피 판정 엔진. <a href="workbench.html" target="_blank">전체 워크벤치</a></div>
     ${bar}${body}`;
   document.querySelectorAll('[data-w]').forEach(el => el.onclick = () => {
     const [k, val] = el.dataset.w.split(':'); state.wiz[k === 'l1' ? 'l1' : k] = val; renderWizard();
@@ -456,7 +537,7 @@ function wizRegister(){
   LEDGER.push({
     id, name: w.name, type:'내부업무망 SaaS', basis:'제2조의3 ①항 3호', zone:'saas', saasKey:w.saasKey,
     domains:[w.host || w.name.toLowerCase()], ports:'443', dir:'아웃바운드',
-    approved:`${new Date().toISOString().slice(0,10)} · 위원회 상정 대기 · 판정 ${v.grade==='ok'?'적합':'조건부'}`,
+    approved:`${new Date().toISOString().slice(0,10)} 위원회 상정 대기, 판정 ${v.grade==='ok'?'적합':'조건부'}`,
     controls: v.grade==='cond' ? `살피 판정 조건부 (${v.risks.length}건 부기) + 살피 내용검사 보완통제` : '별표7 SaaS 10개 통제',
     review:{ type:'반기 자체평가 (제4항)', due: due.toISOString().slice(0,7), soon:false },
     pendingRisks: v.risks.length,
@@ -480,18 +561,21 @@ function renderStrip(){
   const saasDue = LEDGER.filter(c => c.review.soon && c.review.type.includes('반기')).length;
   const reviewDue = LEDGER.filter(c => c.review.soon && !c.review.type.includes('반기')).length;
   const detects = Object.values(state.contentLog).reduce((n,a)=>n+a.length,0);
-  $('#strip').innerHTML = `
-    <span><b>${LEDGER.length}</b>승인 콘딧</span>
-    <span class="warn"><b>${saasDue}</b>SaaS 반기평가 도래</span>
-    <span class="warn"><b>${reviewDue}</b>재승인 임박</span>
-    <span class="alert"><b>${state.rogues.length}</b>미등록 연결${state.scanned?'':' (대조 전)'}</span>
-    <span class="okc"><b>${detects}</b>내용검사 탐지 기록</span>
-    ${state.blocked.length?`<span><b>${state.blocked.length}</b>차단 확정</span>`:''}`;
+  const items = [
+    { n: LEDGER.length, l:'승인 콘딧' },
+    { n: saasDue, l:'SaaS 반기평가 도래', cls: saasDue?'warn':'' },
+    { n: reviewDue, l:'재승인 임박', cls: reviewDue?'warn':'' },
+    { n: state.rogues.length, l: state.scanned?'미등록 연결':'미등록 연결 (대조 전)', cls: state.rogues.length?'bad':'' },
+    { n: detects, l:'내용검사 기록', cls: detects?'ok':'' },
+  ];
+  if (state.blocked.length) items.push({ n: state.blocked.length, l:'차단 확정' });
+  $('#strip').innerHTML = items.map(it =>
+    `<div class="stat ${it.cls||''}"><b>${it.n}</b><span>${it.l}</span></div>`).join('');
 }
 function renderTabs(){
   $('#tabs').innerHTML = TABS.map(t =>
-    `<button class="${state.tab===t.k?'on':''}" data-tab="${t.k}">${t.t}${
-      t.k==='logs' && state.rogues.length ? `<span class="n">${state.rogues.length}</span>`:''}</button>`).join('');
+    `<button class="nav-it ${state.tab===t.k?'on':''}" data-tab="${t.k}"><span>${t.t}</span>${
+      t.k==='logs' && state.rogues.length ? `<b class="cnt">${state.rogues.length}</b>`:''}</button>`).join('');
   document.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { state.tab = b.dataset.tab; state.sel = null; render(); });
 }
 
@@ -502,41 +586,41 @@ function renderMap(){
   const saasW = Math.max(300, 70 + saas.length * 85);
   const saasX = 555 - saasW / 2;
   let boxes = '', lines = '';
-  const box = (x,y,w,h,label,color='#33406a',cls='zone-box') =>
-    `<rect class="${cls}" x="${x}" y="${y}" width="${w}" height="${h}"></rect>
-     <text x="${x+10}" y="${y+19}" font-size="12.5" font-weight="700" fill="${color}">${label}</text>`;
-  boxes += box(430,205,260,140,'내부업무망','#33406a','zone-core');
+  const box = (x,y,w,h,label,color='var(--text)',cls='zone-box') =>
+    `<rect class="${cls}" x="${x}" y="${y}" width="${w}" height="${h}" rx="6"></rect>
+     <text x="${x+12}" y="${y+21}" font-size="12.5" font-weight="700" fill="${color}">${label}</text>`;
+  boxes += box(430,205,260,140,'내부업무망','var(--accent)','zone-core');
   boxes += box(60,60,200,60+fin.length*28,'외부기관 (전용회선)');
-  fin.forEach((c,i)=>{ boxes += `<text x="72" y="${100+i*28}" font-size="11.5" fill="#5d6068">${c.id} ${c.name}</text>`;
-    lines += `<line class="conduit" x1="430" y1="${252+i*14}" x2="260" y2="${96+i*28}" data-sel="${c.id}"></line>
+  fin.forEach((c,i)=>{ boxes += `<text x="72" y="${100+i*28}" font-size="11.5" fill="#9a9daa">${c.id} ${c.name}</text>`;
+    lines += `<line class="conduit ${state.sel===c.id?'sel':''}" x1="430" y1="${252+i*14}" x2="260" y2="${96+i*28}" data-sel="${c.id}"></line>
       <text class="cond-label" x="345" y="${170+i*20}" data-sel="${c.id}">${c.id}</text>`; });
   boxes += box(saasX,18,saasW,92,'SaaS (인터넷)');
   saas.forEach((c,i)=>{ const ix = saasX+40+i*85;
-    boxes += `<text x="${ix-26}" y="${58+(i%2)*20}" font-size="11" fill="#5d6068">${c.id} ${c.name.slice(0,9)}</text>`;
-    lines += `<line class="conduit saas" x1="${Math.min(686,Math.max(434,ix))}" y1="205" x2="${ix}" y2="110" data-sel="${c.id}"></line>
+    boxes += `<text x="${ix-26}" y="${58+(i%2)*20}" font-size="11" fill="#9a9daa">${c.id} ${c.name.slice(0,9)}</text>`;
+    lines += `<line class="conduit ${state.sel===c.id?'sel':''}" x1="${Math.min(686,Math.max(434,ix))}" y1="205" x2="${ix}" y2="110" data-sel="${c.id}"></line>
       <text class="cond-label" x="${ix+4}" y="160" data-sel="${c.id}">${c.id}</text>`; });
   boxes += box(860,60,210,60+remote.length*28,'원격접속');
-  remote.forEach((c,i)=>{ boxes += `<text x="872" y="${100+i*28}" font-size="11.5" fill="#5d6068">${c.id} ${c.name}</text>`;
-    lines += `<line class="conduit" x1="690" y1="${250+i*10}" x2="860" y2="${96+i*28}" data-sel="${c.id}"></line>
+  remote.forEach((c,i)=>{ boxes += `<text x="872" y="${100+i*28}" font-size="11.5" fill="#9a9daa">${c.id} ${c.name}</text>`;
+    lines += `<line class="conduit ${state.sel===c.id?'sel':''}" x1="690" y1="${250+i*10}" x2="860" y2="${96+i*28}" data-sel="${c.id}"></line>
       <text class="cond-label" x="775" y="${170+i*14}" data-sel="${c.id}">${c.id}</text>`; });
-  boxes += box(430,420,260,50+dmz.length*26,'DMZ · 계열사');
-  dmz.forEach((c,i)=>{ boxes += `<text x="442" y="${458+i*26}" font-size="11.5" fill="#5d6068">${c.id} ${c.name}</text>`;
-    lines += `<line class="conduit" x1="${480+i*80}" y1="345" x2="${480+i*80}" y2="420" data-sel="${c.id}"></line>
+  boxes += box(430,420,260,50+dmz.length*26,'DMZ, 계열사');
+  dmz.forEach((c,i)=>{ boxes += `<text x="442" y="${458+i*26}" font-size="11.5" fill="#9a9daa">${c.id} ${c.name}</text>`;
+    lines += `<line class="conduit ${state.sel===c.id?'sel':''}" x1="${480+i*80}" y1="345" x2="${480+i*80}" y2="420" data-sel="${c.id}"></line>
       <text class="cond-label" x="${486+i*80}" y="390" data-sel="${c.id}">${c.id}</text>`; });
   if (state.rogues.length) {
-    boxes += box(860,330,210,50+state.rogues.length*38,'미등록 목적지','#a83226');
+    boxes += box(860,330,210,50+state.rogues.length*38,'미등록 목적지','var(--bad)','zone-rogue');
     state.rogues.forEach((r,i)=>{ const y = 366+i*38;
       lines += `<line class="conduit rogue" x1="690" y1="300" x2="860" y2="${y}" data-sel="R-${i}"></line>
         <text class="cond-label rogue" x="872" y="${y+4}" data-sel="R-${i}">${r.host}</text>`; });
   }
   const H = Math.max(545, 400 + state.rogues.length*38, 480 + dmz.length*26);
-  $('#main').innerHTML = `
-    <h2 class="q">경계 지도 — 내부업무망에 뚫린 승인된 통로 전부</h2>
-    <p class="qsub">선 하나가 승인된 예외(콘딧) 하나다. 클릭하면 근거 조문·승인·통제·내용검사 기록이 나온다.
+  $('#main').innerHTML = `<section class="view">
+    <h2 class="q">경계 지도</h2>
+    <p class="qsub">내부업무망에 뚫린 승인된 통로 전부. 선 하나가 승인된 예외(콘딧) 하나다. 클릭하면 근거 조문, 승인, 통제, 내용검사 기록이 나온다.
     ${state.scanned ? '붉은 점선은 로그 대조가 찾아낸, 대장에 없는 연결이다.' : '로그 대조를 실행하면 대장에 없는 연결이 이 지도에 나타난다.'}</p>
     <div class="mapwrap"><svg viewBox="0 0 1090 ${H}" width="100%">${boxes}${lines}</svg></div>
-    ${state.scanned ? '' : '<div class="hint">→ "로그 대조" 탭에서 샘플 로그를 돌려봐라. 이 지도가 달라진다.</div>'}
-    <div class="detail" id="detail"></div>`;
+    ${state.scanned ? '' : '<div class="hint">"로그 대조" 탭에서 샘플 로그를 돌리면 이 지도가 달라진다.</div>'}
+    <div class="detail" id="detail"></div></section>`;
   document.querySelectorAll('[data-sel]').forEach(el => el.addEventListener('click', () => showDetail(el.dataset.sel)));
   if (state.sel) showDetail(state.sel);
 }
@@ -546,27 +630,27 @@ function showDetail(sel){
   if (sel.startsWith('R-')) {
     const r = state.rogues[Number(sel.slice(2))]; if (!r) return;
     boxEl.className = 'detail rogue'; boxEl.style.display = 'block';
-    boxEl.innerHTML = `<h3>미등록 연결 — ${esc(r.host)}</h3>
+    boxEl.innerHTML = `<h3>미등록 연결 <span class="mono">${esc(r.host)}</span></h3>
       <div class="grid">
-        <dt>관측</dt><dd>${r.info.count}회 · 단말 ${r.info.srcs.size}대 · 포트 ${[...r.info.ports].join(', ')}</dd>
+        <dt>관측</dt><dd>${r.info.count}회, 단말 ${r.info.srcs.size}대, 포트 ${[...r.info.ports].join(', ')}</dd>
         <dt>분류</dt><dd>${r.cls.kind}</dd>
         <dt>판정</dt><dd>승인 콘딧 대장에 부재 (결정적 대조)</dd></div>
-      <div class="ai-note"><span class="lbl">AI 분류·사유 (실서비스: 로컬 LLM / 데모: 내장 근사)</span>${r.cls.risk}</div>
-      <div style="margin-top:10px;display:flex;gap:8px">
+      <div class="ai-note"><span class="lbl">AI 분류와 사유 (실서비스: 로컬 LLM / 데모: 내장 근사)</span>${r.cls.risk}</div>
+      <div style="margin-top:12px;display:flex;gap:8px">
         ${r.cls.saasLike ? `<button class="act small" onclick='openWizard({host:${JSON.stringify(r.host)}, name:${JSON.stringify(r.host)}, fromRogue:true, cls:${JSON.stringify(r.cls)}})'>판정하기 (등재 절차)</button>` : ''}
         <button class="act danger small" onclick='quickBlock(${JSON.stringify(r.host)})'>차단 확정</button></div>`;
   } else {
     const c = LEDGER.find(x => x.id === sel); if (!c) return;
     const n = contentCount(c.id);
     boxEl.className = 'detail'; boxEl.style.display = 'block';
-    boxEl.innerHTML = `<h3>${c.id} · ${esc(c.name)} <span style="font-weight:400;color:var(--faint);font-size:12px">${c.type}</span></h3>
+    boxEl.innerHTML = `<h3>${c.id} ${esc(c.name)}<span class="muted">${c.type}</span></h3>
       <div class="grid">
         <dt>근거 조문</dt><dd>${c.basis}</dd>
-        <dt>연결</dt><dd>${c.domains.join(', ')} · 포트 ${c.ports} · ${c.dir}</dd>
+        <dt>연결</dt><dd>${c.domains.join(', ')} 포트 ${c.ports}, ${c.dir}</dd>
         <dt>승인</dt><dd>${c.approved}</dd>
-        <dt>적용 통제</dt><dd>${c.controls}${c.pendingRisks?` <b style="color:var(--warn)">· 미해소 ${c.pendingRisks}건</b>`:''}</dd>
-        <dt>다음 의무</dt><dd>${c.review.type} · ${c.review.due} ${c.review.soon?'<b style="color:var(--warn)">← 임박</b>':''}</dd></div>
-      ${c.zone==='saas' ? `<div class="content-log">내용 검사(살피 탐지) 기록: <b>${n}건</b>${n?` — 반기 보고 2절에 자동 반영`:` — "내용 검사" 탭에서 이 콘딧을 대상으로 점검할 수 있다`}</div>` : ''}`;
+        <dt>적용 통제</dt><dd>${c.controls}${c.pendingRisks?` <b style="color:var(--warn)">미해소 ${c.pendingRisks}건</b>`:''}</dd>
+        <dt>다음 의무</dt><dd>${c.review.type} ${c.review.due} ${c.review.soon?'<b style="color:var(--warn)">임박</b>':''}</dd></div>
+      ${c.zone==='saas' ? `<div class="content-log">내용 검사(살피 탐지) 기록 <b>${n}건</b>${n?`. 반기 보고 2절에 자동 반영`:`. "내용 검사" 탭에서 이 콘딧을 대상으로 점검할 수 있다`}</div>` : ''}`;
   }
 }
 function quickBlock(host){
@@ -580,40 +664,41 @@ function quickBlock(host){
 function renderLedger(){
   const rogueCards = state.rogues.map(r => `
     <div class="card rogue">
-      <div class="hd"><span class="id">미등록</span><span class="nm">${esc(r.host)}</span><span class="type">${r.cls.kind}</span></div>
-      <div class="row"><span>관측 <b>${r.info.count}회</b> · 단말 <b>${r.info.srcs.size}대</b></span></div>
-      <div style="margin-top:8px;display:flex;gap:6px">
+      <div class="hd"><span class="id">미등록</span><span class="nm mono">${esc(r.host)}</span><span class="type">${r.cls.kind}</span></div>
+      <div class="row">관측 <b>${r.info.count}회</b>, 단말 <b>${r.info.srcs.size}대</b></div>
+      <div style="margin-top:10px;display:flex;gap:6px">
         ${r.cls.saasLike?`<button class="act small" onclick='openWizard({host:${JSON.stringify(r.host)}, name:${JSON.stringify(r.host)}, fromRogue:true, cls:${JSON.stringify(r.cls)}})'>판정하기</button>`:''}
         <button class="act danger small" onclick='quickBlock(${JSON.stringify(r.host)})'>차단</button></div>
     </div>`).join('');
-  $('#main').innerHTML = `
-    <h2 class="q">콘딧 대장 — 승인 ${LEDGER.length}건${state.rogues.length?` · 미등록 ${state.rogues.length}건`:''}${state.blocked.length?` · 차단 ${state.blocked.length}건`:''}</h2>
-    <p class="qsub">예외 유형별 근거 조문·승인·통제·다음 의무를 한 장부로. SaaS(①항 3호)에만 반기 자체평가(제4항)가 붙는 것까지 구분한다.
-    새 SaaS 등재는 살피 판정을 통과해야 한다.</p>
-    <div style="margin-bottom:12px"><button class="act" onclick="openWizard({name:'새 SaaS'})">+ SaaS 콘딧 등재 (살피 판정)</button></div>
+  $('#main').innerHTML = `<section class="view">
+    <h2 class="q">콘딧 대장</h2>
+    <p class="qsub">승인 ${LEDGER.length}건${state.rogues.length?`, 미등록 ${state.rogues.length}건`:''}${state.blocked.length?`, 차단 ${state.blocked.length}건`:''}.
+    예외 유형별 근거 조문, 승인, 통제, 다음 의무를 한 장부로. 반기 자체평가(제4항)가 SaaS에만 붙는 것까지 구분한다. 새 SaaS 등재는 살피 판정을 통과해야 한다.</p>
+    <div style="margin-bottom:14px"><button class="act" onclick="openWizard({name:'새 SaaS'})">+ SaaS 콘딧 등재 (살피 판정)</button></div>
     <div class="cards">${rogueCards}
     ${LEDGER.map(c => { const n = contentCount(c.id); return `
       <div class="card">
         <div class="hd"><span class="id">${c.id}</span><span class="nm">${esc(c.name)}</span><span class="type">${c.type}</span></div>
-        <div class="row"><span>근거 <b>${c.basis}</b></span></div>
-        <div class="row"><span>${c.domains[0]} · 포트 ${c.ports}</span></div>
-        <div class="row"><span>승인 ${c.approved.split('·')[0]}</span></div>
-        <div class="due ${c.review.soon?'soon':'none'}">${c.review.type} · ${c.review.due}${c.review.soon?' ← 임박':''}</div>
-        ${c.zone==='saas'?`<div class="content-stat ${n?'has':''}">내용검사 기록 ${n}건${c.pendingRisks?` · 미해소 위험 ${c.pendingRisks}건`:''}</div>`:''}
-      </div>`; }).join('')}</div>`;
+        <div class="row">근거 <b>${c.basis}</b></div>
+        <div class="row mono" style="font-size:11.5px">${c.domains[0]} :${c.ports}</div>
+        <div class="row">승인 ${c.approved.slice(0,10)}</div>
+        <div class="due ${c.review.soon?'soon':''}">${c.review.type} ${c.review.due}${c.review.soon?' 임박':''}</div>
+        ${c.zone==='saas'?`<div class="content-stat ${n?'has':''}">내용검사 기록 ${n}건${c.pendingRisks?`, 미해소 위험 ${c.pendingRisks}건`:''}</div>`:''}
+      </div>`; }).join('')}</div></section>`;
 }
 
 /* ── 로그 대조 ── */
 function renderLogs(){
-  $('#main').innerHTML = `
-    <h2 class="q">로그 대조 — 선언된 망분리 vs 실제 트래픽</h2>
-    <p class="qsub">방화벽·프록시 로그를 붙여넣으면 실제 외부 목적지를 추출해 대장과 대조한다. 판정은 결정적 집합 비교이고,
-    미확인 목적지의 분류와 사유만 AI가 맡는다. 미등록 SaaS는 그 자리에서 살피 판정으로 등재하거나 차단한다.</p>
-    <button class="act ghost2" id="sample">샘플 로그 넣기</button>
-    <button class="act" id="run">대조 실행</button>
-    <div style="height:10px"></div>
+  $('#main').innerHTML = `<section class="view">
+    <h2 class="q">로그 대조</h2>
+    <p class="qsub">선언된 망분리와 실제 트래픽의 대조. 방화벽이나 프록시 로그를 붙여넣으면 외부 목적지를 추출해 대장과 대조한다.
+    판정은 결정적 집합 비교이고, 미확인 목적지의 분류와 사유만 AI가 맡는다. 미등록 SaaS는 그 자리에서 살피 판정으로 등재하거나 차단한다.</p>
+    <div style="display:flex;gap:8px;margin-bottom:10px">
+      <button class="act ghost2" id="sample">샘플 로그 넣기</button>
+      <button class="act" id="run">대조 실행</button>
+    </div>
     <textarea id="logbox" style="height:150px" placeholder="HOST= 형식 로그 (데모)"></textarea>
-    <div id="result">${state.scanned?renderLogResult(reconcile($('#logbox')?.value||SAMPLE_LOG)):''}</div>`;
+    <div id="result">${state.scanned?renderLogResult(reconcile($('#logbox')?.value||SAMPLE_LOG)):''}</div></section>`;
   $('#sample').onclick = () => { $('#logbox').value = SAMPLE_LOG; };
   $('#run').onclick = () => {
     const rec = reconcile($('#logbox').value);
@@ -624,39 +709,40 @@ function renderLogs(){
 }
 function renderLogResult(rec){
   return `<table class="res">
-    <tr><th>목적지</th><th>관측</th><th>판정</th><th>대응 / 분류·사유</th><th></th></tr>
+    <tr><th>목적지</th><th>관측</th><th>판정</th><th>대응 / 분류와 사유</th><th></th></tr>
     ${rec.rows.map(r => {
-      if (r.status==='ok') return `<tr><td style="font-family:var(--mono)">${esc(r.host)}</td><td>${r.info.count}회·${r.info.srcs.size}대</td>
+      if (r.status==='ok') return `<tr><td class="mono">${esc(r.host)}</td><td>${r.info.count}회 ${r.info.srcs.size}대</td>
         <td><span class="st ok">승인됨</span></td><td>${r.conduit.id} ${esc(r.conduit.name)} (${r.conduit.basis})</td><td></td></tr>`;
-      if (r.status==='blocked') return `<tr style="opacity:.6"><td style="font-family:var(--mono)">${esc(r.host)}</td><td>${r.info.count}회</td>
+      if (r.status==='blocked') return `<tr class="row-blocked"><td class="mono">${esc(r.host)}</td><td>${r.info.count}회</td>
         <td><span class="st blocked">차단 확정</span></td><td>${r.blk.kind}</td><td></td></tr>`;
-      return `<tr style="background:var(--bad-bg)"><td style="font-family:var(--mono)"><b>${esc(r.host)}</b></td><td>${r.info.count}회·${r.info.srcs.size}대</td>
+      return `<tr class="row-rogue"><td class="mono"><b>${esc(r.host)}</b></td><td>${r.info.count}회 ${r.info.srcs.size}대</td>
         <td><span class="st rogue">미등록</span></td><td><b>${r.rogue.cls.kind}</b><div class="aiwhy">${r.rogue.cls.risk}</div></td>
         <td style="white-space:nowrap">${r.rogue.cls.saasLike?`<button class="act small" onclick='openWizard({host:${JSON.stringify(r.host)}, name:${JSON.stringify(r.host)}, fromRogue:true, cls:${JSON.stringify(r.rogue.cls)}})'>판정하기</button> `:''}<button class="act danger small" onclick='quickBlock(${JSON.stringify(r.host)})'>차단</button></td></tr>`;
     }).join('')}</table>
-    <div class="hint">미등록 연결이 경계 지도·대장에 반영됐다. SaaS류는 "판정하기"로 등재 절차(살피 판정)에 넘길 수 있다.</div>`;
+    <div class="hint">미등록 연결이 경계 지도와 대장에 반영됐다. SaaS류는 "판정하기"로 등재 절차(살피 판정)에 넘길 수 있다.</div>`;
 }
 
 /* ── 내용 검사 (살피 탐지 엔진) ── */
 let detSeq = 0;
 function renderContent(){
   const saas = LEDGER.filter(c => c.zone==='saas');
-  $('#main').innerHTML = `
-    <h2 class="q">내용 검사 — SaaS 콘딧을 지나는 데이터의 결합 탐지</h2>
-    <p class="qsub">통로 관리(대장)가 "어디로 다니는가"라면 내용 검사는 "무엇이 지나가는가"다. SaaS 콘딧에만 필요한 통제이며
-    (자유 입력이 다니는 유일한 통로), 탐지 기록은 해당 콘딧의 반기 자체평가 증적이 된다. 판정은 규칙+검증이,
-    결합 판단은 로컬 LLM이 맡는다 — 살피 탐지 엔진 실측 F1 85.4.</p>
-    <div style="display:flex;gap:12px;align-items:center;margin-bottom:8px;flex-wrap:wrap">
-      <span style="font-size:13px">대상 콘딧:</span>
-      <select id="det-target" style="font:inherit;font-size:13px;padding:4px 8px">
+  $('#main').innerHTML = `<section class="view">
+    <h2 class="q">내용 검사</h2>
+    <p class="qsub">SaaS 콘딧을 지나는 데이터의 결합 탐지. 통로 관리(대장)가 "어디로 다니는가"라면 내용 검사는 "무엇이 지나가는가"다.
+    자유 입력이 다니는 유일한 통로인 SaaS 콘딧에만 필요한 통제이며, 탐지 기록은 해당 콘딧의 반기 자체평가 증적이 된다.
+    판정은 규칙과 검증이, 결합 판단은 로컬 LLM이 맡는다. 살피 탐지 엔진 실측 F1 85.4.</p>
+    <div style="display:flex;gap:14px;align-items:center;margin-bottom:10px;flex-wrap:wrap">
+      <span style="font-size:13px;color:var(--sub)">대상 콘딧</span>
+      <select id="det-target">
         ${saas.map(c=>`<option value="${c.id}">${c.id} ${esc(c.name)}</option>`).join('')}
       </select>
       <span class="det-mode" id="det-mode"></span>
     </div>
-    <button class="act ghost2 small" id="det-sample">예시 회의록 넣기</button>
-    <div style="height:8px"></div>
-    <textarea id="det-in" style="height:130px" placeholder="이 SaaS에 올리려는 문서·회의록을 붙여넣으면 실시간으로 탐지한다"></textarea>
-    <div id="det-out"></div>`;
+    <div style="margin-bottom:10px">
+      <button class="act ghost2 small" id="det-sample">예시 회의록 넣기</button>
+    </div>
+    <textarea id="det-in" style="height:130px" placeholder="이 SaaS에 올리려는 문서나 회의록을 붙여넣으면 실시간으로 탐지한다"></textarea>
+    <div id="det-out"></div></section>`;
   $('#det-sample').onclick = () => {
     $('#det-in').value = `3월 여신협의회 회의록\n1. 박지현 고객 주택담보대출 연체 3개월 경과 건. 연락처 010-4821-7733.\n2. 신규 상품 한도 정책은 다음 회의에서 확정.\n3. 정해나 고객 재방문 상담 진행.\n   - 해당 고객은 신용대출 상환 지연 이력이 있음.\n4. 사내 워크숍 일정 공유.`;
     detRun();
@@ -671,7 +757,7 @@ async function detProbe(){
   el.innerHTML = state.detReady
     ? `<label><input type="radio" name="dm" value="heuristic" ${state.detMode==='heuristic'?'checked':''}> 규칙 근사</label>
        <label><input type="radio" name="dm" value="hybrid" ${state.detMode==='hybrid'?'checked':''}> 로컬 LLM</label><span class="ok-dot">모델 연결됨</span>`
-    : `<span class="off-dot">로컬 모델 미연결 — 규칙 근사로 동작</span>`;
+    : `<span class="off-dot">로컬 모델 미연결, 규칙 근사로 동작</span>`;
   el.querySelectorAll('input[name="dm"]').forEach(r => r.onchange = () => { state.detMode = r.value; detRun(); });
 }
 async function detRun(){
@@ -691,9 +777,9 @@ async function detRun(){
   out.innerHTML = (res.degraded?`<div class="det-empty" style="color:var(--warn)">${esc(res.degraded)}</div>`:'') +
     (res.hits.length ? res.hits.map(h => {
       const lv = h.severity==='violation'?'viol':(h.label==='identifier_only'?'info':'warn');
-      return `<div class="det-hit ${lv}"><span class="tag">[${esc(h.tag)}]</span><span class="span">${esc(h.span.slice(0,64))}</span><span style="font-size:12px;color:var(--sub)">${esc(h.note)}</span></div>`;
+      return `<div class="det-hit ${lv}"><span class="tag">[${esc(h.tag)}]</span><span class="span">${esc(h.span.slice(0,64))}</span><span class="note">${esc(h.note)}</span></div>`;
     }).join('') : '<div class="det-empty">탐지된 항목 없음</div>') +
-    (viols.length ? `<div class="hint">위반 ${viols.length}건이 ${target} 콘딧의 내용검사 기록에 저장됐다(마스킹). 대장·반기 보고에 반영된다.</div>` : '');
+    (viols.length ? `<div class="hint">위반 ${viols.length}건이 ${target} 콘딧의 내용검사 기록에 저장됐다(마스킹). 대장과 반기 보고에 반영된다.</div>` : '');
 }
 
 /* ── 반기 보고 ── */
@@ -702,34 +788,34 @@ function renderReport(){
   const byType = {};
   for (const c of LEDGER) byType[c.type] = (byType[c.type]||0)+1;
   const now = new Date();
-  $('#main').innerHTML = `
-    <h2 class="q">반기 보고 — 정보보호위원회 제출 초안</h2>
-    <p class="qsub">대장(통로 현황) + 로그 대조(실측) + 내용 검사(살피 증적)가 한 문서로 조립된다.</p>
+  $('#main').innerHTML = `<section class="view">
+    <h2 class="q">반기 보고</h2>
+    <p class="qsub">정보보호위원회 제출 초안. 대장(통로 현황), 로그 대조(실측), 내용 검사(살피 증적)가 한 문서로 조립된다.</p>
     <div class="report-page">
       <h3>망분리 적용 예외 운영 현황 및 반기 자체평가 보고 (초안)</h3>
-      <p style="font-size:12.5px;color:#555">기준일 ${now.toLocaleDateString('ko-KR')} · 근거: 시행세칙 제2조의3 제3항·제4항</p>
+      <p style="color:#555">기준일 ${now.toISOString().slice(0,10)}, 근거: 시행세칙 제2조의3 제3항과 제4항</p>
       <h4>1. 예외 운영 현황</h4>
       <table><tr><th>유형</th><th>건수</th></tr>
         ${Object.entries(byType).map(([t,n])=>`<tr><td>${t}</td><td>${n}</td></tr>`).join('')}
-        <tr style="background:${state.rogues.length?'#fbeeec':'#fff'}"><td><b>미등록 연결 (로그 실측)</b></td><td><b>${state.rogues.length}</b></td></tr>
+        <tr ${state.rogues.length?'class="flag"':''}><td><b>미등록 연결 (로그 실측)</b></td><td><b>${state.rogues.length}</b></td></tr>
         ${state.blocked.length?`<tr><td>차단 확정</td><td>${state.blocked.length}</td></tr>`:''}
       </table>
-      <h4>2. SaaS 반기 자체평가 (제4항) — 내용검사 증적 포함</h4>
+      <h4>2. SaaS 반기 자체평가 (제4항)와 내용검사 증적</h4>
       <table><tr><th>콘딧</th><th>적용 통제</th><th>내용검사 기록</th><th>기한</th></tr>
         ${saas.map(c=>`<tr><td>${c.id} ${esc(c.name)}</td><td style="font-size:11.5px">${esc(c.controls)}</td>
           <td>${contentCount(c.id)}건 (마스킹 저장)</td><td>${c.review.due}</td></tr>`).join('')}
       </table>
-      <h4>3. 미등록 연결 발견·조치</h4>
+      <h4>3. 미등록 연결 발견과 조치</h4>
       ${state.rogues.length || state.blocked.length ? `<table><tr><th>목적지</th><th>분류</th><th>상태</th></tr>
         ${state.rogues.map(r=>`<tr><td>${esc(r.host)}</td><td>${r.cls.kind}</td><td>조치 대기 (등재 판정 또는 차단)</td></tr>`).join('')}
         ${state.blocked.map(b=>`<tr><td>${esc(b.host)}</td><td>${b.kind}</td><td>차단 확정</td></tr>`).join('')}</table>`
-        : '<p style="font-size:12.5px">로그 대조를 먼저 실행하면 이 절이 채워진다.</p>'}
+        : '<p>로그 대조를 먼저 실행하면 이 절이 채워진다.</p>'}
       <table style="margin-top:16px"><tr><th style="width:70%">확인</th><th>서명</th></tr>
         <tr><td>작성: 정보보호 담당</td><td></td></tr><tr><td>정보보호최고책임자(CISO)</td><td></td></tr></table>
-      <p style="font-size:11px;color:#777;margin-top:12px">본 문서는 살피가 생성한 초안이며 위원회 심의·확정 전 검토용이다.</p>
+      <p style="font-size:11px;color:#777;margin-top:12px">본 문서는 살피가 생성한 초안이며 위원회 심의와 확정 전 검토용이다.</p>
     </div>
-    <div style="height:12px"></div>
-    <button class="act" onclick="window.print()">인쇄 / PDF 저장</button>`;
+    <div style="height:14px"></div>
+    <button class="act" onclick="window.print()">인쇄 / PDF 저장</button></section>`;
 }
 
 function render(){
