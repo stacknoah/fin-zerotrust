@@ -190,6 +190,11 @@ async function runMethod(name, docs, opts) {
       const byReason = {};
       r.rejected.forEach(x => { byReason[x.reason] = (byReason[x.reason] || 0) + 1; });
       console.log(`  ${r.summary.name}: ${JSON.stringify(byReason)}`);
+      if (argv.includes('--dump')) {
+        for (const x of r.rejected.slice(0, 8)) {
+          console.log(`      [${x.reason}] label=${x.label} span="${x.span}"`);
+        }
+      }
     }
   }
 

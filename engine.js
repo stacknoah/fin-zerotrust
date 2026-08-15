@@ -196,13 +196,27 @@
    * 못 찾으면 그대로 둬서 검증 단계에서 폐기되게 한다.
    * 모델 말을 믿는 게 아니라 코드가 재확인하는 것이라 검증이 약해지지 않는다.
    */
-  function repairFinding(f) {
+  function repairFinding(f, chunk) {
     if (!f || f.label !== 'combined') return f;
     const span = norm(f.evidence_span);
     const id = norm(f.identifier), cc = norm(f.credit_context);
     if (!span || (id && cc)) return f;
-    const names = findNames(span);
-    const kw = span.match(CREDIT_KW);
+
+    // 1차: 근거 스팬 안에서 찾는다
+    let names = findNames(span);
+    let kw = span.match(CREDIT_KW);
+
+    // 2차: 스팬에 이름이 없으면 같은 창의 다른 줄에서 찾는다.
+    // 줄 넘김 결합에서 모델이 신용 사실이 적힌 뒷줄만 스팬으로 잡는 일이 잦은데,
+    // 그 줄에는 "해당 고객" 같은 지시어만 있고 실제 이름은 앞줄에 있다.
+    // 다만 아무 이름이나 붙이면 오탐이 되므로 창 안에 이름이 하나뿐일 때만 허용한다.
+    if (!names.length && chunk) {
+      const inChunk = findNames(chunk);
+      const distinct = [...new Set(inChunk.map(n => n.name))];
+      if (distinct.length === 1) names = [{ name: distinct[0] }];
+    }
+    if (!kw && chunk) kw = chunk.match(CREDIT_KW);
+
     if (!names.length || !kw) return f;   // 우리도 못 찾으면 폐기 대상
     return Object.assign({}, f, {
       identifier: id || names[0].name,
@@ -327,10 +341,13 @@
       const findings = Array.isArray(parsed.findings) ? parsed.findings
                      : Array.isArray(parsed) ? parsed : [];
       for (const raw0 of findings) {
-        const f = repairFinding(raw0);
+        const f = repairFinding(raw0, chunk);
         if (f && f._repaired) repaired++;
         const v = verifyFinding(f, chunk);
-        if (!v.ok) { rejected.push({ reason: v.reason, finding: f }); continue; }
+        if (!v.ok) {
+          rejected.push({ reason: v.reason, label: f && f.label, span: norm(f && f.evidence_span).slice(0, 60) });
+          continue;
+        }
         const span = norm(f.evidence_span);
         if (seen.has(f.label + '|' + span)) continue;   // 겹치는 창에서 중복 제거
         seen.add(f.label + '|' + span);
