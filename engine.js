@@ -1,5 +1,5 @@
 /*
- * 결계(WARD) 결합 탐지 엔진
+ * 살피(SALPI) 결합 탐지 엔진
  *
  * 3층 구조
  *   1층 규칙   : 주민번호(체크섬)·카드(Luhn)·연락처. 결정적, 브라우저에서도 동작
@@ -16,7 +16,7 @@
  */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
-  else root.WardEngine = factory();
+  else root.SalpiEngine = factory();
 })(typeof self !== 'undefined' ? self : this, function () {
   'use strict';
 

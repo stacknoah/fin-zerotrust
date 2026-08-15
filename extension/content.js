@@ -1,5 +1,5 @@
 /*
- * 결계 WARD 콘텐트 스크립트 — 입력 시점 탐지
+ * 살피 SALPI 콘텐트 스크립트 — 입력 시점 탐지
  *
  * SaaS 웹 입력창(textarea, contenteditable)을 감시하다가 개인신용정보의
  * 결합이 나타나면 전송 전에 경고한다. 해설서 6장 "데이터 입력 시 사전에 필터 적용"의
@@ -54,16 +54,16 @@
       tag: v.tag,
       masked: mask(v.span).slice(0, 80),
     }));
-    chrome.storage.local.get({ wardLog: [] }, data => {
-      const next = data.wardLog.concat(items).slice(-MAX_LOG);
-      chrome.storage.local.set({ wardLog: next });
+    chrome.storage.local.get({ salpiLog: [] }, data => {
+      const next = data.salpiLog.concat(items).slice(-MAX_LOG);
+      chrome.storage.local.set({ salpiLog: next });
     });
   }
 
   function showBanner(violations) {
     if (!banner) {
       banner = document.createElement('div');
-      banner.id = 'ward-banner';
+      banner.id = 'salpi-banner';
       banner.style.cssText = [
         'position:fixed', 'right:16px', 'bottom:16px', 'z-index:2147483647',
         'max-width:360px', 'background:#fff', 'color:#1b1e24',
@@ -77,7 +77,7 @@
       `<div style="margin-top:6px"><b style="color:#a83226">[${v.tag}]</b> ${mask(v.span).slice(0, 48)}</div>`
     ).join('');
     banner.innerHTML =
-      `<div style="font-weight:800">결계 WARD: 개인신용정보 입력 감지</div>${rows}` +
+      `<div style="font-weight:800">살피 SALPI: 개인신용정보 입력 감지</div>${rows}` +
       `<div style="margin-top:8px;font-size:11.5px;color:#5d6068">이 SaaS는 개인신용정보를 처리하지 않는 조건으로 승인되었다(시행세칙 제2조의3). 전송 전에 해당 내용을 지우거나 마스킹할 것.</div>`;
     banner.style.display = 'block';
   }
@@ -90,7 +90,7 @@
     const text = getText(el);
     if (!text.trim()) { el.style.outline = ''; hideBanner(); return; }
 
-    const res = await WardEngine.scan(text, { mode: 'heuristic' });
+    const res = await SalpiEngine.scan(text, { mode: 'heuristic' });
     const violations = res.hits.filter(h => h.severity === 'violation');
 
     if (violations.length) {

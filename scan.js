@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
- * 결계 배치 스캐너 — 저장 문서 주기 점검 + 반기 자체평가 증적 리포트
+ * 살피 배치 스캐너 — 저장 문서 주기 점검 + 반기 자체평가 증적 리포트
  *
  * 해설서 6장 "(중요정보 입력 점검) SaaS 이용 로그를 주기적으로 점검하여
  * 입력 제한 데이터가 저장·처리되었는지 점검"의 구현체다.
@@ -9,7 +9,7 @@
  * 사용법
  *   node scan.js <파일|폴더> [...]              스캔하고 리포트 생성
  *   node scan.js docs/ --llm                    로컬 LLM 결합 판단 포함 (Ollama 필요)
- *   node scan.js docs/ --out report/            리포트 저장 위치 지정 (기본 ward-report/)
+ *   node scan.js docs/ --out report/            리포트 저장 위치 지정 (기본 salpi-report/)
  *   node scan.js docs/ --ext txt,md,csv,log     스캔할 확장자 (기본 txt,md,csv,log)
  *
  * 리포트의 민감정보 처리
@@ -32,7 +32,7 @@ function opt(name, def) {
 }
 
 const targets = argv.filter(a => !a.startsWith('--') && a !== opt('out', null) && a !== opt('ext', null));
-const OUT = opt('out', 'ward-report');
+const OUT = opt('out', 'salpi-report');
 const EXTS = new Set(opt('ext', 'txt,md,csv,log').split(',').map(s => '.' + s.trim().replace(/^\./, '')));
 const useLLM = flag('llm');
 
@@ -139,7 +139,7 @@ function lineOf(text, index) {
 | 항목 | 내용 |
 |---|---|
 | 점검 일시 | ${now.toLocaleString('ko-KR')} |
-| 점검 방법 | 결계(WARD) 배치 스캔 · ${mode === 'hybrid' ? '규칙 + 휴리스틱 + 로컬 LLM' : '규칙 + 휴리스틱'} |
+| 점검 방법 | 살피(SALPI) 배치 스캔 · ${mode === 'hybrid' ? '규칙 + 휴리스틱 + 로컬 LLM' : '규칙 + 휴리스틱'} |
 | 대상 | 파일 ${files.length}건 (${(scannedBytes / 1024).toFixed(1)}KB) · 소요 ${elapsed}초 |
 | 위반 | ${viol.length}건 ${Object.entries(byTag).map(([k, v]) => `${k} ${v}`).join(', ') || ''} |
 | 확인 대상 | ${info.length}건 (식별정보 단독 등, 위반 아님) |
@@ -168,7 +168,7 @@ ${errors.length ? '## 읽기 실패\n\n' + errors.map(e => `- ${e.file}: ${e.err
 | 점검자 | |
 | 정보보호최고책임자(CISO) | |
 
-본 리포트는 결계(WARD)가 생성한 초안이며 법적 판단을 대행하지 않는다.
+본 리포트는 살피(SALPI)가 생성한 초안이며 법적 판단을 대행하지 않는다.
 `;
 
   const mdPath = path.join(OUT, `점검리포트-${stamp}.md`);

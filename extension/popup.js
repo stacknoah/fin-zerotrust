@@ -16,22 +16,22 @@ function render(items) {
     </div>`).join('');
 }
 
-chrome.storage.local.get({ wardLog: [] }, data => render(data.wardLog));
+chrome.storage.local.get({ salpiLog: [] }, data => render(data.salpiLog));
 
 document.getElementById('clear').onclick = () => {
-  chrome.storage.local.set({ wardLog: [] }, () => render([]));
+  chrome.storage.local.set({ salpiLog: [] }, () => render([]));
 };
 
 document.getElementById('export').onclick = () => {
-  chrome.storage.local.get({ wardLog: [] }, data => {
+  chrome.storage.local.get({ salpiLog: [] }, data => {
     const lines = ['시각,호스트,유형,내용(마스킹)'];
-    for (const x of data.wardLog) {
+    for (const x of data.salpiLog) {
       lines.push(`"${new Date(x.t).toLocaleString('ko-KR')}","${x.host}","${x.tag}","${x.masked.replace(/"/g, '""')}"`);
     }
     const blob = new Blob(['﻿' + lines.join('\n')], { type: 'text/csv;charset=utf-8' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = `ward-탐지기록-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `salpi-탐지기록-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(a.href);
   });

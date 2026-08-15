@@ -1,143 +1,75 @@
 {
-  "generatedAt": "2026-08-15T04:03:26.218Z",
+  "generatedAt": "2026-08-15T06:06:49.040Z",
   "seed": 20260810,
-  "docs": 30,
-  "goldViolations": 84,
+  "docs": 10,
+  "goldViolations": 28,
   "results": [
     {
       "name": "규칙층만",
-      "tp": 36,
+      "tp": 11,
       "fp": 0,
-      "fn": 48,
+      "fn": 17,
       "precision": 1,
-      "recall": 0.42857142857142855,
-      "f1": 0.6,
+      "recall": 0.39285714285714285,
+      "f1": 0.5641025641025641,
       "perType": {
         "card": {
-          "total": 19,
-          "hit": 19
+          "total": 6,
+          "hit": 6
         },
         "combined_same_line": {
-          "total": 14,
+          "total": 6,
           "hit": 0
         },
         "combined_cross_line": {
-          "total": 14,
+          "total": 5,
           "hit": 0
         },
         "combined_indirect": {
-          "total": 20,
+          "total": 6,
           "hit": 0
         },
         "rrn": {
-          "total": 17,
-          "hit": 17
+          "total": 5,
+          "hit": 5
         }
       },
-      "elapsedSec": 0.001,
+      "elapsedSec": 0,
       "rejectedCount": 0,
       "repaired": 0
     },
     {
       "name": "규칙+휴리스틱",
-      "tp": 50,
+      "tp": 17,
       "fp": 0,
-      "fn": 34,
+      "fn": 11,
       "precision": 1,
-      "recall": 0.5952380952380952,
-      "f1": 0.7462686567164178,
+      "recall": 0.6071428571428571,
+      "f1": 0.7555555555555554,
       "perType": {
         "card": {
-          "total": 19,
-          "hit": 19
+          "total": 6,
+          "hit": 6
         },
         "combined_same_line": {
-          "total": 14,
-          "hit": 13
+          "total": 6,
+          "hit": 5
         },
         "combined_cross_line": {
-          "total": 14,
+          "total": 5,
           "hit": 0
         },
         "combined_indirect": {
-          "total": 20,
+          "total": 6,
           "hit": 1
         },
         "rrn": {
-          "total": 17,
-          "hit": 17
+          "total": 5,
+          "hit": 5
         }
       },
       "elapsedSec": 0.001,
       "rejectedCount": 0,
-      "repaired": 0
-    },
-    {
-      "name": "LLM단독: kanana-2-3b-instruct",
-      "tp": 66,
-      "fp": 10,
-      "fn": 18,
-      "precision": 0.868421052631579,
-      "recall": 0.7857142857142857,
-      "f1": 0.825,
-      "perType": {
-        "card": {
-          "total": 19,
-          "hit": 19
-        },
-        "combined_same_line": {
-          "total": 14,
-          "hit": 9
-        },
-        "combined_cross_line": {
-          "total": 14,
-          "hit": 8
-        },
-        "combined_indirect": {
-          "total": 20,
-          "hit": 13
-        },
-        "rrn": {
-          "total": 17,
-          "hit": 17
-        }
-      },
-      "elapsedSec": 87.119,
-      "rejectedCount": 31,
-      "repaired": 0
-    },
-    {
-      "name": "합집합: kanana-2-3b-instruct",
-      "tp": 70,
-      "fp": 10,
-      "fn": 14,
-      "precision": 0.875,
-      "recall": 0.8333333333333334,
-      "f1": 0.8536585365853658,
-      "perType": {
-        "card": {
-          "total": 19,
-          "hit": 19
-        },
-        "combined_same_line": {
-          "total": 14,
-          "hit": 13
-        },
-        "combined_cross_line": {
-          "total": 14,
-          "hit": 8
-        },
-        "combined_indirect": {
-          "total": 20,
-          "hit": 13
-        },
-        "rrn": {
-          "total": 17,
-          "hit": 17
-        }
-      },
-      "elapsedSec": 88.279,
-      "rejectedCount": 31,
       "repaired": 0
     }
   ]

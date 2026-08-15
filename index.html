@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>결계 — 내부업무망 SaaS 예외요건 판정·검증</title>
+<title>살피 — 내부업무망 SaaS 예외요건 판정·검증</title>
 <style>
   :root {
     --paper: #fcfcfa;
@@ -278,7 +278,7 @@
 
 <header class="top">
   <div class="in">
-    <div class="wordmark">결계<span style="font-weight:500;color:var(--faint);font-size:12px;margin-left:8px">GYEOLGYE · WARD</span><span class="tag">데모</span></div>
+    <div class="wordmark">살피<span style="font-weight:500;color:var(--faint);font-size:12px;margin-left:8px">SALPI · SaaS Assessment &amp; Live PII Inspector</span><span class="tag">데모</span></div>
     <div class="statute">전자금융감독규정 시행세칙 제2조의3 제1항 제3호</div>
   </div>
 </header>
@@ -713,7 +713,7 @@ function eviCard(e, withApply) {
         <span>이 통제를 도입 시 적용한다. 적용 계획이 검토서에 기록된다.</span></label>`;
     } else {
       apply = `<label class="applychk"><input type="checkbox" data-comp="${e._i}" ${state.comp[e._i] ? 'checked' : ''}>
-        <span>이 SaaS에는 해당 통제가 ${e.control_availability === 'none' ? '없다' : '확인되지 않았다'}. <b>결계 검증 도구(로컬 결합 탐지) 등 보완통제를 적용</b>한다(해설서: 기능이 없는 경우 보완 보안대책 적용).</span></label>`;
+        <span>이 SaaS에는 해당 통제가 ${e.control_availability === 'none' ? '없다' : '확인되지 않았다'}. <b>살피 검증 도구(로컬 결합 탐지) 등 보완통제를 적용</b>한다(해설서: 기능이 없는 경우 보완 보안대책 적용).</span></label>`;
     }
   }
   return `<div class="evi">
@@ -752,8 +752,8 @@ function judge() {
   const l2 = ent.filter(e => e.layer === 'L2' && e.exists !== 'no');
   const l3 = ent.filter(e => e.layer === 'L3' && e.exists !== 'no');
   const actionFor = (e, has) => {
-    if (!has) return '결계 검증 도구(로컬 결합 탐지)를 이 접점의 보완통제로 지정하고, 탐지 로그를 반기 자체평가 증적으로 수집';
-    if (e.control_availability === 'higher_tier' && state.profile.e5 === 'no') return '상위 요금제 미보유. 요금제 증설 전까지 결계 검증 도구 또는 단말 DLP를 보완통제로 적용';
+    if (!has) return '살피 검증 도구(로컬 결합 탐지)를 이 접점의 보완통제로 지정하고, 탐지 로그를 반기 자체평가 증적으로 수집';
+    if (e.control_availability === 'higher_tier' && state.profile.e5 === 'no') return '상위 요금제 미보유. 요금제 증설 전까지 살피 검증 도구 또는 단말 DLP를 보완통제로 적용';
     const first = (e.control || '').split(/[.。]\s|\(/)[0].trim();
     return '관리자 콘솔에서 설정 적용 후 증적 확보: ' + (first.length > 90 ? first.slice(0, 90) + '…' : first);
   };
@@ -945,7 +945,7 @@ function buildReport(v) {
 /* ================= 검증 엔진 연결 =================
    탐지 로직은 engine.js에 있다. 측정 하네스(eval/)도 같은 엔진을 쓴다.
    시연한 것과 측정한 것이 갈라지지 않게 하기 위해서다. */
-const detState = { mode: 'heuristic', model: WardEngine.DEFAULT_LLM.model, llmReady: false };
+const detState = { mode: 'heuristic', model: SalpiEngine.DEFAULT_LLM.model, llmReady: false };
 
 const DET_SAMPLE = `3월 여신협의회 회의록
 참석: 여신기획부, 리스크관리부
@@ -970,7 +970,7 @@ async function detRender() {
   const seq = ++detSeq;
   if (detState.mode === 'llm') out.innerHTML = '<div class="det-empty">로컬 모델 판단 중…</div>';
 
-  const res = await WardEngine.scan(ta.value, {
+  const res = await SalpiEngine.scan(ta.value, {
     mode: detState.mode,
     llm: { model: detState.model },
   });
@@ -994,7 +994,7 @@ async function detRender() {
 async function detProbe() {
   const el = document.getElementById('det-mode');
   if (!el) return;
-  const av = await WardEngine.llmAvailable({ model: detState.model });
+  const av = await SalpiEngine.llmAvailable({ model: detState.model });
   detState.llmReady = !!(av.ok && av.hasModel);
   const base = detState.model.split(':')[0];
   el.innerHTML = detState.llmReady
