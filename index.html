@@ -3,1035 +3,740 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>살피 — 내부업무망 SaaS 예외요건 판정·검증</title>
+<title>살피 — 망분리 경계 관제 (데모)</title>
 <style>
   :root {
-    --paper: #fcfcfa;
-    --ink: #1c1e22;
-    --sub: #5d6068;
-    --faint: #8b8e96;
-    --rule: #e2e1dc;
-    --rule-dark: #1c1e22;
-    --accent: #2b55a3;
-    --accent-bg: #eef2f9;
-    --ok: #176e4b;
-    --warn: #8f6400;
-    --bad: #a83226;
+    --paper: #fcfcfa; --ink: #1c1e22; --sub: #5d6068; --faint: #8b8e96;
+    --rule: #e2e1dc; --rule-dark: #1c1e22;
+    --accent: #2b55a3; --accent-bg: #eef2f9;
+    --ok: #176e4b; --ok-bg: #eef6f1; --warn: #8f6400; --warn-bg: #faf5e6;
+    --bad: #a83226; --bad-bg: #fbeeec;
     --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   }
   * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
   body {
-    margin: 0;
-    font-family: "Apple SD Gothic Neo", "Pretendard", "Malgun Gothic", system-ui, sans-serif;
-    background: var(--paper);
-    color: var(--ink);
-    font-size: 15px;
-    line-height: 1.7;
-    word-break: keep-all;
-    -webkit-font-smoothing: antialiased;
+    margin: 0; font-family: "Apple SD Gothic Neo", "Pretendard", "Malgun Gothic", system-ui, sans-serif;
+    background: var(--paper); color: var(--ink); font-size: 14.5px; line-height: 1.65;
+    word-break: keep-all; -webkit-font-smoothing: antialiased;
   }
-  ::selection { background: var(--accent-bg); }
-
-  /* ---------- 상단 ---------- */
-  header.top {
-    border-bottom: 1px solid var(--rule-dark);
-    background: var(--paper);
-  }
+  header.top { border-bottom: 1px solid var(--rule-dark); }
   header.top .in {
-    max-width: 1060px; margin: 0 auto; padding: 22px 24px 18px;
-    display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
+    max-width: 1120px; margin: 0 auto; padding: 20px 24px 14px;
+    display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
   }
-  .wordmark { font-size: 19px; font-weight: 800; letter-spacing: -0.01em; }
+  .wordmark { font-size: 19px; font-weight: 800; }
+  .wordmark .en { font-weight: 500; color: var(--faint); font-size: 12px; margin-left: 8px; }
   .wordmark .tag {
-    font-family: var(--mono); font-size: 11px; font-weight: 500;
-    color: var(--accent); border: 1px solid var(--accent);
-    padding: 1px 7px; margin-left: 10px; vertical-align: 2px;
+    font-family: var(--mono); font-size: 11px; font-weight: 500; color: var(--accent);
+    border: 1px solid var(--accent); padding: 1px 7px; margin-left: 10px; vertical-align: 2px;
   }
-  .statute {
-    margin-left: auto; font-family: var(--mono); font-size: 11.5px; color: var(--faint);
-  }
+  .statute { margin-left: auto; font-family: var(--mono); font-size: 11px; color: var(--faint); }
 
-  /* ---------- 본문 그리드 ---------- */
-  .frame {
-    max-width: 1060px; margin: 0 auto; padding: 0 24px 100px;
-    display: grid; grid-template-columns: 200px 1fr; gap: 56px;
+  .strip { border-bottom: 1px solid var(--rule); }
+  .strip .in {
+    max-width: 1120px; margin: 0 auto; padding: 10px 24px;
+    display: flex; gap: 26px; font-size: 12.5px; color: var(--sub); flex-wrap: wrap;
   }
-  @media (max-width: 900px) {
-    .frame { grid-template-columns: 1fr; gap: 0; }
-  }
+  .strip b { font-size: 16px; color: var(--ink); margin-right: 4px; }
+  .strip .alert b { color: var(--bad); }
+  .strip .warn b { color: var(--warn); }
+  .strip .okc b { color: var(--ok); }
 
-  /* 왼쪽 진행 레일 */
-  nav.rail { padding-top: 44px; }
-  nav.rail .item {
-    display: flex; gap: 12px; align-items: baseline;
-    padding: 9px 0; color: var(--faint); font-size: 13px;
-    border-left: 2px solid transparent; padding-left: 14px; margin-left: -16px;
+  nav.tabs { max-width: 1120px; margin: 18px auto 0; padding: 0 24px; display: flex; gap: 4px; flex-wrap: wrap; }
+  nav.tabs button {
+    font: inherit; font-size: 13.5px; font-weight: 700; padding: 9px 16px;
+    border: 1px solid var(--rule); border-bottom: none; background: #f4f4f1; color: var(--sub);
+    cursor: pointer; border-radius: 0;
   }
-  nav.rail .item .no { font-family: var(--mono); font-size: 11px; width: 16px; }
-  nav.rail .item.on { color: var(--ink); font-weight: 700; border-left-color: var(--accent); }
-  nav.rail .item.done { color: var(--sub); }
-  nav.rail .item.done .no::after { content: ""; }
-  @media (max-width: 900px) {
-    nav.rail { padding: 18px 0 0; overflow-x: auto; }
-    nav.rail .list { display: flex; gap: 18px; }
-    nav.rail .item { border-left: none; border-bottom: 2px solid transparent; padding: 4px 0 8px; margin: 0; white-space: nowrap; }
-    nav.rail .item.on { border-bottom-color: var(--accent); }
-  }
+  nav.tabs button.on { background: var(--paper); color: var(--ink); border-color: var(--rule-dark); position: relative; }
+  nav.tabs button.on::after { content:''; position:absolute; left:0; right:0; bottom:-1px; height:2px; background:var(--paper); }
+  nav.tabs button .n { font-family: var(--mono); font-size: 11px; color: var(--bad); margin-left: 5px; }
+  main { max-width: 1120px; margin: 0 auto; padding: 22px 24px 80px; border-top: 1px solid var(--rule-dark); }
 
-  main { padding-top: 44px; min-width: 0; }
+  h2.q { font-size: 19px; font-weight: 800; margin: 4px 0 4px; letter-spacing: -0.01em; }
+  .qsub { font-size: 13px; color: var(--sub); margin: 0 0 18px; max-width: 76ch; }
+  .hint { font-size: 12.5px; color: var(--warn); margin-top: 10px; }
 
-  /* 전제 조건 */
-  .premise {
-    font-size: 13px; color: var(--sub); line-height: 1.75;
-    border-bottom: 1px solid var(--rule);
-    padding-bottom: 20px; margin-bottom: 36px;
-  }
-  .premise b { color: var(--ink); }
+  /* 지도 */
+  .mapwrap { border: 1px solid var(--rule); background: #fff; }
+  svg text { font-family: "Apple SD Gothic Neo", sans-serif; }
+  .zone-box { fill: #f7f7f4; stroke: #c9c9c2; }
+  .zone-core { fill: #eef2f9; stroke: var(--accent); stroke-width: 1.5; }
+  .conduit { stroke: #9aa3b5; stroke-width: 2; cursor: pointer; }
+  .conduit:hover { stroke: var(--accent); stroke-width: 3; }
+  .conduit.saas { stroke: #4a7c59; }
+  .conduit.rogue { stroke: var(--bad); stroke-width: 2.5; stroke-dasharray: 6 4; }
+  .cond-label { font-size: 10.5px; fill: #5d6068; cursor: pointer; }
+  .cond-label.rogue { fill: var(--bad); font-weight: 700; }
 
-  /* 스텝 패널 */
-  .panel { animation: rise .28s ease both; }
-  @media (prefers-reduced-motion: reduce) { .panel { animation: none; } }
-  @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .detail {
+    border: 1px solid var(--rule-dark); border-left: 4px solid var(--accent);
+    padding: 14px 18px; margin-top: 14px; background: #fff; display: none;
+  }
+  .detail.rogue { border-left-color: var(--bad); }
+  .detail h3 { margin: 0 0 6px; font-size: 15px; }
+  .detail .grid { display: grid; grid-template-columns: 130px 1fr; gap: 3px 14px; font-size: 13px; }
+  .detail .grid dt { color: var(--faint); }
+  .detail .grid dd { margin: 0; }
+  .detail .ai-note { margin-top: 10px; padding: 9px 12px; background: var(--bad-bg); font-size: 12.5px; line-height: 1.6; }
+  .detail .ai-note .lbl { font-family: var(--mono); font-size: 10px; color: var(--bad); display: block; margin-bottom: 3px; }
+  .detail .content-log { margin-top: 10px; padding: 9px 12px; background: var(--ok-bg); font-size: 12.5px; }
 
-  .kicker {
-    font-family: var(--mono); font-size: 11px; color: var(--accent);
-    margin-bottom: 10px;
-  }
-  h2.q {
-    font-size: 24px; line-height: 1.4; font-weight: 800; letter-spacing: -0.015em;
-    margin: 0 0 8px;
-  }
-  .qsub { font-size: 13.5px; color: var(--sub); margin: 0 0 28px; max-width: 62ch; }
+  /* 카드 */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 12px; }
+  .card { border: 1px solid var(--rule); background: #fff; padding: 13px 16px; font-size: 13px; }
+  .card.rogue { border-color: var(--bad); background: var(--bad-bg); }
+  .card .hd { display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px; }
+  .card .id { font-family: var(--mono); font-size: 11px; color: var(--faint); }
+  .card .nm { font-weight: 800; font-size: 14.5px; }
+  .card .type { margin-left: auto; font-family: var(--mono); font-size: 10.5px; color: var(--accent); white-space: nowrap; }
+  .card.rogue .type { color: var(--bad); }
+  .card .row { display: flex; gap: 8px; font-size: 12.5px; color: var(--sub); }
+  .card .row b { color: var(--ink); font-weight: 600; }
+  .card .due { margin-top: 6px; font-size: 12px; }
+  .card .due.soon { color: var(--warn); font-weight: 700; }
+  .card .due.none { color: var(--faint); }
+  .card .content-stat { margin-top: 6px; font-size: 12px; color: var(--ok); }
+  .card .content-stat.has { font-weight: 700; }
 
-  /* 선택지: 괘선 행 */
-  .opts { border-top: 1px solid var(--rule-dark); }
-  .opt {
-    display: flex; gap: 16px; align-items: baseline;
-    padding: 15px 4px; border-bottom: 1px solid var(--rule);
-    cursor: pointer; transition: background .12s;
+  button.act {
+    font: inherit; font-size: 14px; font-weight: 700; padding: 10px 22px;
+    border: 1px solid var(--ink); background: var(--ink); color: var(--paper); cursor: pointer; border-radius: 0;
   }
-  .opt:hover { background: #f5f5f2; }
-  .opt .mark {
-    flex: 0 0 14px; height: 14px; border: 1.5px solid var(--faint);
-    border-radius: 50%; position: relative; top: 2px;
-  }
-  .opt.sel .mark { border-color: var(--accent); }
-  .opt.sel .mark::after {
-    content: ""; position: absolute; inset: 2.5px; background: var(--accent); border-radius: 50%;
-  }
-  .opt .t { font-weight: 700; font-size: 14.5px; }
-  .opt.sel .t { color: var(--accent); }
-  .opt .d { font-size: 12.5px; color: var(--sub); margin-top: 1px; }
+  button.ghost2 { background: var(--paper); color: var(--ink); }
+  button.small { font-size: 12px; padding: 5px 12px; }
+  button.danger { border-color: var(--bad); background: var(--bad); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
 
-  /* SaaS 선택: 활자 그리드 */
-  .saasgrid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    border-top: 1px solid var(--rule-dark); border-left: 1px solid var(--rule);
-    margin-bottom: 34px;
+  textarea {
+    width: 100%; font-family: var(--mono); font-size: 11.5px; line-height: 1.6;
+    border: 1px solid var(--rule-dark); padding: 10px; resize: vertical; background: #fff;
   }
-  .saascell {
-    border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
-    padding: 18px 16px 14px; cursor: pointer; transition: background .12s;
-  }
-  .saascell:hover { background: #f5f5f2; }
-  .saascell .nm { font-weight: 800; font-size: 15px; letter-spacing: -0.01em; }
-  .saascell .ct { font-family: var(--mono); font-size: 10.5px; color: var(--faint); margin-top: 3px; }
-  .saascell.sel { background: var(--accent-bg); box-shadow: inset 0 0 0 1.5px var(--accent); }
-  .saascell.sel .nm { color: var(--accent); }
+  table.res { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 13px; }
+  table.res th { background: #14213d; color: #fff; text-align: left; padding: 7px 10px; font-weight: 700; }
+  table.res td { border-bottom: 1px solid var(--rule); padding: 7px 10px; vertical-align: top; }
+  .st { font-family: var(--mono); font-size: 11px; font-weight: 700; white-space: nowrap; }
+  .st.ok { color: var(--ok); } .st.rogue { color: var(--bad); } .st.blocked { color: var(--faint); }
+  .aiwhy { font-size: 12px; color: var(--sub); }
 
-  /* 근거 항목: 괘선 리스트 */
-  .evi {
-    border-top: 1px solid var(--rule); padding: 18px 0 16px;
-  }
-  .evi:first-of-type { border-top: 1px solid var(--rule-dark); }
-  .evi .head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
-  .evi .feat { font-weight: 800; font-size: 14px; }
-  .avtag { font-family: var(--mono); font-size: 11px; white-space: nowrap; }
-  .avtag.builtin { color: var(--ok); }
-  .avtag.higher_tier { color: var(--warn); }
-  .avtag.third_party { color: var(--accent); }
-  .avtag.none { color: var(--bad); }
-  .avtag.unclear { color: var(--faint); }
-  .conftag { font-family: var(--mono); font-size: 11px; color: var(--faint); }
-  .evi .ctrl { font-size: 13.5px; color: var(--ink); margin: 7px 0 0; max-width: 68ch; }
-  .evi .quote {
-    font-size: 12px; color: var(--sub); line-height: 1.6;
-    border-left: 2px solid var(--rule-dark);
-    padding: 2px 0 2px 14px; margin: 10px 0 0; max-width: 66ch;
-  }
-  .evi .meta { font-size: 11.5px; color: var(--faint); margin-top: 8px; font-family: var(--mono); word-break: break-all; }
-  .evi .meta a { color: var(--faint); text-decoration: underline; text-underline-offset: 2px; }
-  .evi .meta a:hover { color: var(--accent); }
-  .evi .plan { font-size: 12px; color: var(--warn); margin-top: 6px; }
-  .applychk {
-    display: flex; gap: 10px; align-items: flex-start;
-    margin-top: 12px; font-size: 13px; cursor: pointer; max-width: 68ch;
-  }
-  .applychk input {
-    margin-top: 4px; width: 15px; height: 15px; accent-color: var(--accent); flex: 0 0 auto;
-  }
-
-  /* 내비게이션 버튼 */
-  .nav { display: flex; justify-content: space-between; align-items: center; margin-top: 40px; }
-  .nav .r { display: flex; gap: 10px; }
-  button {
-    font-family: inherit; font-size: 14px; font-weight: 700;
-    padding: 11px 26px; cursor: pointer; border-radius: 0;
-    border: 1px solid var(--rule-dark); background: var(--paper); color: var(--ink);
-    transition: transform .06s;
-  }
-  button:active { transform: translateY(1px); }
-  button.primary { background: var(--ink); border-color: var(--ink); color: var(--paper); }
-  button.primary:disabled { background: #c6c7ca; border-color: #c6c7ca; cursor: not-allowed; }
-  button.ghost { border: none; background: none; color: var(--sub); padding-left: 0; }
-  button.ghost:hover { color: var(--ink); }
-
-  /* 판정 */
-  .verdict { border-top: 3px solid var(--rule-dark); padding-top: 26px; margin-bottom: 8px; }
-  .verdict .lbl { font-family: var(--mono); font-size: 11px; color: var(--faint); margin-bottom: 10px; }
-  .verdict .word { font-size: 34px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.25; }
-  .verdict.ok .word { color: var(--ok); }
-  .verdict.cond .word { color: var(--warn); }
-  .verdict.bad .word { color: var(--bad); }
-  .verdict .why { font-size: 13px; color: var(--sub); max-width: 62ch; margin-top: 10px; }
-
-  .findings { margin-top: 26px; border-top: 1px solid var(--rule-dark); }
-  .finding {
-    display: flex; gap: 14px; padding: 13px 2px; border-bottom: 1px solid var(--rule);
-    font-size: 13.5px; line-height: 1.65;
-  }
-  .finding .ic { font-family: var(--mono); font-weight: 700; flex: 0 0 14px; }
-  .finding.r .ic { color: var(--bad); }
-  .finding.w .ic { color: var(--warn); }
-  .finding.g .ic { color: var(--ok); }
-
-  /* 하단 */
-  footer.legal {
-    max-width: 1060px; margin: 0 auto; padding: 26px 24px 60px;
-    border-top: 1px solid var(--rule);
-    font-size: 11.5px; color: var(--faint); line-height: 1.8;
-  }
-
-  /* 회사 프로필 */
-  .profrow {
-    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
-    margin-bottom: 30px; font-size: 13px;
-  }
-  .profrow .pl { font-family: var(--mono); font-size: 11px; color: var(--faint); margin-right: 4px; }
-  .profrow select {
-    font-family: inherit; font-size: 13px; padding: 7px 10px;
-    border: 1px solid var(--rule); background: #fff; color: var(--ink); border-radius: 0;
-  }
-  /* 조치 제안 */
-  .finding .act { color: var(--accent); font-size: 12.5px; margin-top: 4px; }
-  /* 검증 데모 (모의 편집기) */
-  .detector { margin-top: 44px; border-top: 3px solid var(--rule-dark); padding-top: 24px; }
-  .detector h3 { font-size: 16px; font-weight: 800; margin: 0 0 6px; }
-  .detector .note { font-size: 12.5px; color: var(--sub); margin: 0 0 14px; max-width: 66ch; }
-  .detector textarea {
-    width: 100%; min-height: 120px; resize: vertical;
-    font-family: inherit; font-size: 14px; line-height: 1.7; color: var(--ink);
-    border: 1px solid var(--rule-dark); background: #fff; padding: 14px; border-radius: 0;
-  }
-  .detector textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
-  .det-out { margin-top: 10px; }
-  .det-mode { display: flex; gap: 14px; align-items: center; margin-bottom: 10px; font-size: 12.5px; flex-wrap: wrap; }
+  /* 내용 검사 */
+  .det-mode { display: flex; gap: 14px; align-items: center; margin: 10px 0; font-size: 12.5px; flex-wrap: wrap; }
   .det-mode label { display: flex; gap: 5px; align-items: center; cursor: pointer; }
-  .det-mode input { accent-color: var(--accent); }
   .det-mode .ok-dot { font-family: var(--mono); font-size: 11px; color: var(--ok); }
   .det-mode .off-dot { font-family: var(--mono); font-size: 11px; color: var(--faint); }
-  .det-hit {
-    display: flex; gap: 12px; padding: 10px 2px; border-bottom: 1px solid var(--rule);
-    font-size: 13px; align-items: baseline;
-  }
+  .det-hit { display: flex; gap: 10px; padding: 9px 4px; border-bottom: 1px solid var(--rule); font-size: 13px; align-items: baseline; }
   .det-hit .tag { font-family: var(--mono); font-size: 10.5px; white-space: nowrap; font-weight: 700; }
-  .det-hit.viol .tag { color: var(--bad); }
-  .det-hit.warn .tag { color: var(--warn); }
-  .det-hit.info .tag { color: var(--faint); }
+  .det-hit.viol .tag { color: var(--bad); } .det-hit.warn .tag { color: var(--warn); } .det-hit.info .tag { color: var(--faint); }
   .det-hit .span { font-family: var(--mono); font-size: 12px; background: #f4f4f1; padding: 1px 6px; }
-  .det-empty { font-size: 12.5px; color: var(--faint); padding: 10px 2px; }
+  .det-empty { color: var(--faint); font-size: 12.5px; padding: 8px 2px; }
 
-  /* ---------- 검토서 (인쇄 전용) ---------- */
-  #report { display: none; }
+  /* 위저드 모달 */
+  .overlay {
+    position: fixed; inset: 0; background: rgba(20,25,35,.45); display: none;
+    align-items: flex-start; justify-content: center; padding: 40px 16px; overflow-y: auto; z-index: 50;
+  }
+  .overlay.open { display: flex; }
+  .modal { background: var(--paper); border: 1px solid var(--rule-dark); max-width: 720px; width: 100%; padding: 22px 26px 26px; }
+  .modal h3 { margin: 0 0 2px; font-size: 17px; }
+  .modal .wsub { font-size: 12.5px; color: var(--sub); margin-bottom: 14px; }
+  .wsteps { display: flex; gap: 5px; margin-bottom: 16px; }
+  .wsteps .s { flex: 1; font-family: var(--mono); font-size: 10px; color: var(--faint); border-bottom: 3px solid var(--rule); padding-bottom: 4px; }
+  .wsteps .s.on { color: var(--accent); border-color: var(--accent); font-weight: 700; }
+  .opt { display: flex; gap: 12px; align-items: baseline; padding: 11px 4px; border-bottom: 1px solid var(--rule); cursor: pointer; }
+  .opt:hover { background: #f5f5f2; }
+  .opt .mark { flex: 0 0 13px; height: 13px; border: 1.5px solid var(--faint); border-radius: 50%; position: relative; top: 2px; }
+  .opt.sel .mark { border-color: var(--accent); }
+  .opt.sel .mark::after { content: ""; position: absolute; inset: 2.5px; background: var(--accent); border-radius: 50%; }
+  .opt .t { font-weight: 700; font-size: 13.5px; }
+  .opt.sel .t { color: var(--accent); }
+  .opt .d { font-size: 12px; color: var(--sub); margin-top: 1px; }
+  .evi { border-top: 1px solid var(--rule); padding: 12px 0 10px; }
+  .evi .head { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+  .evi .feat { font-weight: 800; font-size: 13px; }
+  .avtag { font-family: var(--mono); font-size: 10.5px; }
+  .avtag.builtin { color: var(--ok); } .avtag.higher_tier { color: var(--warn); }
+  .avtag.third_party { color: var(--accent); } .avtag.none { color: var(--bad); } .avtag.unclear { color: var(--faint); }
+  .evi .ctrl { font-size: 12.5px; color: var(--ink); margin-top: 4px; }
+  .applychk { display: flex; gap: 8px; align-items: flex-start; margin-top: 8px; font-size: 12.5px; cursor: pointer; }
+  .applychk input { margin-top: 3px; accent-color: var(--accent); }
+  .wnav { display: flex; justify-content: space-between; margin-top: 18px; }
+  .verdict-line { border-top: 3px solid var(--rule-dark); padding-top: 14px; margin-top: 6px; }
+  .verdict-line .word { font-size: 22px; font-weight: 800; }
+  .verdict-line.ok .word { color: var(--ok); } .verdict-line.cond .word { color: var(--warn); } .verdict-line.bad .word { color: var(--bad); }
+  .finding { display: flex; gap: 10px; padding: 8px 2px; border-bottom: 1px solid var(--rule); font-size: 12.5px; }
+  .finding .ic { font-family: var(--mono); font-weight: 700; }
+  .finding.r .ic { color: var(--bad); } .finding.w .ic { color: var(--warn); } .finding.g .ic { color: var(--ok); }
+
+  /* 보고서 */
+  .report-page { background: #fff; border: 1px solid var(--rule); padding: 26px 30px; max-width: 820px; }
+  .report-page h3 { border-bottom: 2px solid var(--ink); padding-bottom: 6px; margin-top: 0; }
+  .report-page h4 { margin: 16px 0 6px; }
+  .report-page table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin: 8px 0; }
+  .report-page th { background: #f2f2ef; border: 1px solid #bbb; padding: 5px 8px; text-align: left; }
+  .report-page td { border: 1px solid #bbb; padding: 5px 8px; }
+  footer.legal {
+    max-width: 1120px; margin: 0 auto; padding: 20px 24px 50px;
+    font-size: 11px; color: var(--faint); line-height: 1.7; border-top: 1px solid var(--rule);
+  }
+  a.plain { color: var(--accent); }
   @media print {
     body * { visibility: hidden; }
-    #report, #report * { visibility: visible; }
-    #report { display: block; position: absolute; left: 0; top: 0; width: 100%; background: #fff; }
-    @page { size: A4; margin: 18mm 16mm; }
+    .report-page, .report-page * { visibility: visible; }
+    .report-page { position: absolute; left: 0; top: 0; border: none; }
   }
-  #report { font-size: 10.5pt; color: #111; line-height: 1.65; font-family: "Apple SD Gothic Neo", "Pretendard", "Malgun Gothic", sans-serif; }
-  #report h1 { font-size: 16pt; border-bottom: 2px solid #111; padding-bottom: 8px; letter-spacing: -0.01em; }
-  #report h2 { font-size: 12pt; margin: 18px 0 6px; }
-  #report table { width: 100%; border-collapse: collapse; font-size: 9.5pt; margin: 8px 0; }
-  #report th { background: #f2f2ef; text-align: left; padding: 6px 8px; border: 1px solid #bbb; font-weight: 700; }
-  #report td { padding: 6px 8px; border: 1px solid #bbb; vertical-align: top; }
-  #report .lawq { border-left: 3px solid #111; padding: 6px 12px; font-size: 9.5pt; margin: 8px 0; color: #222; }
-  #report .cb { display: inline-block; width: 9pt; height: 9pt; border: 1pt solid #333; vertical-align: -1pt; margin-right: 4pt; }
-  #report .sig { margin-top: 30px; display: flex; justify-content: flex-end; gap: 40px; }
-  #report .sig .box { text-align: center; font-size: 9.5pt; }
-  #report .sig .line { border-bottom: 1px solid #333; width: 150px; height: 40px; }
-  #report .notice { font-size: 8.5pt; color: #666; margin-top: 22px; border-top: 1px solid #bbb; padding-top: 8px; }
 </style>
 </head>
 <body>
 
-<header class="top">
-  <div class="in">
-    <div class="wordmark">살피<span style="font-weight:500;color:var(--faint);font-size:12px;margin-left:8px">SALPI · SaaS Assessment &amp; Live PII Inspector</span><span class="tag">데모</span></div>
-    <div class="statute">전자금융감독규정 시행세칙 제2조의3 제1항 제3호</div>
-  </div>
-</header>
+<header class="top"><div class="in">
+  <div class="wordmark">살피<span class="en">SALPI · 망분리 경계 관제</span><span class="tag">데모</span></div>
+  <div class="statute">전자금융감독규정 시행세칙 제2조의3 · 가상 회사: 페이몬(전자금융업자)</div>
+</div></header>
 
-<div class="frame">
-  <nav class="rail"><div class="list" id="rail"></div></nav>
-  <main>
-    <div class="premise">
-      <b>전제 조건.</b> 이 판정은 해당 SaaS가 침해사고대응기관(금융보안원)의 CSP 안전성 평가에서 '충족'을 받았음을 전제로 한다(시행세칙 별표7 제1통제). 충족 여부는 금융보안원 레그테크포털의 SaaS 제공자 평가 현황 목록에서 확인한다. 본 도구는 그 다음 관문인 <b>"이용자의 고유식별정보 또는 개인신용정보를 처리하지 않을 것"</b> 요건의 검토를 구조화한다.
-    </div>
-    <div id="app"></div>
-  </main>
-</div>
+<div class="strip"><div class="in" id="strip"></div></div>
+<nav class="tabs" id="tabs"></nav>
+<main id="main"></main>
+
+<div class="overlay" id="overlay"><div class="modal" id="modal"></div></div>
 
 <footer class="legal">
-  SaaS별 근거 데이터는 2026년 8월 각 벤더의 공개 관리자 문서 조사 기준이며, 요금제와 기능은 변경될 수 있다. 각 근거의 원문 링크에서 최신 상태를 확인해야 한다. 본 도구는 법적 판단을 대행하지 않으며 판단에 필요한 근거와 구조를 제공한다. 최종 판단과 책임은 검토자에게 있다.
+  가상 전자금융업자의 합성 데이터로 구성된 데모다. 판정(대장 대조·등재 결정 트리)은 결정적 로직으로 수행되고,
+  로그 목적지 분류·위반 사유 문장·결합 판단은 실서비스에서 로컬 소형 LLM(Kanana)이 담당한다(데모 일부는 내장 근사).
+  전체 판정 워크벤치는 <a class="plain" href="workbench.html">workbench.html</a>에 있다. 본 도구는 법적 판단을 대행하지 않는다.
 </footer>
 
-<div id="report"></div>
-
 <script src="engine.js"></script>
+<script src="evidence.js"></script>
 <script>
-/* ================= 근거 데이터 (공개 문서 조사 결과 주입) ================= */
-const EVIDENCE = [
- {
-  "saas": "Microsoft 365 (Teams·SharePoint·OneDrive·Copilot)",
-  "entries": [
-   {
-    "layer": "L1",
-    "feature": "필드 단위 고객정보 기능: Microsoft Forms 외부인 대상 폼, Outlook/Exchange 연락처, Microsoft Lists",
-    "exists": "yes",
-    "control": "Microsoft 365 관리센터 > 설정 > 조직 설정 > Microsoft Forms의 External sharing 옵션 4개(외부인 응답 수집, 외부인과 공동 편집, 템플릿 공유, 결과 요약 공유)가 기본 켜짐 상태이며, 관리자가 해제하면 외부인 대상 폼 수집이 차단됨. Forms 자체를 사용자별 라이선스 해제 또는 조직 전체 단위로 완전 비활성화하는 것도 가능. Outlook 연락처·Lists는 기능 자체를 끄는 설정이 없고 접근 권한·라이선스로 관리",
-    "control_availability": "builtin",
-    "plan_note": "관리센터 조직 설정에 포함되어 추가 비용 없음. 단 해당 문서 상단에 'Administrator settings are only available for Office 365 Education and Microsoft 365 Apps for business customers'라는 주석이 있어 엔터프라이즈(E3/E5) 테넌트에서의 노출 위치는 테넌트에서 재확인 권장",
-    "source_url": "https://learn.microsoft.com/en-us/microsoft-forms/administrator-settings-microsoft-forms",
-    "source_quote": "You can control whether or not external users are allowed to collaborate with users in your organization on a form or quiz.",
-    "confidence": "high"
-   },
-   {
-    "layer": "L2",
-    "feature": "네이티브 DLP: Microsoft Purview Data Loss Prevention (Exchange·SharePoint·OneDrive·Teams 메시지)",
-    "exists": "yes",
-    "control": "Purview 포털에서 DLP 정책을 만들어 주민등록번호 등 민감정보 유형이 포함된 Teams 채팅·채널 메시지를 전송 즉시 자동 삭제(차단)하고 정책 팁으로 사용자에게 경고 가능. 문서 공유는 SharePoint·OneDrive 위치를 정책에 포함하면 열람 자체가 차단됨. 정책 위치에 'Teams chat and channel messages'를 추가하는 방식",
-    "control_availability": "higher_tier",
-    "plan_note": "Exchange·SharePoint·OneDrive(Teams로 공유되는 파일 포함) DLP는 Office 365/Microsoft 365 E3부터 포함. Teams 채팅·채널 메시지 본문 DLP는 E5(E5/A5/G5 또는 E5 Compliance·Information Protection and Governance 애드온) 필요",
-    "source_url": "https://learn.microsoft.com/en-us/purview/dlp-microsoft-teams",
-    "source_quote": "Support for DLP protection in Teams Chat requires an E5 license.",
-    "confidence": "high"
-   },
-   {
-    "layer": "L3",
-    "feature": "검색 색인·콘텐츠 인덱싱 노출 제한 (SharePoint 검색·Copilot 참조 범위)",
-    "exists": "yes",
-    "control": "세 가지 수단. (1) 사이트 설정의 'Allow this site to appear in Search results'를 끄면 해당 사이트 콘텐츠가 조직 전체 검색과 사이트 내 검색 모두에서 제외. (2) SharePoint 관리센터 Remove Search Results로 특정 URL을 즉시 제거(다음 크롤 전까지 임시). (3) Restricted SharePoint Search를 켜면 조직 전체 검색과 Copilot 응답이 참조할 수 있는 사이트를 관리자가 만든 허용 목록(최대 100개 사이트)으로 제한. 단 RSS는 권한 자체를 바꾸는 보안 경계는 아니며, 사용자가 소유·최근 접근한 콘텐츠는 계속 노출됨",
-    "control_availability": "builtin",
-    "plan_note": "사이트 단위 검색 노출 차단과 Remove Search Results는 추가 라이선스 없음. Restricted SharePoint Search는 2026-07-31부터 신규 활성화가 차단되며(은퇴 예정), 후속 수단인 Restricted Content Discovery는 SharePoint Advanced Management 라이선스 필요",
-    "source_url": "https://learn.microsoft.com/en-us/sharepoint/restricted-sharepoint-search",
-    "source_quote": "This feature lets you as an administrator decide which SharePoint sites appear in search results across your organization and Copilot chat or agentic experiences.",
-    "confidence": "high"
-   },
-   {
-    "layer": "L3",
-    "feature": "Teams 회의 자동 녹음·전사·AI 요약의 조직 단위 비활성화",
-    "exists": "yes",
-    "control": "Teams 관리센터 > 회의 > 회의 정책에서 Global(조직 전체) 정책의 Meeting recording 토글과 Transcription 토글을 Off로 설정 가능(둘 다 기본값 On). PowerShell로는 Set-CsTeamsMeetingPolicy -Identity Global -AllowCloudRecording $false -AllowTranscription $false. 웨비나·타운홀은 이벤트 정책(-RecordingForWebinar, -TranscriptionForTownhall 등)으로 별도 차단. 참가자 명시 동의 요구(-ExplicitRecordingConsent)도 정책으로 설정 가능. Copilot 회의 요약은 조직자가 Copilot을 끄면 녹음·전사도 함께 꺼지는 구조",
-    "control_availability": "builtin",
-    "plan_note": "회의 정책의 녹음·전사 토글은 기본 Teams 라이선스에 포함. 회의 옵션에서 조직자가 녹음·전사 가능자를 세밀하게 지정하는 기능과 번역 전사 등은 Teams Premium, AI 요약(recap)·Copilot은 별도 애드온",
-    "source_url": "https://learn.microsoft.com/en-us/microsoftteams/meeting-recording",
-    "source_quote": "You can use the Microsoft Teams admin center or PowerShell to control whether your users can record meetings and events.",
-    "confidence": "high"
-   },
-   {
-    "layer": "L3",
-    "feature": "AI 기능(Microsoft 365 Copilot)의 고객 데이터 모델 학습 여부",
-    "exists": "yes",
-    "control": "Microsoft 공식 입장: 프롬프트·응답·Microsoft Graph를 통해 접근한 조직 데이터는 파운데이션 LLM 학습에 사용되지 않음. 기본값이 '학습 미사용'이라 별도 옵트아웃 설정 자체가 존재하지 않는 구조(계약상 커밋). 저장되는 상호작용 기록(프롬프트·응답)은 관리자가 Purview 보존 정책·콘텐츠 검색으로 관리하고 사용자가 직접 삭제 가능. Azure OpenAI의 사람 검토 기반 남용 모니터링도 Copilot 서비스는 옵트아웃된 상태",
-    "control_availability": "builtin",
-    "plan_note": "Copilot 자체는 Microsoft 365 Copilot 애드온 라이선스 필요. 학습 미사용 커밋은 요금제와 무관하게 기본 적용",
-    "source_url": "https://learn.microsoft.com/en-us/microsoft-365/copilot/microsoft-365-copilot-privacy",
-    "source_quote": "Prompts, responses, and data accessed through Microsoft Graph aren't used to train foundation LLMs, including those used by Microsoft 365 Copilot.",
-    "confidence": "high"
-   },
-   {
-    "layer": "L3",
-    "feature": "데이터 보존기간 관리자 설정·단축 (Microsoft Purview 보존 정책·보존 레이블)",
-    "exists": "yes",
-    "control": "Purview 포털에서 관리자가 Exchange 메일, SharePoint·OneDrive 문서, Teams·Viva Engage 메시지, Copilot 상호작용에 대해 보존 정책을 만들 수 있음. 보존만(retain-only), 기간 경과 후 영구삭제(delete-only), 보존 후 삭제(retain and then delete) 세 방식 모두 지원하므로 보존기간 단축·기간 후 자동 영구삭제 설정 가능. 항목 단위로 다른 기간이 필요하면 보존 레이블 사용",
-    "control_availability": "builtin",
-    "plan_note": "조직·위치 단위 보존 정책은 Microsoft 365 E3/A3/G3·Office 365 E3 이상과 Business Premium에 포함(Microsoft Purview service description 기준). 적응형 정책 범위(adaptive scope), 학습 가능 분류기 기반 자동 적용 등은 E5 계열 필요. Teams 메시지 위치는 일부 하위 플랜에서 보존·삭제 기간이 30일 초과여야 하는 조건 있음",
-    "source_url": "https://learn.microsoft.com/en-us/purview/retention",
-    "source_quote": "Retain and then delete: Retain content for a specified period of time and then permanently delete it.",
-    "confidence": "high"
-   }
-  ]
- },
- {
-  "saas": "Slack",
-  "entries": [
-   {
-    "layer": "L1",
-    "feature": "리스트(Slack Lists) 커스텀 필드",
-    "exists": "yes",
-    "control": "Slack에는 CRM식 고객 연락처 DB나 외부인 대상 폼 수집 기능은 없고, 필드 단위 정형 데이터 접점은 리스트 기능이 대표적. 담당자·상태 등 커스텀 필드(열)를 가진 표를 만들 수 있어 직원이 고객 명단을 필드 단위로 넣을 수 있음. 소유자·관리자가 워크스페이스 설정에서 리스트 기능 자체를 비활성화할 수 있고, 공유 권한을 리스트 소유자로 제한할 수도 있음",
-    "control_availability": "builtin",
-    "plan_note": "리스트는 유료 요금제(Pro·Business+·Enterprise 계열) 제공, 관리자 비활성화 설정 포함",
-    "source_url": "https://slack.com/help/articles/28932867593875-Manage-list-settings-in-Slack",
-    "source_quote": "Owners and admins can disable lists and limit sharing permissions to list owners only.",
-    "confidence": "high"
-   },
-   {
-    "layer": "L2",
-    "feature": "네이티브 DLP(메시지·파일·캔버스 스캔)",
-    "exists": "yes",
-    "control": "조직 설정 > Security > Data loss prevention에서 관리자가 사전 정의 규칙 또는 PCRE 정규식 기반 커스텀 규칙을 만들어 메시지·텍스트 파일·캔버스를 스캔. 위반 시 대시보드 알림만 표시, 작성자에게 경고 표시, 또는 검토 전까지 메시지·파일 숨김(tombstone) 처리 중 선택 가능. Slack Connect 채널에도 적용됨",
-    "control_availability": "higher_tier",
-    "plan_note": "Enterprise 계열 요금제 전용(도움말 원문 표기 \"Available on Enterprise plans\"). Free·Pro·Business+에는 네이티브 DLP 없음: 해당 요금제에서는 서드파티 DLP 연동 필요",
-    "source_url": "https://slack.com/help/articles/12914005852819-Slack-data-loss-prevention",
-    "source_quote": "With data loss prevention (DLP) for Slack, you can reduce the risk of sharing confidential, malicious, or personally identifiable information in your Slack organization.",
-    "confidence": "high"
-   },
-   {
-    "layer": "L3",
-    "feature": "검색 색인(메시지·파일 전문 검색)",
-    "exists": "yes",
-    "control": "워크스페이스 내 메시지·파일은 기본적으로 전부 검색 색인됨. 관리자가 특정 채널·데이터를 색인에서 제외하거나 색인을 제한하는 조직 단위 설정은 공식 문서에서 확인되지 않음. 존재하는 것은 개인 사용자가 자기 검색 결과에서 특정 채널을 제외하는 개인 환경설정뿐이며, 이는 색인 자체를 막는 게 아니라 본인 검색 결과만 걸러내는 기능",
-    "control_availability": "none",
-    "plan_note": "관리자용 색인 제외 기능은 요금제 무관하게 확인되지 않음(개인 설정만 존재)",
-    "source_url": "https://slack.com/help/articles/4402305240723-Set-your-search-preferences",
-    "source_quote": "From either the desktop app or Slack in your browser, you can exclude certain channels from search results.",
-    "confidence": "medium"
-   },
-   {
-    "layer": "L3",
-    "feature": "허들 AI 노트(자동 녹취·전사·요약)",
-    "exists": "yes",
-    "control": "허들의 AI 노트(전사 포함)는 기본 꺼짐: 참가자가 켜야 동작(원문: \"By default, someone in a huddle needs to turn AI notes on.\"). 관리자는 워크스페이스 설정 > Roles & permissions > Feature access > AI에서 허들 노트 등 AI 기능별로 사용 대상을 지정할 수 있고, Enterprise 조직 관리자는 'No one'으로 지정해 조직 전체 비활성화 가능",
-    "control_availability": "builtin",
-    "plan_note": "AI 허들 노트는 유료 요금제(Pro·Business+·Enterprise+) 제공, 관리자 접근 통제 설정 포함",
-    "source_url": "https://slack.com/help/articles/28244420881555-Manage-access-to-AI-features-in-Slack",
-    "source_quote": "Next to the AI feature you'd like to manage, click Edit and choose who can use it — No one, Only specific people and groups, Everyone except specific people and groups, or Everyone.",
-    "confidence": "high"
-   },
-   {
-    "layer": "L3",
-    "feature": "AI·ML 모델의 고객 데이터 학습",
-    "exists": "yes",
-    "control": "생성형 AI(LLM) 학습에는 고객 데이터를 쓰지 않는 것이 기본이며, 고객이 명시적으로 옵트인하지 않는 한 사용 안 함. 반면 검색 순위·채널·이모지 추천용 전통 ML '글로벌 모델'에는 고객 데이터가 기본으로 사용되고, 제외하려면 조직·워크스페이스 소유자가 feedback@slack.com에 'Slack Global model opt-out request' 제목으로 이메일을 보내 옵트아웃해야 함(관리 콘솔 토글 아님). AI 기능 자체는 관리자가 언제든 끌 수 있음",
-    "control_availability": "builtin",
-    "plan_note": "프라이버시 원칙은 전 요금제 공통 적용(글로벌 모델 옵트아웃은 이메일 요청 방식)",
-    "source_url": "https://slack.com/trust/data-management/privacy-principles",
-    "source_quote": "Slack will not use Customer Data to train generative AI models unless Customer provides affirmative opt-in consent.",
-    "confidence": "high"
-   },
-   {
-    "layer": "L3",
-    "feature": "메시지·파일 보존기간 설정",
-    "exists": "yes",
-    "control": "워크스페이스 소유자(Enterprise는 조직 소유자가 조직 정책으로) 데이터 보존기간을 설정 가능: 무기한 보존(수정·삭제 이력 저장 여부 선택), 지정 일수 경과 후 자동 삭제(커스텀 기간). 설정은 메시지·파일·캔버스·리스트·클립에 적용되고, 보존 설정에 따라 삭제된 데이터는 영구 삭제됨",
-    "control_availability": "builtin",
-    "plan_note": "전 요금제에서 설정 가능하나 옵션이 다름: Free는 90일/1년 선택, Pro·Business+·Enterprise 계열은 무기한·커스텀 기간 및 대화별 재정의 허용 설정 제공",
-    "source_url": "https://slack.com/help/articles/203457187-Customize-data-retention-in-Slack",
-    "source_quote": "Workspace Owners can choose from the following options when setting message retention for conversations.",
-    "confidence": "high"
-   }
-  ]
- },
- {
-  "saas": "Notion",
-  "entries": [
-   {
-    "layer": "L1",
-    "feature": "연락처성 데이터베이스·외부 대상 폼(Notion Forms)",
-    "exists": "yes",
-    "control": "데이터베이스에 이메일·전화 등 속성으로 고객정보를 필드 단위로 담을 수 있고, 폼 기능은 워크스페이스 밖의 외부인에게도 링크로 공개해 응답을 데이터베이스로 수집함. 필드 단위 차단 기능은 없고, Enterprise 보안 설정의 공개 게시 차단(Disable publishing sites, forms and public links / Disable public page sharing)으로 외부 대상 폼·공개 페이지 자체를 조직 단위로 막는 것이 실질적 통제 수단",
-    "control_availability": "higher_tier",
-    "plan_note": "폼·데이터베이스 기능 자체는 전 요금제 제공(\"All members on all Notion plans can create and use forms\"). 공개 게시 차단 등 워크스페이스 보안 설정은 Enterprise 요금제 전용",
-    "source_url": "https://www.notion.com/help/forms",
-    "source_quote": "Forms make it easy to collect information from others, even if those people aren't part of your Notion workspace or don't use Notion at all.",
-    "confidence": "high"
-   },
-   {
-    "layer": "L2",
-    "feature": "네이티브 DLP·입력 필터링",
-    "exists": "no",
-    "control": "Notion 자체 제공 DLP나 입력 시점 키워드 필터는 없음. Nightfall AI 등 서드파티 DLP 솔루션을 보안·컴플라이언스 연동으로 설치해 민감정보(카드번호·PII 등) 탐지, 알림, 자동 조치(내용 마스킹·접근 제한)를 하는 방식. AI 프롬프트·AI 생성 결과에 대해서도 DLP 알림 트리거 가능",
-    "control_availability": "third_party",
-    "plan_note": "워크스페이스 전체 대상 보안·컴플라이언스 연동(서드파티 DLP 포함)은 Enterprise 요금제 워크스페이스 소유자만 설치 가능",
-    "source_url": "https://www.notion.com/help/add-security-and-compliance-integrations",
-    "source_quote": "Only Enterprise workspace owners can install workspace-wide security and compliance connections.",
-    "confidence": "high"
-   },
-   {
-    "layer": "L3",
-    "feature": "검색 색인·검색 노출 제어",
-    "exists": "yes",
-    "control": "관리자가 특정 콘텐츠를 색인에서 조직 단위로 제외하는 전용 설정은 확인되지 않음. 검색은 권한 기반이라 사용자는 접근 권한 있는 페이지만 검색됨: teamspace·페이지 권한을 좁히는 것이 사실상의 검색 노출 통제. 페이지 단위로는 공유 메뉴의 Hide in search 토글로 (링크 없이) 검색으로 발견되는 것을 막을 수 있음",
-    "control_availability": "builtin",
-    "plan_note": "권한 기반 검색·Hide in search 토글에 대한 요금제 조건 미확인 (문서에 별도 제한 명시 없음)",
-    "source_url": "https://www.notion.com/help/sharing-and-permissions",
-    "source_quote": "Open the dropdown next to `Everyone at {your workspace}` and toggle on `Hide in search` to hide this page from search results for any users who haven't visited the page before or don't already have the link to the page.",
-    "confidence": "medium"
-   },
-   {
-    "layer": "L3",
-    "feature": "자동 녹취·전사·요약(AI Meeting Notes)",
-    "exists": "yes",
-    "control": "워크스페이스 소유자가 Settings → Notion AI에서 Workspace availability 토글을 꺼 AI Meeting Notes를 조직 전체에서 비활성화 가능. 추가로 전 구성원 대상 녹음 동의 강제 설정(Enforce consent for all workspace members)과, Enterprise에서는 전사본 자동 삭제 스케줄(Automatic transcript deletion) 설정 가능",
-    "control_availability": "builtin",
-    "plan_note": "AI Meeting Notes 기능 자체는 Business·Enterprise 요금제 전용. 조직 단위 비활성화 토글은 해당 요금제의 워크스페이스 소유자 설정, 전사본 자동 삭제 스케줄은 Enterprise 전용",
-    "source_url": "https://www.notion.com/help/ai-meeting-notes",
-    "source_quote": "If you are a workspace owner and do not want the AI Meeting Notes feature available to members of your workspace, you may opt-out your workspace at any time by going to Settings → Notion AI and toggling off Workspace availability.",
-    "confidence": "high"
-   },
-   {
-    "layer": "L3",
-    "feature": "AI 기능의 고객 데이터 모델 학습",
-    "exists": "no",
-    "control": "기본값으로 Notion과 AI 하위처리자(LLM 제공사) 모두 고객 데이터를 모델 학습에 사용하지 않으며, 하위처리자와의 계약으로 학습 사용을 금지. 별도 옵트아웃 조작 불필요(기본이 비학습). LLM 제공사 측 데이터 보존은 Enterprise 워크스페이스는 zero data retention(저장 없음), 비Enterprise는 30일 이내 보존 후 삭제. 데이터를 보존하는 LLM은 관리자가 명시적으로 켜기 전까지 기본 꺼짐",
-    "control_availability": "builtin",
-    "plan_note": "학습 미사용은 전 요금제 공통 기본값. LLM 제공사 zero data retention은 Enterprise 요금제, 그 외 요금제는 30일 이내 보존 후 삭제",
-    "source_url": "https://www.notion.com/help/notion-ai-security-practices",
-    "source_quote": "By default, Notion and its AI Subprocessors do not use Customer Data to train any models.",
-    "confidence": "high"
-   },
-   {
-    "layer": "L3",
-    "feature": "데이터 보존기간(휴지통 보존·영구삭제 시점) 설정",
-    "exists": "yes",
-    "control": "Enterprise 워크스페이스 소유자가 삭제된 페이지가 휴지통에 머무는 기간을 1일~10년 사이로 직접 설정해 영구삭제 시점을 단축·연장 가능(기본 30일). 페이지 버전 기록 보존은 요금제 고정(Free 7일, Plus 30일, Business 90일, Enterprise 무제한)으로 별도 단축 설정은 확인되지 않음. 회의 전사본은 별도로 Enterprise에서 자동 삭제 스케줄 설정 가능",
-    "control_availability": "higher_tier",
-    "plan_note": "커스텀 데이터 보존(휴지통 보존기간) 설정은 Enterprise 요금제 전용",
-    "source_url": "https://www.notion.com/help/custom-data-retention-settings",
-    "source_quote": "As an Enterprise workspace owner, you can decide how long a page stays in Trash before it's permanently deleted and no longer accessible to users.",
-    "confidence": "high"
-   }
-  ]
- },
- {
-  "saas": "Zoom",
-  "entries": [
-   {
-    "layer": "L1",
-    "feature": "미팅·웨비나 등록 폼 (외부인 개인정보 필드 수집)",
-    "exists": "yes",
-    "control": "회의·웨비나에 등록 기능을 켜면 참석자에게 이름·이메일을 필수로 수집하고, 커스텀 질문으로 추가 개인정보도 받을 수 있다. 등록은 회의별로 호스트가 켜는 선택 기능이라 안 켜면 수집이 없지만, 관리자가 조직 전체에서 등록 기능 자체를 강제 차단하는 설정은 공식 문서에서 확인하지 못했다. Zoom이 등록 질문으로 신용카드번호·주민번호류 수집을 약관상 금지하고 있긴 하나 기술적 차단은 아니다.",
-    "control_availability": "unclear",
-    "plan_note": "등록 기능은 Pro, Business, Education, Enterprise 계정부터. 조직 단위 차단 설정의 요금제 조건 미확인",
-    "source_url": "https://support.zoom.com/hc/en/article?id=zm_kb&sysparm_article=KB0065026",
-    "source_quote": "First Name and Email Address are always enabled and required.",
-    "confidence": "high"
-   },
-   {
-    "layer": "L2",
-    "feature": "채팅 키워드 필터(Chat Etiquette Tool) 및 서드파티 DLP 연동",
-    "exists": "yes",
-    "control": "네이티브로는 Chat Etiquette Tool이 있다. 관리자가 키워드·정규식(계좌번호, 주민번호 패턴 등) 정책을 만들면 미팅 채팅·웨비나 채팅·Q&A·Team Chat에서 해당 패턴 발송 시 경고 또는 차단한다. 다만 이것은 키워드 기반 필터 수준이고, 본격적인 DLP(콘텐츠 검사·차단·삭제)는 Zoom DLP API를 지원하는 서드파티 DLP 파트너 연동 + Zoom 지원팀에 기능 활성화 요청이 필요하다.",
-    "control_availability": "builtin",
-    "plan_note": "Chat Etiquette Tool은 Pro, Business, Education, Enterprise 계정. 서드파티 DLP 연동의 요금제 조건 미확인(Zoom Support 요청 필요)",
-    "source_url": "https://support.zoom.com/hc/en/article?id=zm_kb&sysparm_article=KB0066482",
-    "source_quote": "When a user sends a message that triggers a policy, the message will be blocked or a warning prompt will be displayed for the user to confirm that they want to send the message, depending on what the admin set.",
-    "confidence": "high"
-   },
-   {
-    "layer": "L3",
-    "feature": "Team Chat 클라우드 저장·검색 색인",
-    "exists": "yes",
-    "control": "검색 색인만 따로 제외하는 전용 설정은 없다. 대신 관리자가 Team Chat의 클라우드 저장(Cloud Storage)을 끄면 메시지·파일이 Zoom 클라우드에 저장되지 않아 클라우드 기반 검색·이력 조회 대상에서 빠진다. 저장을 켠 경우에도 보존기간을 설정해 검색 가능한 이력 범위를 줄일 수 있다.",
-    "control_availability": "builtin",
-    "plan_note": "Team Chat 관리자 설정은 유료 계정에서 제공. 세부 요금제 조건 미확인",
-    "source_url": "https://support.zoom.com/hc/en/article?id=zm_kb&sysparm_article=KB0058688",
-    "source_quote": "Enable this setting to store messages and files in Zoom's cloud. If disabled, messages and files are not stored in Zoom's cloud, but messages sent to offline users can be received for up to 7 days",
-    "confidence": "medium"
-   },
-   {
-    "layer": "L3",
-    "feature": "클라우드 녹화·자동 전사·AI 미팅 요약",
-    "exists": "yes",
-    "control": "관리자가 조직 단위로 끄고 잠글 수 있다. 클라우드 녹화는 계정 설정 > Recording에서 비활성화 후 잠금하면 전 계정에서 녹화·전사(오디오 트랜스크립트 포함)가 막힌다. AI Companion 미팅 요약은 Admin Center > Settings > Zoom AI에서 'Meeting summary with AI' 토글을 끄고, 잠금 아이콘으로 잠그면 사용자·그룹이 다시 켤 수 없다.",
-    "control_availability": "builtin",
-    "plan_note": "클라우드 녹화 관리는 Pro, Business, Enterprise 계정. AI Companion 미팅 요약은 Zoom Workplace Pro 이상 유료 플랜에 포함",
-    "source_url": "https://support.zoom.com/hc/en/article?id=zm_kb&sysparm_article=KB0057960",
-    "source_quote": "click the lock icon next to a setting, and then click Lock to confirm the setting",
-    "confidence": "high"
-   },
-   {
-    "layer": "L3",
-    "feature": "AI Companion의 고객 데이터 모델 학습",
-    "exists": "no",
-    "control": "2023년 약관 논란 이후 Zoom이 공식 입장으로 못박았다. 고객의 오디오·비디오·채팅·화면공유·첨부파일 등 커뮤니케이션 콘텐츠를 Zoom 자체 모델이든 서드파티(OpenAI, Anthropic 등) 모델이든 학습에 사용하지 않는다. 기본값이 학습 미사용이라 별도 옵트아웃 절차가 없고, AI Companion 기능 자체를 관리자가 계정 단위로 비활성화·잠금할 수 있다.",
-    "control_availability": "builtin",
-    "plan_note": "학습 미사용 정책은 전 요금제 공통",
-    "source_url": "https://news.zoom.com/zoom-ai-companion/",
-    "source_quote": "it does not use any customer audio, video, chat, screen-sharing, attachments, or other communications-like customer content (such as poll results, whiteboards, or reactions) to train Zoom's or third-party artificial intelligence models.",
-    "confidence": "high"
-   },
-   {
-    "layer": "L3",
-    "feature": "클라우드 녹화 보존기간 자동 삭제 설정",
-    "exists": "yes",
-    "control": "관리자가 계정·그룹 단위로 클라우드 녹화를 생성일 기준 지정 일수 경과 후 자동 삭제하도록 설정할 수 있다. 삭제된 녹화는 휴지통에 30일 보관 후 영구 삭제된다. Team Chat 쪽도 별도로 클라우드 저장 보존기간과 로컬 기기 보존기간을 관리자가 설정할 수 있어, 녹화·채팅 모두 보존기간 단축이 가능하다.",
-    "control_availability": "builtin",
-    "plan_note": "Pro, Business, Enterprise 계정에서 제공",
-    "source_url": "https://support.zoom.com/hc/en/article?id=zm_kb&sysparm_article=KB0065362",
-    "source_quote": "Delete cloud recordings after a specified number of days: Delete cloud recordings after the specified amount of days from their creation date.",
-    "confidence": "high"
-   }
-  ]
- },
- {
-  "saas": "NHN Dooray(두레이)",
-  "entries": [
-   {
-    "layer": "L1",
-    "feature": "주소록·설문 폼 (고객/거래처 연락처 필드, 외부 공개 폼 수집)",
-    "exists": "yes",
-    "control": "고객·거래처 연락처를 필드 단위로 저장하는 주소록 서비스와, 외부 고객에게 공개해 응답을 수집하는 폼(설문) 서비스가 있다. 통제 수단: Admin > 조직 서비스 관리 > 서비스 사용 및 제한에서 주소록을 포함한 서비스별 접근을 플랫폼(웹/모바일)·IP·계정 단위로 차단할 수 있다. 폼은 Admin > 공유 관리에서 외부 공유된 폼 콘텐츠를 확인하고 공유 URL 생성 정책을 설정할 수 있다. DLP(추가 구독)를 FORM·주소록 관련 서비스에 적용해 고유식별정보 입력을 차단하는 것도 가능하다.",
-    "control_availability": "builtin",
-    "plan_note": "서비스별 접근 제한(ACL)은 관리자 기본 기능으로 안내됨. 이 기능 자체의 요금제 조건 미확인",
-    "source_url": "https://dooray.com/main/service/form/",
-    "source_quote": "외부 전체 공개용 폼 작성도 가능합니다. 필요에 따라 조직 내부 혹은 외부 고객의 데이터를 손쉽게 수집할 수 있습니다.",
-    "confidence": "high"
-   },
-   {
-    "layer": "L2",
-    "feature": "고유식별정보(DLP) 게시물 필터",
-    "exists": "yes",
-    "control": "주민등록번호 등 고유식별정보 입력을 걸러내는 DLP 필터를 제공하지만 기본 내장이 아니라 별도 솔루션(추가 구독)이다. 게시물 필터 > 개인정보 DLP > 정책 관리에서 필터 정책을 등록하고, 홈게시판(BOARD)·업무(TASK)·메일(MAIL)·캘린더·위키·드라이브·결재·메신저(MESSENGER)·AI(CHAT_GPT)·폼(FORM)·승인(APPROVAL) 등 서비스별로 정책을 다르게 적용할 수 있다. 운영모드는 차단모드로 설정해 입력 자체를 차단하며, 실제 차단/탐지 동작은 Dooray! Admin에서 설정한다. 테넌트의 신뢰 도메인은 DLP 적용 시 내부 도메인으로 간주된다.",
-    "control_availability": "higher_tier",
-    "plan_note": "기본 플랜 미포함. 추가 구독 필요: 정확한 요금제 단계는 문서에 없고 help@dooray.com 문의로 안내",
-    "source_url": "https://helpdesk.dooray.com/share/pages/9wWo-xwiR66BO5LGshgVTg/4377713768868346809",
-    "source_quote": "추가 구독이 필요한 기능으로 자세한 내용은 help@dooray.com으로 문의해 주세요. 우리 조직의 일부 서비스만 고유식별정보(DLP) 필터 정책을 다르게 적용할 수 있습니다. (중략) 운영모드는 반드시 '차단모드'로 설정되어 있어야 합니다.",
-    "confidence": "high"
-   },
-   {
-    "layer": "L3",
-    "feature": "통합 검색 색인 (관리자의 색인 제외/제한)",
-    "exists": "yes",
-    "control": "업무·위키·메일 등 전 서비스를 대상으로 한 통합 검색이 존재한다(조직이 달라도 검색·멘션은 테넌트 전체에서 동작). 그러나 관리자가 특정 프로젝트·문서를 검색 색인에서 제외하거나 색인 자체를 제한하는 설정은 공식 문서에서 확인되지 않았다. 우회 수단은 서비스 사용 및 제한(ACL)으로 특정 계정·IP의 서비스 접근 자체를 막는 것뿐이며, 색인 단위 통제와는 다르다.",
-    "control_availability": "unclear",
-    "plan_note": "요금제 조건 미확인 (색인 통제 기능 자체가 문서에 없음)",
-    "source_url": "https://helpdesk.dooray.com/share/pages/9wWo-xwiR66BO5LGshgVTg/2895664991100104876",
-    "source_quote": "조직이 달라도 Dooray!모든 서비스를 함께 사용할 수 있습니다. (검색,멘션 등)",
-    "confidence": "low"
-   },
-   {
-    "layer": "L3",
-    "feature": "화상회의 자동 녹취·전사·요약",
-    "exists": "no",
-    "control": "화상회의에 자동 녹취·전사·AI 요약 기능은 공식 문서상 없다. 호스트가 수동으로 [녹화] 버튼을 눌러야 녹화되며, 녹화물은 호스트 메일로 다운로드 링크가 전송되고 14일 후 자동 삭제된다. 회의 채팅은 회의 종료 시 저장 없이 즉시 삭제된다. 녹화 기능만 따로 끄는 관리자 설정은 문서에서 확인되지 않았고(공공기관용은 KISA 보안 권고에 따라 녹화 기능 자체가 제외됨), 대신 테넌트 관리 > 메신저 > 화상 회의에서 화상회의 생성 기능 자체의 사용 여부를 조직 단위로 설정할 수 있다.",
-    "control_availability": "builtin",
-    "plan_note": "화상회의 기능 사용 여부 설정의 요금제 조건 미확인. 공공기관 상품은 녹화 기능 제외",
-    "source_url": "https://helpdesk.dooray.com/share/pages/9wWo-xwiR66BO5LGshgVTg/2909492230597375249",
-    "source_quote": "호스트는 화면 하단 [녹화]를 클릭 하여 회의를 녹화할 수 있습니다. (중략) ※녹화된 자료는 녹화된 날로부터 14일까지 보관되고 이후에는 삭제됩니다. 필요한 경우 다운로드/ 보관 부탁드립니다.",
-    "confidence": "medium"
-   },
-   {
-    "layer": "L3",
-    "feature": "Dooray! AI의 입력 데이터 모델 학습 활용",
-    "exists": "no",
-    "control": "입력 데이터는 암호화되며 AI 모델 학습에 사용되지 않는다고 공식 가이드에 명시돼 있어, 학습 미사용이 기본값이고 별도 옵트아웃 절차가 필요 없다. Dooray! AI 자체가 Business 플랜 이상에서 추가 구독하는 부가상품이라 미구독 시 AI 기능이 아예 없으며, 구독하더라도 구성원별 AI 라이센스를 내부 관리자가 직접 부여·관리하므로 사용 대상을 통제할 수 있다. 관리자는 구성원의 AI 사용 내역을 로그로 확인할 수 있다. 단, 가이드에 개인정보·금융정보 등 민감정보 입력 금지 문구가 있는 만큼 입력 차단은 DLP(AI 서비스 CHAT_GPT 대상 적용 가능)와 병행해야 한다.",
-    "control_availability": "builtin",
-    "plan_note": "Dooray! AI는 Business 플랜 이상 구독 시 추가 구독 가능한 부가상품. 학습 미사용 방침은 구독 시 기본 적용",
-    "source_url": "https://helpdesk.dooray.com/share/pages/9wWo-xwiR66BO5LGshgVTg/3921845293385786920",
-    "source_quote": "입력한 데이터는 암호화되며, AI 모델 학습에 사용되지 않습니다. 개인정보,금융정보 등 민감한 정보는 입력하지 마세요.",
-    "confidence": "high"
-   },
-   {
-    "layer": "L3",
-    "feature": "데이터 보존기간 설정 (휴지통 자동 삭제, 첨부파일 보관 기간)",
-    "exists": "yes",
-    "control": "부분적인 보존기간 통제만 제공된다. 드라이브 휴지통은 조직별로 일정 기간 후 자동 영구 삭제를 설정할 수 있고(유료 플랜은 5/10/15/30일 중 선택, Free는 5일 고정), 메일 휴지통도 관리자가 자동 삭제를 설정하면 구성원 개인 설정보다 우선 적용된다. 메신저 첨부파일은 보관 기간을 설정할 수 있으며(Business 플랜 이상), 내부 발송 메일에는 기밀 설정으로 일정 기간 후 자동 삭제를 걸 수 있다. 반면 업무·위키·메신저 대화 본문 등 원본 데이터 전체에 대한 보존기간 설정·단축 기능은 공식 문서에서 확인되지 않았다.",
-    "control_availability": "builtin",
-    "plan_note": "드라이브 휴지통: Free 5일 고정, 유료 플랜 5/10/15/30일 선택. 메신저 첨부파일 보관 기간: Business 플랜 이상. 본문 데이터 보존기간 설정은 미확인",
-    "source_url": "https://helpdesk.dooray.com/share/pages/9wWo-xwiR66BO5LGshgVTg/2896232119805738090",
-    "source_quote": "조직별로 개인/프로젝트 드라이브 휴지통의 파일을 일정 기간 후 자동으로 영구 삭제하도록 설정하는 기능입니다. 영구 삭제 이후 복구할 수 없습니다. Free 플랜은 5일로 고정되며, 유료 플랜은 5일, 10일, 15일, 30일 중 선택할 수 있습니다.",
-    "confidence": "medium"
-   }
-  ]
- }
+/* ═══════════════ 데이터 ═══════════════ */
+const LEDGER = [
+  { id:'C-01', name:'금융결제원', type:'외부기관 연결', basis:'제2조의3 ①항 1호', zone:'fin',
+    domains:['kftc.or.kr'], ports:'8583', dir:'양방향',
+    approved:'2024-03-12 · 의결 제2024-03호', controls:'전용회선, 포트 한정, 구간 암호화',
+    review:{ type:'위원회 재승인', due:'2027-03' } },
+  { id:'C-02', name:'한국신용정보원', type:'외부기관 연결', basis:'제2조의3 ①항 1호', zone:'fin',
+    domains:['kcredit.or.kr'], ports:'443', dir:'양방향',
+    approved:'2024-06-20 · 의결 제2024-11호', controls:'전용회선, 포트 한정',
+    review:{ type:'위원회 재승인', due:'2027-06' } },
+  { id:'C-03', name:'나이스정보통신 (VAN)', type:'외부기관 연결', basis:'제2조의3 ①항 1호', zone:'fin',
+    domains:['nicevan.co.kr'], ports:'9443', dir:'양방향',
+    approved:'2023-11-02 · 의결 제2023-19호', controls:'전용회선, 포트 한정',
+    review:{ type:'위원회 재승인', due:'2026-11', soon:true } },
+  { id:'C-04', name:'유지보수 원격접속', type:'원격접속', basis:'제2조의3 ①항 2호', zone:'remote',
+    domains:['vpn.paymon.co.kr'], ports:'443', dir:'인바운드',
+    approved:'2025-02-14 · 의결 제2025-02호', controls:'별표7 원격접속: 유휴차단·서약서·기록·다중인증',
+    review:{ type:'위원회 재승인', due:'2027-02' } },
+  { id:'C-05', name:'NHN 두레이', type:'내부업무망 SaaS', basis:'제2조의3 ①항 3호', zone:'saas', saasKey:'dooray',
+    domains:['dooray.com'], ports:'443', dir:'아웃바운드',
+    approved:'2026-05-30 · 의결 제2026-07호 · 금보원 충족 확인', controls:'별표7 SaaS 10개 통제 + 살피 내용검사(보완통제)',
+    review:{ type:'반기 자체평가 (제4항)', due:'2026-11-30', soon:true } },
+  { id:'C-06', name:'Microsoft 365', type:'내부업무망 SaaS', basis:'제2조의3 ①항 3호', zone:'saas', saasKey:'m365',
+    domains:['office.com','office365.com','sharepoint.com','teams.microsoft.com'], ports:'443', dir:'아웃바운드',
+    approved:'2026-06-15 · 의결 제2026-09호 · 금보원 충족 확인', controls:'별표7 SaaS 10개 통제 + Purview DLP(E5)',
+    review:{ type:'반기 자체평가 (제4항)', due:'2026-12-15', soon:true } },
+  { id:'C-07', name:'오픈뱅킹 API GW (DMZ)', type:'외부연결 불가피', basis:'제2조의3 ②항 2호 나목', zone:'dmz',
+    domains:['openapi.paymon.co.kr'], ports:'443', dir:'양방향',
+    approved:'2023-08-01 · 의결 제2023-12호', controls:'DMZ 격리, WAF, 포트 한정',
+    review:{ type:'위원회 재승인', due:'2026-08', soon:true } },
+  { id:'C-08', name:'계열사 공동 회계시스템', type:'계열사 공동', basis:'제2조의3 ②항 2호 다목', zone:'dmz',
+    domains:['erp.paymon-holdings.com'], ports:'8443', dir:'양방향',
+    approved:'2024-01-25 · 의결 제2024-01호', controls:'포트 한정, 구간 암호화',
+    review:{ type:'위원회 재승인', due:'2027-01' } },
 ];
 
-/* ================= 상수 ================= */
-const SAAS_LIST = [
-  { key: 'm365',   name: 'Microsoft 365', cat: 'DOCS / MEET / COPILOT' },
-  { key: 'slack',  name: 'Slack',         cat: 'MESSENGER' },
-  { key: 'notion', name: 'Notion',        cat: 'DOCS / WIKI' },
-  { key: 'zoom',   name: 'Zoom',          cat: 'MEETING' },
-  { key: 'dooray', name: 'NHN 두레이',     cat: 'ALL-IN-ONE' },
-];
-const USAGES = [
-  { key: 'doc',   t: '사내 문서 작성·관리', d: '보고서, 회의록, 사내 위키' },
-  { key: 'chat',  t: '사내 메신저·협업',   d: '부서 간 커뮤니케이션, 파일 공유' },
-  { key: 'meet',  t: '화상회의',           d: '내부 회의, 외부 협력사 회의' },
-  { key: 'pm',    t: '프로젝트·업무 관리',  d: '일정, 업무 배분, 진행 관리' },
-];
-const DATA_NATURE = [
-  { key: 'none',    grade: 0, t: '고객 정보가 업무상 등장하지 않음', d: '순수 내부 업무. 인사·총무·개발 등 고객 접점 없는 부서' },
-  { key: 'id_only', grade: 1, t: '고객 식별정보가 단독으로 등장할 수 있음', d: '이름·연락처 수준이고 거래·신용 내용과 결합되지 않음. 신용정보법상 식별정보는 다른 신용정보와 결합될 때에만 신용정보' },
-  { key: 'combined',grade: 2, t: '고객 식별정보가 거래·상담 내용과 결합될 수 있음', d: '예: 회의록에 적힌 "OOO 고객 대출 연체 건". 결합되면 개인신용정보에 해당' },
-  { key: 'unique',  grade: 3, t: '주민등록번호 등 고유식별정보가 유입될 수 있음', d: '고유식별정보는 결합 여부와 무관하게 그 자체로 요건 저촉' },
-  { key: 'intent',  grade: 4, t: '고객 정보를 다루는 것이 이 업무의 목적임', d: '고객 DB 관리, 고객 상담 기록 등. 처리하지 않는 "이용 목적"이라 볼 수 없음' },
-];
-
-/* ================= 상태 ================= */
-const state = {
-  step: 0, saas: null, usage: null, nature: null,
-  l1use: null,
-  applied: {},
-  comp: {},
-  profile: { sector: 'mid', e5: 'unknown' },
+/* 미확인 도메인 분류 — 실서비스는 로컬 LLM(Kanana), 데모는 내장 근사 */
+const CLASSIFY = {
+  'chatgpt.com': { kind:'생성형 AI SaaS', saasLike:true,
+    risk:'대장에 없는 SaaS. 금융보안원 충족 목록 미확인이며, 업무 데이터가 외부 AI 학습으로 유출될 수 있는 통로' },
+  'notion.so': { kind:'협업 SaaS', saasLike:true,
+    risk:'대장에 없는 SaaS. 제1항 3호 예외 후보이나 승인 절차(적격 판정·위험성 평가·위원회) 없이 사용 중' },
+  'anydesk.com': { kind:'원격제어 도구', saasLike:false,
+    risk:'①항 2호 원격접속 요건(전용회선급·별표7 통제)을 충족하지 않는 개인 원격제어. 가장 위험한 유형' },
+  'dropbox.com': { kind:'개인 클라우드 저장소', saasLike:true,
+    risk:'승인되지 않은 파일 반출 통로. 제15조 망분리 원칙 위반 상태' },
 };
-const STEPS = ['대상 선택', '데이터 성격', 'L1 시스템 필드', 'L2 자유 입력', 'L3 부수 생성', '판정'];
 
-/* ================= 유틸 ================= */
-const $ = sel => document.querySelector(sel);
-function entriesFor(saasKey) {
-  const s = SAAS_LIST.find(x => x.key === saasKey);
-  if (!s) return [];
-  const pack = EVIDENCE.find(e => e.saas.toLowerCase().includes(s.key === 'dooray' ? 'dooray' : s.key === 'm365' ? 'microsoft' : s.key));
-  return pack ? pack.entries.map((e, i) => ({ ...e, _i: i })) : [];
+const SAMPLE_LOG = `2026-08-14 09:02:11 SRC=10.20.1.15 HOST=paymon.dooray.com DPT=443 ACTION=ALLOW
+2026-08-14 09:05:43 SRC=10.20.1.22 HOST=teams.microsoft.com DPT=443 ACTION=ALLOW
+2026-08-14 09:12:07 SRC=10.20.1.15 HOST=kftc.or.kr DPT=8583 ACTION=ALLOW
+2026-08-14 09:31:54 SRC=10.20.2.8  HOST=chatgpt.com DPT=443 ACTION=ALLOW
+2026-08-14 09:48:20 SRC=10.20.2.11 HOST=notion.so DPT=443 ACTION=ALLOW
+2026-08-14 10:04:19 SRC=10.20.1.30 HOST=sharepoint.com DPT=443 ACTION=ALLOW
+2026-08-14 10:22:45 SRC=10.20.2.8  HOST=chatgpt.com DPT=443 ACTION=ALLOW
+2026-08-14 11:08:33 SRC=10.20.3.4  HOST=anydesk.com DPT=443 ACTION=ALLOW
+2026-08-14 11:15:02 SRC=10.20.1.22 HOST=kcredit.or.kr DPT=443 ACTION=ALLOW
+2026-08-14 11:40:17 SRC=10.20.2.11 HOST=notion.so DPT=443 ACTION=ALLOW
+2026-08-14 13:40:11 SRC=10.20.2.19 HOST=dropbox.com DPT=443 ACTION=ALLOW
+2026-08-14 13:52:36 SRC=10.20.1.15 HOST=nicevan.co.kr DPT=9443 ACTION=ALLOW
+2026-08-14 14:11:58 SRC=10.20.3.4  HOST=anydesk.com DPT=443 ACTION=ALLOW
+2026-08-14 15:03:27 SRC=10.20.1.40 HOST=office365.com DPT=443 ACTION=ALLOW
+2026-08-14 16:44:09 SRC=10.20.2.8  HOST=chatgpt.com DPT=443 ACTION=ALLOW`;
+
+/* ═══════════════ 상태 ═══════════════ */
+const state = {
+  tab: 'map', sel: null, scanned: false,
+  rogues: [],            // 미처리 미등록 연결
+  blocked: [],           // 차단 확정 {host, kind, reason}
+  contentLog: {},        // conduitId → [{t, tag, masked}]
+  nextId: 9,
+  wiz: null,             // 등재 위저드 상태
+  detMode: 'heuristic', detReady: false,
+};
+
+/* ═══════════════ 유틸 ═══════════════ */
+const $ = s => document.querySelector(s);
+function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function mask(s){
+  return String(s)
+    .replace(/\d[\d\s-]{4,}\d/g, run => {
+      const total = (run.match(/\d/g)||[]).length; if (total < 5) return run;
+      let seen = 0;
+      return run.split('').reverse().map(ch => !/\d/.test(ch) ? ch : (++seen <= 4 ? ch : '*')).reverse().join('');
+    })
+    .replace(/([가-힣])[가-힣]([가-힣]?)(\s?(고객님|고객|님|씨))/g, '$1*$2$3');
 }
-const AV_LABEL = { builtin: '[기본 제공]', higher_tier: '[상위 요금제]', third_party: '[서드파티]', none: '[미제공]', unclear: '[미확인]' };
-const AV_PLAIN = { builtin: '기본 제공', higher_tier: '상위 요금제', third_party: '서드파티', none: '미제공', unclear: '미확인' };
+function saasEntriesFor(key){
+  if (!key) return [];
+  const pack = (window.SALPI_EVIDENCE||[]).find(e => e.saas.toLowerCase().includes(key === 'm365' ? 'microsoft' : key));
+  return pack ? pack.entries.map((e,i)=>({ ...e, _i:i })) : [];
+}
+function contentCount(id){ return (state.contentLog[id]||[]).length; }
 
-function eviCard(e, withApply) {
-  const conf = e.confidence === 'low' ? '<span class="conftag">[확신도 낮음: 원문 확인 필요]</span>' : '';
-  const plan = e.plan_note && e.plan_note !== '-' ? `<div class="plan">요금제 조건: ${e.plan_note}</div>` : '';
-  let apply = '';
-  if (withApply) {
-    if (e.control_availability === 'builtin' || e.control_availability === 'higher_tier' || e.control_availability === 'third_party') {
-      apply = `<label class="applychk"><input type="checkbox" data-apply="${e._i}" ${state.applied[e._i] ? 'checked' : ''}>
-        <span>이 통제를 도입 시 적용한다. 적용 계획이 검토서에 기록된다.</span></label>`;
-    } else {
-      apply = `<label class="applychk"><input type="checkbox" data-comp="${e._i}" ${state.comp[e._i] ? 'checked' : ''}>
-        <span>이 SaaS에는 해당 통제가 ${e.control_availability === 'none' ? '없다' : '확인되지 않았다'}. <b>살피 검증 도구(로컬 결합 탐지) 등 보완통제를 적용</b>한다(해설서: 기능이 없는 경우 보완 보안대책 적용).</span></label>`;
-    }
+/* ═══════════════ 로그 대조 (결정적) ═══════════════ */
+function parseLog(text){
+  const agg = {};
+  for (const line of text.split('\n')) {
+    const h = /HOST=(\S+)/.exec(line), s = /SRC=(\S+)/.exec(line), p = /DPT=(\S+)/.exec(line);
+    if (!h) continue;
+    const host = h[1].toLowerCase();
+    agg[host] = agg[host] || { count:0, srcs:new Set(), ports:new Set() };
+    agg[host].count++; if (s) agg[host].srcs.add(s[1]); if (p) agg[host].ports.add(p[1]);
   }
-  return `<div class="evi">
-    <div class="head"><span class="feat">${e.feature}</span>
-      <span class="avtag ${e.control_availability}">${AV_LABEL[e.control_availability]}</span>${conf}</div>
-    <div class="ctrl">${e.control}</div>
-    ${e.source_quote ? `<div class="quote">"${e.source_quote}"</div>` : ''}
-    ${plan}
-    <div class="meta">출처 <a href="${e.source_url}" target="_blank" rel="noopener">${e.source_url}</a></div>
-    ${apply}
-  </div>`;
+  return agg;
+}
+const matchLedger = host => LEDGER.find(c => c.domains.some(d => host === d || host.endsWith('.'+d)));
+const isBlocked  = host => state.blocked.find(b => b.host === host);
+function reconcile(text){
+  const agg = parseLog(text);
+  const rows = [], rogues = [];
+  for (const [host, info] of Object.entries(agg)) {
+    const hit = matchLedger(host);
+    if (hit) { rows.push({ host, info, status:'ok', conduit:hit }); continue; }
+    const blk = isBlocked(host);
+    if (blk) { rows.push({ host, info, status:'blocked', blk }); continue; }
+    const base = Object.keys(CLASSIFY).find(k => host === k || host.endsWith('.'+k));
+    const cls = base ? CLASSIFY[base] : { kind:'미상 (LLM 분류 대상)', saasLike:false, risk:'대장의 어느 승인 콘딧에도 해당하지 않는 외부 연결' };
+    const rogue = { host, info, cls };
+    rows.push({ host, info, status:'rogue', rogue });
+    rogues.push(rogue);
+  }
+  rows.sort((a,b) => (a.status==='rogue'?-1:1) - (b.status==='rogue'?-1:1) || b.info.count - a.info.count);
+  return { rows, rogues };
 }
 
-/* ================= 판정 로직 (결정적) ================= */
-function judge() {
+/* ═══════════════ 등재 위저드 (살피 판정의 이식) ═══════════════ */
+const USAGES = [
+  { key:'doc',  t:'사내 문서 작성·관리' }, { key:'chat', t:'사내 메신저·협업' },
+  { key:'meet', t:'화상회의' },            { key:'pm',   t:'프로젝트·업무 관리' },
+];
+const NATURES = [
+  { key:'none',     grade:0, t:'고객 정보가 업무상 등장하지 않음', d:'순수 내부 업무' },
+  { key:'id_only',  grade:1, t:'고객 식별정보가 단독으로 등장할 수 있음', d:'이름·연락처 수준, 신용정보와 결합 안 됨' },
+  { key:'combined', grade:2, t:'고객 식별정보가 거래·상담 내용과 결합될 수 있음', d:'결합되면 개인신용정보 (신용정보법 제2조)' },
+  { key:'unique',   grade:3, t:'주민등록번호 등 고유식별정보가 유입될 수 있음', d:'그 자체로 요건 저촉' },
+  { key:'intent',   grade:4, t:'고객 정보를 다루는 것이 이 업무의 목적임', d:'"처리하지 않는 이용 목적"이 아님' },
+];
+const KNOWN_SAAS = { 'notion.so':'notion', 'dooray.com':'dooray', 'office.com':'m365', 'zoom.us':'zoom', 'slack.com':'slack' };
+
+function openWizard(prefill){
+  const key = Object.entries(KNOWN_SAAS).find(([d]) => (prefill.host||'').endsWith(d))?.[1] || prefill.saasKey || null;
+  state.wiz = {
+    step: 0, host: prefill.host || '', name: prefill.name || prefill.host || '',
+    saasKey: key, entries: saasEntriesFor(key),
+    usage: null, nature: null, l1: null, applied: {}, comp: {},
+    fromRogue: prefill.fromRogue || null, cls: prefill.cls || null,
+  };
+  renderWizard();
+  $('#overlay').classList.add('open');
+}
+function closeWizard(){ $('#overlay').classList.remove('open'); state.wiz = null; }
+
+function wizJudge(w){
   const risks = [], oks = [];
-  const ent = entriesFor(state.saas);
-  const nature = DATA_NATURE.find(n => n.key === state.nature);
-
-  if (nature.key === 'intent')
-    return { grade: 'bad', title: '예외 적용 불가', risks: [{lv:'r', t:'고객 정보를 다루는 것이 업무 목적 자체다. 제2조의3 제1항 제3호의 "처리하지 않는 이용 목적"에 해당하지 않는다. 혁신금융서비스(규제 샌드박스) 경로 또는 업무 범위 재설계가 필요하다.'}], oks };
-  if (state.l1use === 'yes')
-    return { grade: 'bad', title: '예외 적용 불가', risks: [{lv:'r', t:'고객 정보를 필드 단위로 다루는 기능(연락처 DB, CRM성 기능) 사용 계획. 구조화된 저장·검색·출력으로서 명백한 처리에 해당한다. 해당 기능을 쓰지 않는 범위로 용도를 좁히면 재검토할 수 있다.'}], oks };
-
-  if (nature.key === 'none') {
-    oks.push({lv:'g', t:'업무상 고객 정보 유입 가능성 없음. 요건 저촉 소지가 낮다. 다만 업무 범위 변경 시 재검토가 필요하다(검토서에 용도 한정 명시).'});
+  if (w.nature === 'intent')
+    return { grade:'bad', title:'예외 적용 불가', risks:[{lv:'r', t:'고객 정보를 다루는 것이 업무 목적 자체. 제1항 3호의 "처리하지 않는 이용 목적"에 해당하지 않음. 혁신금융서비스 경로 또는 차단.'}], oks };
+  if (w.l1 === 'yes')
+    return { grade:'bad', title:'예외 적용 불가', risks:[{lv:'r', t:'고객정보 필드형 기능 사용 계획 — 구조화된 저장·검색으로서 명백한 처리.'}], oks };
+  const risky = ['combined','unique'].includes(w.nature);
+  if (w.nature === 'unique') risks.push({lv:'w', t:'고유식별정보 유입 가능성 — 입력 차단 통제 필수.'});
+  const ctrl = w.entries.filter(e => (e.layer==='L2'||e.layer==='L3') && e.exists!=='no');
+  if (!ctrl.length) {
+    // 근거 미수집 SaaS: 실서비스는 E 파이프라인(LLM 문서 추출)이 수집
+    if (risky) risks.push({lv:'r', t:'통제 근거 미수집 상태에서 고객 정보 유입 가능 용도 — 등재 불가. 근거 수집(E 파이프라인) 후 재판정하거나 차단.'});
+    else risks.push({lv:'w', t:'통제 근거 미수집 — 조건부 등재. 벤더 문서 근거 수집을 등재 조건으로 부기.'});
   }
-  if (nature.key === 'id_only') {
-    oks.push({lv:'g', t:'식별정보 단독은 신용정보법상 다른 신용정보와 결합될 때에만 개인신용정보다. 현재 용도는 저촉 소지가 낮다. 결합 발생 가능성을 입력 제한 기준에 명시할 것.'});
+  for (const e of ctrl) {
+    const has = ['builtin','higher_tier','third_party'].includes(e.control_availability);
+    const applied = w.applied[e._i], comp = w.comp[e._i];
+    if (has && applied) oks.push({lv:'g', t:`${e.feature}: 적용 계획 확인`});
+    else if (!has && comp) risks.push({lv:'w', t:`${e.feature}: 벤더 미제공 — 살피 내용검사를 보완통제로 지정`});
+    else if (risky) risks.push({lv:'r', t:`${e.feature}: 통제 미적용 — 유입 가능 용도에서 접점 열림`});
+    else risks.push({lv:'w', t:`${e.feature}: 통제 미적용 (권고)`});
   }
-  if (nature.key === 'unique') {
-    risks.push({lv:'w', t:'고유식별정보 유입 가능성. 결합 여부와 무관하게 그 자체로 요건 저촉이므로 입력 차단 통제가 필수이며, 미차단 상태 발견 시 즉시 삭제·보고 절차가 필요하다.'});
+  const hard = risks.filter(r => r.lv==='r').length;
+  if (hard) return { grade:'bad', title:'조건 미충족 — 등재 불가', risks, oks };
+  if (risks.length) return { grade:'cond', title:'조건부 적합 — 등재 가능', risks, oks };
+  return { grade:'ok', title:'예외 요건 충족 — 등재 가능', risks, oks };
+}
+
+function renderWizard(){
+  const w = state.wiz; if (!w) return;
+  const steps = ['대상', '용도', '데이터 성격', 'L1 필드', '통제 확인', '판정'];
+  const bar = `<div class="wsteps">${steps.map((s,i)=>`<div class="s ${i===w.step?'on':''}">${i+1} ${s}</div>`).join('')}</div>`;
+  const nav = (canNext, nextLabel='다음') => `<div class="wnav">
+    <button class="act ghost2 small" onclick="${w.step===0?'closeWizard()':'wizBack()'}">${w.step===0?'취소':'이전'}</button>
+    <button class="act small" id="wnext" ${canNext?'':'disabled'}>${nextLabel}</button></div>`;
+  let body = '';
+
+  if (w.step === 0) {
+    body = `<p style="font-size:13px">등재 대상: <b>${esc(w.name)}</b> ${w.host?`<span style="font-family:var(--mono);font-size:11px;color:var(--faint)">(${esc(w.host)})</span>`:''}</p>
+      ${w.cls ? `<p style="font-size:12.5px;color:var(--sub)">로그 대조 발견 건 — 분류: ${w.cls.kind}. 등재하려면 제1항 3호 적격 판정을 통과해야 한다.</p>` : ''}
+      <p style="font-size:12.5px;color:var(--sub)">${w.entries.length ? `통제 근거 ${w.entries.length}건 보유 (사전 수집).` : '통제 근거 미수집 — 실서비스에서는 E 파이프라인(LLM 벤더 문서 추출)이 이 자리에서 근거를 수집한다.'}</p>` + nav(true);
+  }
+  if (w.step === 1) body = USAGES.map(u=>`<div class="opt ${w.usage===u.key?'sel':''}" data-w="usage:${u.key}"><span class="mark"></span><span class="t">${u.t}</span></div>`).join('') + nav(!!w.usage);
+  if (w.step === 2) body = NATURES.map(n=>`<div class="opt ${w.nature===n.key?'sel':''}" data-w="nature:${n.key}"><span class="mark"></span><span><span class="t">${n.t}</span><div class="d">${n.d}</div></span></div>`).join('') + nav(!!w.nature);
+  if (w.step === 3) body = `
+    <p style="font-size:13px">고객 정보를 필드 단위로 다루는 기능(연락처 DB·CRM·외부 폼)을 사용하는가?</p>
+    <div class="opt ${w.l1==='no'?'sel':''}" data-w="l1:no"><span class="mark"></span><span class="t">사용하지 않는다</span></div>
+    <div class="opt ${w.l1==='yes'?'sel':''}" data-w="l1:yes"><span class="mark"></span><span><span class="t">사용한다</span><div class="d">명백한 처리 — 즉시 불가</div></span></div>` + nav(!!w.l1);
+  if (w.step === 4) {
+    const ctrl = w.entries.filter(e => (e.layer==='L2'||e.layer==='L3') && e.exists!=='no');
+    body = ctrl.length ? ctrl.map(e => {
+      const has = ['builtin','higher_tier','third_party'].includes(e.control_availability);
+      const AV = {builtin:'[기본 제공]',higher_tier:'[상위 요금제]',third_party:'[서드파티]',none:'[미제공]',unclear:'[미확인]'};
+      return `<div class="evi"><div class="head"><span class="feat">${esc(e.feature)}</span><span class="avtag ${e.control_availability}">${AV[e.control_availability]}</span></div>
+        <div class="ctrl">${esc(e.control.slice(0,140))}${e.control.length>140?'…':''}</div>
+        <label class="applychk"><input type="checkbox" data-wc="${has?'applied':'comp'}:${e._i}" ${(has?w.applied:w.comp)[e._i]?'checked':''}>
+        <span>${has?'이 통제를 적용한다':'벤더 미제공 — <b>살피 내용검사를 보완통제로 지정</b>한다'}</span></label></div>`;
+    }).join('') + nav(true, '판정')
+    : `<p style="font-size:13px;color:var(--sub)">이 SaaS의 통제 근거가 아직 없다. 실서비스에서는 여기서 E 파이프라인이 벤더 공개 문서를 읽어 근거 카드를 채운다(원문 인용 강제). 데모에서는 미수집 상태로 판정에 넘긴다.</p>` + nav(true, '판정');
+  }
+  if (w.step === 5) {
+    const v = wizJudge(w);
+    w.verdict = v;
+    body = `<div class="verdict-line ${v.grade==='ok'?'ok':v.grade==='cond'?'cond':'bad'}"><div class="word">${v.title}</div></div>
+      <div style="margin:10px 0 4px">${v.risks.map(r=>`<div class="finding ${r.lv}"><span class="ic">${r.lv==='r'?'×':'!'}</span><span>${r.t}</span></div>`).join('')}
+      ${v.oks.map(r=>`<div class="finding g"><span class="ic">○</span><span>${r.t}</span></div>`).join('')}</div>
+      <div class="wnav">
+        <button class="act ghost2 small" onclick="wizBack()">이전</button>
+        <span style="display:flex;gap:8px">
+          ${v.grade==='bad' && w.fromRogue!=null ? `<button class="act danger small" onclick="wizBlock()">차단 확정 (대장 밖 기록)</button>` : ''}
+          ${v.grade!=='bad' ? `<button class="act small" onclick="wizRegister()">대장에 등재 (위원회 상정)</button>` : ''}
+          ${v.grade==='bad' && w.fromRogue==null ? `<button class="act ghost2 small" onclick="closeWizard()">닫기</button>` : ''}
+        </span></div>`;
   }
 
-  const must = nature.grade >= 2;
-  const l2 = ent.filter(e => e.layer === 'L2' && e.exists !== 'no');
-  const l3 = ent.filter(e => e.layer === 'L3' && e.exists !== 'no');
-  const actionFor = (e, has) => {
-    if (!has) return '살피 검증 도구(로컬 결합 탐지)를 이 접점의 보완통제로 지정하고, 탐지 로그를 반기 자체평가 증적으로 수집';
-    if (e.control_availability === 'higher_tier' && state.profile.e5 === 'no') return '상위 요금제 미보유. 요금제 증설 전까지 살피 검증 도구 또는 단말 DLP를 보완통제로 적용';
-    const first = (e.control || '').split(/[.。]\s|\(/)[0].trim();
-    return '관리자 콘솔에서 설정 적용 후 증적 확보: ' + (first.length > 90 ? first.slice(0, 90) + '…' : first);
-  };
-  [...l2, ...l3].forEach(e => {
-    const applied = state.applied[e._i], comp = state.comp[e._i];
-    const has = e.control_availability === 'builtin' || e.control_availability === 'higher_tier' || e.control_availability === 'third_party';
-    if (has && applied) oks.push({lv:'g', t:`${e.feature}: 통제 적용 계획 확인(${AV_PLAIN[e.control_availability]}${e.plan_note && e.plan_note !== '-' ? ', ' + e.plan_note : ''})`});
-    else if (!has && comp) risks.push({lv:'w', t:`${e.feature}: 네이티브 통제 ${e.control_availability === 'none' ? '미제공' : '미확인'}. 보완통제 수립을 전제로 한 조건부 항목이다.`, act: actionFor(e, false)});
-    else if (must) risks.push({lv:'r', t:`${e.feature}: 통제 미적용 상태. 고객 정보 유입 가능성이 있는 용도에서 이 접점이 열려 있다(해설서 6장: 입력 제한·필터링 및 입력 점검 요구).`, act: actionFor(e, has)});
-    else risks.push({lv:'w', t:`${e.feature}: 통제 미적용. 현재 용도는 유입 가능성이 낮으나 적용을 권고한다.`, act: actionFor(e, has)});
+  $('#modal').innerHTML = `<h3>SaaS 콘딧 등재 판정</h3>
+    <div class="wsub">시행세칙 제2조의3 ①항 3호 적격 검토 — 살피 판정 엔진 · <a class="plain" href="workbench.html" target="_blank">전체 워크벤치</a></div>
+    ${bar}${body}`;
+  document.querySelectorAll('[data-w]').forEach(el => el.onclick = () => {
+    const [k, val] = el.dataset.w.split(':'); state.wiz[k === 'l1' ? 'l1' : k] = val; renderWizard();
   });
-
-  const hardRisks = risks.filter(r => r.lv === 'r').length;
-  const warns = risks.filter(r => r.lv === 'w').length;
-  if (hardRisks > 0) return { grade: 'cond', title: '조건 미충족, 통제 보완 후 재검토', risks, oks };
-  if (warns > 0) return { grade: 'cond', title: '조건부 적합', risks, oks };
-  return { grade: 'ok', title: '예외 요건 충족 가능', risks, oks };
+  document.querySelectorAll('[data-wc]').forEach(el => el.onchange = () => {
+    const [k, i] = el.dataset.wc.split(':'); state.wiz[k][i] = el.checked;
+  });
+  const next = $('#wnext');
+  if (next) next.onclick = () => { state.wiz.step++; renderWizard(); };
+}
+function wizBack(){ state.wiz.step--; renderWizard(); }
+function wizRegister(){
+  const w = state.wiz, v = w.verdict;
+  const id = 'C-' + String(state.nextId++).padStart(2,'0');
+  const due = new Date(); due.setMonth(due.getMonth()+6);
+  LEDGER.push({
+    id, name: w.name, type:'내부업무망 SaaS', basis:'제2조의3 ①항 3호', zone:'saas', saasKey:w.saasKey,
+    domains:[w.host || w.name.toLowerCase()], ports:'443', dir:'아웃바운드',
+    approved:`${new Date().toISOString().slice(0,10)} · 위원회 상정 대기 · 판정 ${v.grade==='ok'?'적합':'조건부'}`,
+    controls: v.grade==='cond' ? `살피 판정 조건부 (${v.risks.length}건 부기) + 살피 내용검사 보완통제` : '별표7 SaaS 10개 통제',
+    review:{ type:'반기 자체평가 (제4항)', due: due.toISOString().slice(0,7), soon:false },
+    pendingRisks: v.risks.length,
+  });
+  if (w.fromRogue != null) state.rogues = state.rogues.filter(r => r.host !== w.host);
+  closeWizard(); render();
+}
+function wizBlock(){
+  const w = state.wiz;
+  state.blocked.push({ host: w.host, kind: w.cls?.kind || 'SaaS', reason: w.verdict.risks[0]?.t || '적격 미충족' });
+  state.rogues = state.rogues.filter(r => r.host !== w.host);
+  closeWizard(); render();
 }
 
-/* ================= 렌더 ================= */
-function render() {
-  $('#rail').innerHTML = STEPS.map((s, i) =>
-    `<div class="item ${i === state.step ? 'on' : i < state.step ? 'done' : ''}">
-      <span class="no">${String(i + 1).padStart(2, '0')}</span><span>${s}</span></div>`).join('');
-  const app = $('#app');
-  const ent = entriesFor(state.saas);
-
-  if (state.step === 0) {
-    app.innerHTML = `<div class="panel">
-      <h2 class="q">어떤 SaaS를, 어떤 업무에 도입하려 하는가</h2>
-      <p class="qsub">데모에는 금융권 도입이 확인된 SaaS(M365, 두레이)와 도입 검토가 잦은 대표 SaaS를 합쳐 5종의 근거 데이터가 사전 인덱싱되어 있다.</p>
-      <div class="saasgrid">${SAAS_LIST.map(s =>
-        `<div class="saascell ${state.saas === s.key ? 'sel' : ''}" data-saas="${s.key}">
-          <div class="nm">${s.name}</div><div class="ct">${s.cat}</div></div>`).join('')}</div>
-      <div class="profrow">
-        <span class="pl">회사 프로필</span>
-        <select data-prof="sector">
-          <option value="bank" ${state.profile.sector === 'bank' ? 'selected' : ''}>은행·금융지주</option>
-          <option value="mid" ${state.profile.sector === 'mid' ? 'selected' : ''}>저축은행·캐피탈</option>
-          <option value="fintech" ${state.profile.sector === 'fintech' ? 'selected' : ''}>핀테크·전자금융업자</option>
-        </select>
-        <select data-prof="e5">
-          <option value="yes" ${state.profile.e5 === 'yes' ? 'selected' : ''}>M365 E5급 보안 라이선스 보유</option>
-          <option value="no" ${state.profile.e5 === 'no' ? 'selected' : ''}>상위 보안 라이선스 미보유</option>
-          <option value="unknown" ${state.profile.e5 === 'unknown' ? 'selected' : ''}>라이선스 미확인</option>
-        </select>
-        <span style="color:var(--faint);font-size:11.5px">프로필에 따라 조치 제안이 달라진다</span>
-      </div>
-      <div class="opts">${USAGES.map(u =>
-        `<div class="opt ${state.usage === u.key ? 'sel' : ''}" data-usage="${u.key}">
-          <span class="mark"></span><span><span class="t">${u.t}</span><div class="d">${u.d}</div></span></div>`).join('')}</div>
-      <div class="nav"><span></span><button class="primary" id="next" ${state.saas && state.usage ? '' : 'disabled'}>다음</button></div>
-    </div>`;
-  }
-
-  if (state.step === 1) {
-    app.innerHTML = `<div class="panel">
-      <div class="kicker">근거: 시행세칙 제2조의3 제1항 제3호, 신용정보법 제2조(결합 요건), 개인정보보호법 제24조(고유식별정보)</div>
-      <h2 class="q">이 업무에서 SaaS에 들어갈 수 있는 고객 정보의 성격은?</h2>
-      <p class="qsub">조문의 요건은 "이용자의" 고유식별정보·개인신용정보다. 임직원 정보는 조문 문언상 이 요건의 대상이 아니다. 단, 해설서는 표현이 달라 보수적 검토를 권고하며 이 내용은 검토서에 자동 기재된다.</p>
-      <div class="opts">${DATA_NATURE.map(n =>
-        `<div class="opt ${state.nature === n.key ? 'sel' : ''}" data-nature="${n.key}">
-          <span class="mark"></span><span><span class="t">${n.t}</span><div class="d">${n.d}</div></span></div>`).join('')}</div>
-      <div class="nav"><button class="ghost" id="back">이전</button><button class="primary" id="next" ${state.nature ? '' : 'disabled'}>다음</button></div>
-    </div>`;
-  }
-
-  if (state.step === 2) {
-    const l1 = ent.filter(e => e.layer === 'L1');
-    app.innerHTML = `<div class="panel">
-      <div class="kicker">1층 시스템 필드: SaaS가 정해진 항목으로 다루도록 설계된 데이터</div>
-      <h2 class="q">고객 정보를 필드 단위로 관리하는 기능을 사용할 계획인가?</h2>
-      <p class="qsub">연락처 DB, CRM성 데이터베이스, 외부인 대상 폼 수집 등. 이 SaaS의 해당 기능 존재 여부는 아래 근거로 확인한다.</p>
-      ${l1.length ? l1.map(e => eviCard(e, false)).join('') : '<p class="qsub">이 SaaS의 L1 근거 데이터 없음. 직접 확인이 필요하다.</p>'}
-      <div class="opts" style="margin-top:26px">
-        <div class="opt ${state.l1use === 'no' ? 'sel' : ''}" data-l1="no"><span class="mark"></span>
-          <span><span class="t">사용하지 않는다</span><div class="d">해당 기능을 쓰지 않는 범위로 용도를 한정한다. 한정 조건이 검토서에 기재된다</div></span></div>
-        <div class="opt ${state.l1use === 'yes' ? 'sel' : ''}" data-l1="yes"><span class="mark"></span>
-          <span><span class="t">사용한다</span><div class="d">고객 정보를 구조화해 저장·검색하게 된다. 명백한 처리</div></span></div>
-      </div>
-      <div class="nav"><button class="ghost" id="back">이전</button><button class="primary" id="next" ${state.l1use ? '' : 'disabled'}>다음</button></div>
-    </div>`;
-  }
-
-  if (state.step === 3) {
-    const l2 = ent.filter(e => e.layer === 'L2' && e.exists !== 'no');
-    app.innerHTML = `<div class="panel">
-      <div class="kicker">2층 사용자 자유 입력. 해설서 6장: "입력 제한 데이터를 명확화하여 기준을 마련하고 데이터 입력 시 사전에 필터 적용"</div>
-      <h2 class="q">자유 입력 경로의 차단 수단</h2>
-      <p class="qsub">문서·채팅·회의 본문에 고객 정보가 들어가는 것을 막는 수단이다. 근거를 확인하고 적용 여부를 결정한다.</p>
-      ${l2.length ? l2.map(e => eviCard(e, true)).join('') : '<p class="qsub">이 SaaS의 L2 근거 데이터 없음. 직접 확인이 필요하다.</p>'}
-      <div class="nav"><button class="ghost" id="back">이전</button><button class="primary" id="next">다음</button></div>
-    </div>`;
-  }
-
-  if (state.step === 4) {
-    const l3 = ent.filter(e => e.layer === 'L3' && e.exists !== 'no');
-    app.innerHTML = `<div class="panel">
-      <div class="kicker">3층 시스템 부수 생성: 검색 색인, 자동 녹취, AI 학습, 보존 사본</div>
-      <h2 class="q">사용자가 넣지 않아도 SaaS가 만들어내는 데이터</h2>
-      <p class="qsub">고객 정보가 유입되면 이 경로들을 따라 복제·확산된다. 각 경로의 차단·설정 가능 여부를 확인한다.</p>
-      ${l3.length ? l3.map(e => eviCard(e, true)).join('') : '<p class="qsub">이 SaaS의 L3 근거 데이터 없음. 직접 확인이 필요하다.</p>'}
-      <div class="nav"><button class="ghost" id="back">이전</button><button class="primary" id="next">판정</button></div>
-    </div>`;
-  }
-
-  if (state.step === 5) {
-    const v = judge();
-    const cls = v.grade === 'ok' ? 'ok' : v.grade === 'cond' ? 'cond' : 'bad';
-    app.innerHTML = `<div class="panel">
-      <div class="verdict ${cls}">
-        <div class="lbl">판정 결과</div>
-        <div class="word">${v.title}</div>
-        <p class="why">판정은 입력된 답변만으로 결정 트리가 산출했다. 같은 입력이면 언제나 같은 결과가 나온다. 아래 내용이 검토서에 그대로 기록된다.</p>
-      </div>
-      <div class="findings">
-        ${v.risks.map(r => `<div class="finding ${r.lv}"><span class="ic">${r.lv === 'r' ? '×' : '!'}</span><span>${r.t}${r.act ? `<div class="act">조치: ${r.act}</div>` : ''}</span></div>`).join('')}
-        ${v.oks.map(r => `<div class="finding g"><span class="ic">○</span><span>${r.t}</span></div>`).join('')}
-      </div>
-      <div class="detector">
-        <h3>운영 중 검증: 결합 탐지</h3>
-        <p class="note">도입 후에는 이 판정이 지속 통제로 이어진다. 아래에 문서를 붙여넣으면 유입되는 순간을 탐지한다. 규칙층(주민번호 체크섬, 카드 Luhn, 전화)은 실제 검증 로직이고, 결합층은 본 데모에서 휴리스틱 근사다. 실서비스의 결합 판단은 로컬 소형 LLM이 수행한다.</p>
-        <div class="det-mode" id="det-mode"></div>
-        <button id="det-sample" style="margin-bottom:10px">예시 회의록 넣기</button>
-        <textarea id="det-in" placeholder="여기에 문서·회의록 내용을 붙여넣으면 실시간으로 탐지한다"></textarea>
-        <div class="det-out" id="det-out"></div>
-      </div>
-      <div class="nav">
-        <button class="ghost" id="back">이전</button>
-        <div class="r">
-          <button id="restart">처음부터</button>
-          <button class="primary" id="print">검토서 생성</button>
-        </div>
-      </div>
-    </div>`;
-    buildReport(v);
-  }
-
-  bind();
+/* ═══════════════ 화면 ═══════════════ */
+const TABS = [
+  { k:'map', t:'경계 지도' }, { k:'ledger', t:'콘딧 대장' }, { k:'logs', t:'로그 대조' },
+  { k:'content', t:'내용 검사' }, { k:'report', t:'반기 보고' },
+];
+function renderStrip(){
+  const saasDue = LEDGER.filter(c => c.review.soon && c.review.type.includes('반기')).length;
+  const reviewDue = LEDGER.filter(c => c.review.soon && !c.review.type.includes('반기')).length;
+  const detects = Object.values(state.contentLog).reduce((n,a)=>n+a.length,0);
+  $('#strip').innerHTML = `
+    <span><b>${LEDGER.length}</b>승인 콘딧</span>
+    <span class="warn"><b>${saasDue}</b>SaaS 반기평가 도래</span>
+    <span class="warn"><b>${reviewDue}</b>재승인 임박</span>
+    <span class="alert"><b>${state.rogues.length}</b>미등록 연결${state.scanned?'':' (대조 전)'}</span>
+    <span class="okc"><b>${detects}</b>내용검사 탐지 기록</span>
+    ${state.blocked.length?`<span><b>${state.blocked.length}</b>차단 확정</span>`:''}`;
+}
+function renderTabs(){
+  $('#tabs').innerHTML = TABS.map(t =>
+    `<button class="${state.tab===t.k?'on':''}" data-tab="${t.k}">${t.t}${
+      t.k==='logs' && state.rogues.length ? `<span class="n">${state.rogues.length}</span>`:''}</button>`).join('');
+  document.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { state.tab = b.dataset.tab; state.sel = null; render(); });
 }
 
-/* ================= 검토서 ================= */
-function buildReport(v) {
-  const s = SAAS_LIST.find(x => x.key === state.saas);
-  const u = USAGES.find(x => x.key === state.usage);
-  const n = DATA_NATURE.find(x => x.key === state.nature);
-  const ent = entriesFor(state.saas);
-  const today = new Date();
-  const dstr = `${today.getFullYear()}. ${today.getMonth()+1}. ${today.getDate()}.`;
-  const ctrls = ent.filter(e => (e.layer === 'L2' || e.layer === 'L3') && e.exists !== 'no').map(e => {
-    const st = state.applied[e._i] ? '적용 예정' : state.comp[e._i] ? '보완통제 수립 예정' : '미적용';
-    return `<tr><td>${e.layer === 'L2' ? '2층 자유 입력' : '3층 부수 생성'}</td><td>${e.feature}</td>
-      <td>${e.control} <span style="color:#777">(${AV_PLAIN[e.control_availability]}${e.plan_note && e.plan_note !== '-' ? ', ' + e.plan_note : ''})</span></td>
-      <td>${st}</td><td style="font-size:8pt">${e.source_url}</td></tr>`;
-  }).join('');
-
-  $('#report').innerHTML = `
-    <h1>내부업무망 SaaS 망분리 예외요건 검토서 <span style="font-size:9pt;color:#777">(데모 문서번호 DEMO-${today.getFullYear()}-001)</span></h1>
-    <table>
-      <tr><th style="width:18%">검토 대상</th><td>${s.name}</td><th style="width:18%">사용 업무</th><td>${u.t}</td></tr>
-      <tr><th>검토 일자</th><td>${dstr}</td><th>판정 결과</th><td><b>${v.title}</b></td></tr>
-    </table>
-    <h2>1. 검토 근거 조문</h2>
-    <div class="lawq">전자금융감독규정 시행세칙 제2조의3 제1항 제3호: "이용자의 고유식별정보 또는 개인신용정보를 처리하지 않는 「클라우드컴퓨팅 발전 및 이용자 보호에 관한 법률 시행령」 제3조제2호에 따른 '응용프로그램 등 소프트웨어를 제공하는 서비스' 이용 목적의 경우" (2026. 4. 20. 신설)</div>
-    <div class="lawq">동 세칙 제2조의3 제4항: 별표 7 망분리 대체 정보보호통제의 이행 여부를 반기에 1회 평가하고 정보보호위원회에 보고할 것</div>
-    <h2>2. 전제 조건 확인</h2>
-    <table><tr><th style="width:70%">항목</th><th>확인</th></tr>
-      <tr><td>침해사고대응기관(금융보안원) CSP 안전성 평가 '충족'. SaaS 제공자 평가 현황 목록 대조</td><td><span class="cb"></span>확인 필요</td></tr>
-      <tr><td>자체 위험성 평가 실시 및 정보보호위원회 승인 (제2조의3 제3항)</td><td><span class="cb"></span>별도 진행</td></tr></table>
-    <h2>3. 유입 데이터 성격 판단</h2>
-    <p>선택된 판단: <b>${n.t}</b>. ${n.d}</p>
-    <p style="font-size:9pt;color:#555">참고: 조문은 "이용자의" 고유식별정보·개인신용정보로 한정하나, 금융보안원 해설서는 한정어 없이 "고유식별정보 및 개인신용정보 처리 불가"로 기재하고 가명정보를 포함한다(조문·해설 문언 불일치). 보수적 관점에서 임직원 고유식별정보와 가명정보도 입력 제한 기준에 포함할 것을 권고한다.</p>
-    <h2>4. 층위별 통제 확인</h2>
-    <p>1층(시스템 필드): 고객정보 필드형 기능 ${state.l1use === 'yes' ? '<b>사용. 요건 저촉</b>' : '미사용. 용도를 해당 기능 제외 범위로 한정'}</p>
-    <table><tr><th>층위</th><th>접점</th><th>통제 수단 (제공 형태)</th><th>적용 상태</th><th>근거 출처</th></tr>${ctrls}</table>
-    <h2>5. 판정 결과 및 미해소 위험</h2>
-    ${v.risks.map(r => `<p>· ${r.t}${r.act ? '<br><span style="color:#2b55a3">조치: ' + r.act + '</span>' : ''}</p>`).join('')}
-    ${v.oks.map(r => `<p style="color:#176e4b">· ${r.t}</p>`).join('')}
-    <h2>6. 후속 조치</h2>
-    <p>· 본 검토서를 도입 품의에 첨부하고, 미해소 위험 항목은 반기 자체평가(제2조의3 제4항)의 점검 항목으로 이관한다.</p>
-    <p>· 해설서 6장에 따라 입력 제한 데이터 기준을 내규로 명확화하고, SaaS 이용 로그를 주기적으로 점검한다.</p>
-    <div class="sig">
-      <div class="box"><div class="line"></div>검토자</div>
-      <div class="box"><div class="line"></div>정보보호최고책임자(CISO)</div>
-    </div>
-    <div class="notice">본 검토서는 데모 도구가 생성한 초안이다. 근거 데이터는 ${today.getFullYear()}년 8월 공개 문서 조사 기준이며 요금제와 기능은 변경될 수 있다. 본 도구는 법적 판단을 대행하지 않으며, 최종 판단과 책임은 검토자와 소속 기관에 있다.</div>`;
+/* ── 지도 ── */
+function renderMap(){
+  const zoneOf = z => LEDGER.filter(c => c.zone === z);
+  const fin = zoneOf('fin'), saas = zoneOf('saas'), remote = zoneOf('remote'), dmz = zoneOf('dmz');
+  const saasW = Math.max(300, 70 + saas.length * 85);
+  const saasX = 555 - saasW / 2;
+  let boxes = '', lines = '';
+  const box = (x,y,w,h,label,color='#33406a',cls='zone-box') =>
+    `<rect class="${cls}" x="${x}" y="${y}" width="${w}" height="${h}"></rect>
+     <text x="${x+10}" y="${y+19}" font-size="12.5" font-weight="700" fill="${color}">${label}</text>`;
+  boxes += box(430,205,260,140,'내부업무망','#33406a','zone-core');
+  boxes += box(60,60,200,60+fin.length*28,'외부기관 (전용회선)');
+  fin.forEach((c,i)=>{ boxes += `<text x="72" y="${100+i*28}" font-size="11.5" fill="#5d6068">${c.id} ${c.name}</text>`;
+    lines += `<line class="conduit" x1="430" y1="${252+i*14}" x2="260" y2="${96+i*28}" data-sel="${c.id}"></line>
+      <text class="cond-label" x="345" y="${170+i*20}" data-sel="${c.id}">${c.id}</text>`; });
+  boxes += box(saasX,18,saasW,92,'SaaS (인터넷)');
+  saas.forEach((c,i)=>{ const ix = saasX+40+i*85;
+    boxes += `<text x="${ix-26}" y="${58+(i%2)*20}" font-size="11" fill="#5d6068">${c.id} ${c.name.slice(0,9)}</text>`;
+    lines += `<line class="conduit saas" x1="${Math.min(686,Math.max(434,ix))}" y1="205" x2="${ix}" y2="110" data-sel="${c.id}"></line>
+      <text class="cond-label" x="${ix+4}" y="160" data-sel="${c.id}">${c.id}</text>`; });
+  boxes += box(860,60,210,60+remote.length*28,'원격접속');
+  remote.forEach((c,i)=>{ boxes += `<text x="872" y="${100+i*28}" font-size="11.5" fill="#5d6068">${c.id} ${c.name}</text>`;
+    lines += `<line class="conduit" x1="690" y1="${250+i*10}" x2="860" y2="${96+i*28}" data-sel="${c.id}"></line>
+      <text class="cond-label" x="775" y="${170+i*14}" data-sel="${c.id}">${c.id}</text>`; });
+  boxes += box(430,420,260,50+dmz.length*26,'DMZ · 계열사');
+  dmz.forEach((c,i)=>{ boxes += `<text x="442" y="${458+i*26}" font-size="11.5" fill="#5d6068">${c.id} ${c.name}</text>`;
+    lines += `<line class="conduit" x1="${480+i*80}" y1="345" x2="${480+i*80}" y2="420" data-sel="${c.id}"></line>
+      <text class="cond-label" x="${486+i*80}" y="390" data-sel="${c.id}">${c.id}</text>`; });
+  if (state.rogues.length) {
+    boxes += box(860,330,210,50+state.rogues.length*38,'미등록 목적지','#a83226');
+    state.rogues.forEach((r,i)=>{ const y = 366+i*38;
+      lines += `<line class="conduit rogue" x1="690" y1="300" x2="860" y2="${y}" data-sel="R-${i}"></line>
+        <text class="cond-label rogue" x="872" y="${y+4}" data-sel="R-${i}">${r.host}</text>`; });
+  }
+  const H = Math.max(545, 400 + state.rogues.length*38, 480 + dmz.length*26);
+  $('#main').innerHTML = `
+    <h2 class="q">경계 지도 — 내부업무망에 뚫린 승인된 통로 전부</h2>
+    <p class="qsub">선 하나가 승인된 예외(콘딧) 하나다. 클릭하면 근거 조문·승인·통제·내용검사 기록이 나온다.
+    ${state.scanned ? '붉은 점선은 로그 대조가 찾아낸, 대장에 없는 연결이다.' : '로그 대조를 실행하면 대장에 없는 연결이 이 지도에 나타난다.'}</p>
+    <div class="mapwrap"><svg viewBox="0 0 1090 ${H}" width="100%">${boxes}${lines}</svg></div>
+    ${state.scanned ? '' : '<div class="hint">→ "로그 대조" 탭에서 샘플 로그를 돌려봐라. 이 지도가 달라진다.</div>'}
+    <div class="detail" id="detail"></div>`;
+  document.querySelectorAll('[data-sel]').forEach(el => el.addEventListener('click', () => showDetail(el.dataset.sel)));
+  if (state.sel) showDetail(state.sel);
+}
+function showDetail(sel){
+  state.sel = sel;
+  const boxEl = $('#detail'); if (!boxEl) return;
+  if (sel.startsWith('R-')) {
+    const r = state.rogues[Number(sel.slice(2))]; if (!r) return;
+    boxEl.className = 'detail rogue'; boxEl.style.display = 'block';
+    boxEl.innerHTML = `<h3>미등록 연결 — ${esc(r.host)}</h3>
+      <div class="grid">
+        <dt>관측</dt><dd>${r.info.count}회 · 단말 ${r.info.srcs.size}대 · 포트 ${[...r.info.ports].join(', ')}</dd>
+        <dt>분류</dt><dd>${r.cls.kind}</dd>
+        <dt>판정</dt><dd>승인 콘딧 대장에 부재 (결정적 대조)</dd></div>
+      <div class="ai-note"><span class="lbl">AI 분류·사유 (실서비스: 로컬 LLM / 데모: 내장 근사)</span>${r.cls.risk}</div>
+      <div style="margin-top:10px;display:flex;gap:8px">
+        ${r.cls.saasLike ? `<button class="act small" onclick='openWizard({host:${JSON.stringify(r.host)}, name:${JSON.stringify(r.host)}, fromRogue:true, cls:${JSON.stringify(r.cls)}})'>판정하기 (등재 절차)</button>` : ''}
+        <button class="act danger small" onclick='quickBlock(${JSON.stringify(r.host)})'>차단 확정</button></div>`;
+  } else {
+    const c = LEDGER.find(x => x.id === sel); if (!c) return;
+    const n = contentCount(c.id);
+    boxEl.className = 'detail'; boxEl.style.display = 'block';
+    boxEl.innerHTML = `<h3>${c.id} · ${esc(c.name)} <span style="font-weight:400;color:var(--faint);font-size:12px">${c.type}</span></h3>
+      <div class="grid">
+        <dt>근거 조문</dt><dd>${c.basis}</dd>
+        <dt>연결</dt><dd>${c.domains.join(', ')} · 포트 ${c.ports} · ${c.dir}</dd>
+        <dt>승인</dt><dd>${c.approved}</dd>
+        <dt>적용 통제</dt><dd>${c.controls}${c.pendingRisks?` <b style="color:var(--warn)">· 미해소 ${c.pendingRisks}건</b>`:''}</dd>
+        <dt>다음 의무</dt><dd>${c.review.type} · ${c.review.due} ${c.review.soon?'<b style="color:var(--warn)">← 임박</b>':''}</dd></div>
+      ${c.zone==='saas' ? `<div class="content-log">내용 검사(살피 탐지) 기록: <b>${n}건</b>${n?` — 반기 보고 2절에 자동 반영`:` — "내용 검사" 탭에서 이 콘딧을 대상으로 점검할 수 있다`}</div>` : ''}`;
+  }
+}
+function quickBlock(host){
+  const r = state.rogues.find(x => x.host === host); if (!r) return;
+  state.blocked.push({ host, kind: r.cls.kind, reason: r.cls.risk });
+  state.rogues = state.rogues.filter(x => x.host !== host);
+  state.sel = null; render();
 }
 
-/* ================= 검증 엔진 연결 =================
-   탐지 로직은 engine.js에 있다. 측정 하네스(eval/)도 같은 엔진을 쓴다.
-   시연한 것과 측정한 것이 갈라지지 않게 하기 위해서다. */
-const detState = { mode: 'heuristic', model: SalpiEngine.DEFAULT_LLM.model, llmReady: false };
-
-const DET_SAMPLE = `3월 여신협의회 회의록
-참석: 여신기획부, 리스크관리부
-
-1. 박지현 고객 주택담보대출 연체 3개월 경과 건. 담당자 재상담 예정, 연락처 010-4821-7733.
-2. 신규 상품 한도 정책은 다음 회의에서 확정.
-3. 이수민 님 카드 재발급 요청 접수 (4539-1488-0343-6467).
-4. 정해나 고객 재방문 상담 진행.
-   - 해당 고객은 신용대출 상환 지연 이력이 있음.
-5. 사내 워크숍 일정 공유.`;
-
-function esc(s) {
-  return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+/* ── 대장 ── */
+function renderLedger(){
+  const rogueCards = state.rogues.map(r => `
+    <div class="card rogue">
+      <div class="hd"><span class="id">미등록</span><span class="nm">${esc(r.host)}</span><span class="type">${r.cls.kind}</span></div>
+      <div class="row"><span>관측 <b>${r.info.count}회</b> · 단말 <b>${r.info.srcs.size}대</b></span></div>
+      <div style="margin-top:8px;display:flex;gap:6px">
+        ${r.cls.saasLike?`<button class="act small" onclick='openWizard({host:${JSON.stringify(r.host)}, name:${JSON.stringify(r.host)}, fromRogue:true, cls:${JSON.stringify(r.cls)}})'>판정하기</button>`:''}
+        <button class="act danger small" onclick='quickBlock(${JSON.stringify(r.host)})'>차단</button></div>
+    </div>`).join('');
+  $('#main').innerHTML = `
+    <h2 class="q">콘딧 대장 — 승인 ${LEDGER.length}건${state.rogues.length?` · 미등록 ${state.rogues.length}건`:''}${state.blocked.length?` · 차단 ${state.blocked.length}건`:''}</h2>
+    <p class="qsub">예외 유형별 근거 조문·승인·통제·다음 의무를 한 장부로. SaaS(①항 3호)에만 반기 자체평가(제4항)가 붙는 것까지 구분한다.
+    새 SaaS 등재는 살피 판정을 통과해야 한다.</p>
+    <div style="margin-bottom:12px"><button class="act" onclick="openWizard({name:'새 SaaS'})">+ SaaS 콘딧 등재 (살피 판정)</button></div>
+    <div class="cards">${rogueCards}
+    ${LEDGER.map(c => { const n = contentCount(c.id); return `
+      <div class="card">
+        <div class="hd"><span class="id">${c.id}</span><span class="nm">${esc(c.name)}</span><span class="type">${c.type}</span></div>
+        <div class="row"><span>근거 <b>${c.basis}</b></span></div>
+        <div class="row"><span>${c.domains[0]} · 포트 ${c.ports}</span></div>
+        <div class="row"><span>승인 ${c.approved.split('·')[0]}</span></div>
+        <div class="due ${c.review.soon?'soon':'none'}">${c.review.type} · ${c.review.due}${c.review.soon?' ← 임박':''}</div>
+        ${c.zone==='saas'?`<div class="content-stat ${n?'has':''}">내용검사 기록 ${n}건${c.pendingRisks?` · 미해소 위험 ${c.pendingRisks}건`:''}</div>`:''}
+      </div>`; }).join('')}</div>`;
 }
+
+/* ── 로그 대조 ── */
+function renderLogs(){
+  $('#main').innerHTML = `
+    <h2 class="q">로그 대조 — 선언된 망분리 vs 실제 트래픽</h2>
+    <p class="qsub">방화벽·프록시 로그를 붙여넣으면 실제 외부 목적지를 추출해 대장과 대조한다. 판정은 결정적 집합 비교이고,
+    미확인 목적지의 분류와 사유만 AI가 맡는다. 미등록 SaaS는 그 자리에서 살피 판정으로 등재하거나 차단한다.</p>
+    <button class="act ghost2" id="sample">샘플 로그 넣기</button>
+    <button class="act" id="run">대조 실행</button>
+    <div style="height:10px"></div>
+    <textarea id="logbox" style="height:150px" placeholder="HOST= 형식 로그 (데모)"></textarea>
+    <div id="result">${state.scanned?renderLogResult(reconcile($('#logbox')?.value||SAMPLE_LOG)):''}</div>`;
+  $('#sample').onclick = () => { $('#logbox').value = SAMPLE_LOG; };
+  $('#run').onclick = () => {
+    const rec = reconcile($('#logbox').value);
+    state.rogues = rec.rogues; state.scanned = true;
+    renderStrip(); renderTabs();
+    $('#result').innerHTML = renderLogResult(rec);
+  };
+}
+function renderLogResult(rec){
+  return `<table class="res">
+    <tr><th>목적지</th><th>관측</th><th>판정</th><th>대응 / 분류·사유</th><th></th></tr>
+    ${rec.rows.map(r => {
+      if (r.status==='ok') return `<tr><td style="font-family:var(--mono)">${esc(r.host)}</td><td>${r.info.count}회·${r.info.srcs.size}대</td>
+        <td><span class="st ok">승인됨</span></td><td>${r.conduit.id} ${esc(r.conduit.name)} (${r.conduit.basis})</td><td></td></tr>`;
+      if (r.status==='blocked') return `<tr style="opacity:.6"><td style="font-family:var(--mono)">${esc(r.host)}</td><td>${r.info.count}회</td>
+        <td><span class="st blocked">차단 확정</span></td><td>${r.blk.kind}</td><td></td></tr>`;
+      return `<tr style="background:var(--bad-bg)"><td style="font-family:var(--mono)"><b>${esc(r.host)}</b></td><td>${r.info.count}회·${r.info.srcs.size}대</td>
+        <td><span class="st rogue">미등록</span></td><td><b>${r.rogue.cls.kind}</b><div class="aiwhy">${r.rogue.cls.risk}</div></td>
+        <td style="white-space:nowrap">${r.rogue.cls.saasLike?`<button class="act small" onclick='openWizard({host:${JSON.stringify(r.host)}, name:${JSON.stringify(r.host)}, fromRogue:true, cls:${JSON.stringify(r.rogue.cls)}})'>판정하기</button> `:''}<button class="act danger small" onclick='quickBlock(${JSON.stringify(r.host)})'>차단</button></td></tr>`;
+    }).join('')}</table>
+    <div class="hint">미등록 연결이 경계 지도·대장에 반영됐다. SaaS류는 "판정하기"로 등재 절차(살피 판정)에 넘길 수 있다.</div>`;
+}
+
+/* ── 내용 검사 (살피 탐지 엔진) ── */
 let detSeq = 0;
-async function detRender() {
-  const ta = document.getElementById('det-in');
-  const out = document.getElementById('det-out');
-  if (!ta || !out) return;
-  if (!ta.value.trim()) { out.innerHTML = ''; return; }
-
-  const seq = ++detSeq;
-  if (detState.mode === 'llm') out.innerHTML = '<div class="det-empty">로컬 모델 판단 중…</div>';
-
-  const res = await SalpiEngine.scan(ta.value, {
-    mode: detState.mode,
-    llm: { model: detState.model },
-  });
-  if (seq !== detSeq) return;   // 입력이 더 들어왔으면 낡은 결과는 버린다
-
-  const rows = res.hits.map(h => {
-    const lv = h.severity === 'violation' ? 'viol' : (h.label === 'identifier_only' ? 'info' : 'warn');
-    return `<div class="det-hit ${lv}"><span class="tag">[${esc(h.tag)}]</span>` +
-           `<span class="span">${esc(h.span)}</span><span>${esc(h.note)}</span></div>`;
-  }).join('');
-
-  const banner = res.degraded
-    ? `<div class="det-empty" style="color:var(--warn)">${esc(res.degraded)}</div>` : '';
-  const rejected = (res.rejected && res.rejected.length)
-    ? `<div class="det-empty">근거 검증 실패로 폐기된 모델 출력 ${res.rejected.length}건 (환각 차단)</div>` : '';
-
-  out.innerHTML = banner + (rows || '<div class="det-empty">탐지된 항목 없음. 입력 제한 데이터가 발견되지 않았다.</div>') + rejected;
-}
-
-// 페이지 진입 시 로컬 모델이 떠 있는지 확인해 모드 선택지를 연다
-async function detProbe() {
-  const el = document.getElementById('det-mode');
-  if (!el) return;
-  const av = await SalpiEngine.llmAvailable({ model: detState.model });
-  detState.llmReady = !!(av.ok && av.hasModel);
-  const base = detState.model.split(':')[0];
-  el.innerHTML = detState.llmReady
-    ? `<label><input type="radio" name="detmode" value="heuristic" checked> 규칙 근사</label>
-       <label><input type="radio" name="detmode" value="llm"> 로컬 LLM (${esc(base)})</label>
-       <span class="ok-dot">연결됨</span>`
-    : `<span class="off-dot">로컬 모델 미연결 — 규칙 근사로 동작. Ollama 실행 후 새로고침하면 LLM 모드가 열린다</span>`;
-  el.querySelectorAll('input[name="detmode"]').forEach(r => {
-    r.onchange = () => { detState.mode = r.value; detRender(); };
-  });
-}
-
-/* ================= 이벤트 ================= */
-function bind() {
-  document.querySelectorAll('[data-prof]').forEach(el => el.onchange = () => { state.profile[el.dataset.prof] = el.value; });
-  const di = document.getElementById('det-in');
-  if (di) di.oninput = detRender;
-  const ds = document.getElementById('det-sample');
-  if (ds) ds.onclick = () => { document.getElementById('det-in').value = DET_SAMPLE; detRender(); };
-  document.querySelectorAll('[data-saas]').forEach(el => el.onclick = () => { state.saas = el.dataset.saas; render(); });
-  document.querySelectorAll('[data-usage]').forEach(el => el.onclick = () => { state.usage = el.dataset.usage; render(); });
-  document.querySelectorAll('[data-nature]').forEach(el => el.onclick = () => { state.nature = el.dataset.nature; render(); });
-  document.querySelectorAll('[data-l1]').forEach(el => el.onclick = () => { state.l1use = el.dataset.l1; render(); });
-  document.querySelectorAll('[data-apply]').forEach(el => el.onchange = () => { state.applied[el.dataset.apply] = el.checked; });
-  document.querySelectorAll('[data-comp]').forEach(el => el.onchange = () => { state.comp[el.dataset.comp] = el.checked; });
-  const next = $('#next'), back = $('#back'), print = $('#print'), restart = $('#restart');
-  if (next) next.onclick = () => {
-    if (state.step === 1 && state.nature === 'intent') { state.step = 5; render(); window.scrollTo(0, 0); return; }
-    if (state.step === 2 && state.l1use === 'yes') { state.step = 5; render(); window.scrollTo(0, 0); return; }
-    state.step++; render(); window.scrollTo(0, 0);
+function renderContent(){
+  const saas = LEDGER.filter(c => c.zone==='saas');
+  $('#main').innerHTML = `
+    <h2 class="q">내용 검사 — SaaS 콘딧을 지나는 데이터의 결합 탐지</h2>
+    <p class="qsub">통로 관리(대장)가 "어디로 다니는가"라면 내용 검사는 "무엇이 지나가는가"다. SaaS 콘딧에만 필요한 통제이며
+    (자유 입력이 다니는 유일한 통로), 탐지 기록은 해당 콘딧의 반기 자체평가 증적이 된다. 판정은 규칙+검증이,
+    결합 판단은 로컬 LLM이 맡는다 — 살피 탐지 엔진 실측 F1 85.4.</p>
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:8px;flex-wrap:wrap">
+      <span style="font-size:13px">대상 콘딧:</span>
+      <select id="det-target" style="font:inherit;font-size:13px;padding:4px 8px">
+        ${saas.map(c=>`<option value="${c.id}">${c.id} ${esc(c.name)}</option>`).join('')}
+      </select>
+      <span class="det-mode" id="det-mode"></span>
+    </div>
+    <button class="act ghost2 small" id="det-sample">예시 회의록 넣기</button>
+    <div style="height:8px"></div>
+    <textarea id="det-in" style="height:130px" placeholder="이 SaaS에 올리려는 문서·회의록을 붙여넣으면 실시간으로 탐지한다"></textarea>
+    <div id="det-out"></div>`;
+  $('#det-sample').onclick = () => {
+    $('#det-in').value = `3월 여신협의회 회의록\n1. 박지현 고객 주택담보대출 연체 3개월 경과 건. 연락처 010-4821-7733.\n2. 신규 상품 한도 정책은 다음 회의에서 확정.\n3. 정해나 고객 재방문 상담 진행.\n   - 해당 고객은 신용대출 상환 지연 이력이 있음.\n4. 사내 워크숍 일정 공유.`;
+    detRun();
   };
-  if (back) back.onclick = () => { state.step--; render(); window.scrollTo(0, 0); };
-  if (print) print.onclick = () => window.print();
-  if (restart) restart.onclick = () => { Object.assign(state, { step: 0, saas: null, usage: null, nature: null, l1use: null, applied: {}, comp: {} }); render(); window.scrollTo(0, 0); };
+  $('#det-in').oninput = () => { clearTimeout(window._dt); window._dt = setTimeout(detRun, 500); };
+  detProbe();
+}
+async function detProbe(){
+  const el = $('#det-mode'); if (!el) return;
+  const av = await SalpiEngine.llmAvailable();
+  state.detReady = !!(av.ok && av.hasModel);
+  el.innerHTML = state.detReady
+    ? `<label><input type="radio" name="dm" value="heuristic" ${state.detMode==='heuristic'?'checked':''}> 규칙 근사</label>
+       <label><input type="radio" name="dm" value="hybrid" ${state.detMode==='hybrid'?'checked':''}> 로컬 LLM</label><span class="ok-dot">모델 연결됨</span>`
+    : `<span class="off-dot">로컬 모델 미연결 — 규칙 근사로 동작</span>`;
+  el.querySelectorAll('input[name="dm"]').forEach(r => r.onchange = () => { state.detMode = r.value; detRun(); });
+}
+async function detRun(){
+  const ta = $('#det-in'), out = $('#det-out'); if (!ta || !out) return;
+  if (!ta.value.trim()) { out.innerHTML = ''; return; }
+  const seq = ++detSeq;
+  if (state.detMode !== 'heuristic') out.innerHTML = '<div class="det-empty">로컬 모델 판단 중…</div>';
+  const res = await SalpiEngine.scan(ta.value, { mode: state.detMode });
+  if (seq !== detSeq) return;
+  const target = $('#det-target')?.value || 'C-05';
+  const viols = res.hits.filter(h => h.severity==='violation');
+  if (viols.length) {
+    state.contentLog[target] = (state.contentLog[target]||[]).concat(
+      viols.map(v => ({ t: Date.now(), tag: v.tag, masked: mask(v.span).slice(0,60) }))).slice(-100);
+    renderStrip();
+  }
+  out.innerHTML = (res.degraded?`<div class="det-empty" style="color:var(--warn)">${esc(res.degraded)}</div>`:'') +
+    (res.hits.length ? res.hits.map(h => {
+      const lv = h.severity==='violation'?'viol':(h.label==='identifier_only'?'info':'warn');
+      return `<div class="det-hit ${lv}"><span class="tag">[${esc(h.tag)}]</span><span class="span">${esc(h.span.slice(0,64))}</span><span style="font-size:12px;color:var(--sub)">${esc(h.note)}</span></div>`;
+    }).join('') : '<div class="det-empty">탐지된 항목 없음</div>') +
+    (viols.length ? `<div class="hint">위반 ${viols.length}건이 ${target} 콘딧의 내용검사 기록에 저장됐다(마스킹). 대장·반기 보고에 반영된다.</div>` : '');
+}
+
+/* ── 반기 보고 ── */
+function renderReport(){
+  const saas = LEDGER.filter(c => c.review.type.includes('반기'));
+  const byType = {};
+  for (const c of LEDGER) byType[c.type] = (byType[c.type]||0)+1;
+  const now = new Date();
+  $('#main').innerHTML = `
+    <h2 class="q">반기 보고 — 정보보호위원회 제출 초안</h2>
+    <p class="qsub">대장(통로 현황) + 로그 대조(실측) + 내용 검사(살피 증적)가 한 문서로 조립된다.</p>
+    <div class="report-page">
+      <h3>망분리 적용 예외 운영 현황 및 반기 자체평가 보고 (초안)</h3>
+      <p style="font-size:12.5px;color:#555">기준일 ${now.toLocaleDateString('ko-KR')} · 근거: 시행세칙 제2조의3 제3항·제4항</p>
+      <h4>1. 예외 운영 현황</h4>
+      <table><tr><th>유형</th><th>건수</th></tr>
+        ${Object.entries(byType).map(([t,n])=>`<tr><td>${t}</td><td>${n}</td></tr>`).join('')}
+        <tr style="background:${state.rogues.length?'#fbeeec':'#fff'}"><td><b>미등록 연결 (로그 실측)</b></td><td><b>${state.rogues.length}</b></td></tr>
+        ${state.blocked.length?`<tr><td>차단 확정</td><td>${state.blocked.length}</td></tr>`:''}
+      </table>
+      <h4>2. SaaS 반기 자체평가 (제4항) — 내용검사 증적 포함</h4>
+      <table><tr><th>콘딧</th><th>적용 통제</th><th>내용검사 기록</th><th>기한</th></tr>
+        ${saas.map(c=>`<tr><td>${c.id} ${esc(c.name)}</td><td style="font-size:11.5px">${esc(c.controls)}</td>
+          <td>${contentCount(c.id)}건 (마스킹 저장)</td><td>${c.review.due}</td></tr>`).join('')}
+      </table>
+      <h4>3. 미등록 연결 발견·조치</h4>
+      ${state.rogues.length || state.blocked.length ? `<table><tr><th>목적지</th><th>분류</th><th>상태</th></tr>
+        ${state.rogues.map(r=>`<tr><td>${esc(r.host)}</td><td>${r.cls.kind}</td><td>조치 대기 (등재 판정 또는 차단)</td></tr>`).join('')}
+        ${state.blocked.map(b=>`<tr><td>${esc(b.host)}</td><td>${b.kind}</td><td>차단 확정</td></tr>`).join('')}</table>`
+        : '<p style="font-size:12.5px">로그 대조를 먼저 실행하면 이 절이 채워진다.</p>'}
+      <table style="margin-top:16px"><tr><th style="width:70%">확인</th><th>서명</th></tr>
+        <tr><td>작성: 정보보호 담당</td><td></td></tr><tr><td>정보보호최고책임자(CISO)</td><td></td></tr></table>
+      <p style="font-size:11px;color:#777;margin-top:12px">본 문서는 살피가 생성한 초안이며 위원회 심의·확정 전 검토용이다.</p>
+    </div>
+    <div style="height:12px"></div>
+    <button class="act" onclick="window.print()">인쇄 / PDF 저장</button>`;
+}
+
+function render(){
+  renderStrip(); renderTabs();
+  ({ map:renderMap, ledger:renderLedger, logs:renderLogs, content:renderContent, report:renderReport })[state.tab]();
 }
 render();
-detProbe();
 </script>
 </body>
 </html>
