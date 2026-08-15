@@ -3,56 +3,45 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>살피 — 내부업무망 SaaS 예외요건 판정·검증</title>
+<meta name="color-scheme" content="dark">
+<title>살피 판정 워크벤치</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sun-typeface/SUIT@2/fonts/variable/woff2/SUIT-Variable.css">
 <style>
   :root {
-    --paper: #fcfcfa;
-    --ink: #1c1e22;
-    --sub: #5d6068;
-    --faint: #8b8e96;
-    --rule: #e2e1dc;
-    --rule-dark: #1c1e22;
-    --accent: #2b55a3;
-    --accent-bg: #eef2f9;
-    --ok: #176e4b;
-    --warn: #8f6400;
-    --bad: #a83226;
+    --bg: #0f1014; --rail: #131419; --surface: #17181e; --surface2: #1d1f26;
+    --line: #262832; --line2: #32343f;
+    --text: #e9eaef; --sub: #9a9daa; --faint: #5f626e;
+    --accent: #5b9dff; --accent-ink: #0b0d12; --accent-dim: rgba(91,157,255,.12);
+    --ok: #3fd39a; --warn: #f0b429; --bad: #f0655a;
+    --r: 8px;
+    --sans: "SUIT Variable", "Apple SD Gothic Neo", "Pretendard", "Malgun Gothic", system-ui, sans-serif;
     --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   }
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
   body {
-    margin: 0;
-    font-family: "Apple SD Gothic Neo", "Pretendard", "Malgun Gothic", system-ui, sans-serif;
-    background: var(--paper);
-    color: var(--ink);
-    font-size: 15px;
-    line-height: 1.7;
-    word-break: keep-all;
-    -webkit-font-smoothing: antialiased;
+    margin: 0; font-family: var(--sans); background: var(--bg); color: var(--text);
+    font-size: 14.5px; line-height: 1.7; word-break: keep-all; -webkit-font-smoothing: antialiased;
   }
-  ::selection { background: var(--accent-bg); }
+  ::selection { background: var(--accent-dim); }
 
-  /* ---------- 상단 ---------- */
-  header.top {
-    border-bottom: 1px solid var(--rule-dark);
-    background: var(--paper);
-  }
+  /* ── 상단 ── */
+  header.top { border-bottom: 1px solid var(--line); background: var(--rail); }
   header.top .in {
-    max-width: 1060px; margin: 0 auto; padding: 22px 24px 18px;
-    display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
+    max-width: 1060px; margin: 0 auto; padding: 18px 24px 16px;
+    display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
   }
-  .wordmark { font-size: 19px; font-weight: 800; letter-spacing: -0.01em; }
+  .wordmark { font-size: 19px; font-weight: 800; letter-spacing: -0.02em; }
+  .wordmark .sub { font-weight: 600; color: var(--sub); font-size: 13px; margin-left: 10px; }
   .wordmark .tag {
-    font-family: var(--mono); font-size: 11px; font-weight: 500;
-    color: var(--accent); border: 1px solid var(--accent);
-    padding: 1px 7px; margin-left: 10px; vertical-align: 2px;
+    font-family: var(--mono); font-size: 10px; font-weight: 500; color: var(--accent);
+    border: 1px solid var(--accent); border-radius: 999px; padding: 1px 9px; margin-left: 10px; vertical-align: 2px;
   }
-  .statute {
-    margin-left: auto; font-family: var(--mono); font-size: 11.5px; color: var(--faint);
-  }
+  .statute { margin-left: auto; font-family: var(--mono); font-size: 11px; color: var(--faint); }
+  .statute a { color: var(--sub); text-decoration: none; border-bottom: 1px solid var(--line2); margin-left: 14px; font-family: var(--sans); }
+  .statute a:hover { color: var(--accent); border-color: var(--accent); }
 
-  /* ---------- 본문 그리드 ---------- */
+  /* ── 본문 그리드 ── */
   .frame {
     max-width: 1060px; margin: 0 auto; padding: 0 24px 100px;
     display: grid; grid-template-columns: 200px 1fr; gap: 56px;
@@ -65,13 +54,12 @@
   nav.rail { padding-top: 44px; }
   nav.rail .item {
     display: flex; gap: 12px; align-items: baseline;
-    padding: 9px 0; color: var(--faint); font-size: 13px;
-    border-left: 2px solid transparent; padding-left: 14px; margin-left: -16px;
+    padding: 9px 0 9px 14px; color: var(--faint); font-size: 13px;
+    border-left: 2px solid var(--line);
   }
   nav.rail .item .no { font-family: var(--mono); font-size: 11px; width: 16px; }
-  nav.rail .item.on { color: var(--ink); font-weight: 700; border-left-color: var(--accent); }
+  nav.rail .item.on { color: var(--accent); font-weight: 700; border-left-color: var(--accent); }
   nav.rail .item.done { color: var(--sub); }
-  nav.rail .item.done .no::after { content: ""; }
   @media (max-width: 900px) {
     nav.rail { padding: 18px 0 0; overflow-x: auto; }
     nav.rail .list { display: flex; gap: 18px; }
@@ -84,67 +72,55 @@
   /* 전제 조건 */
   .premise {
     font-size: 13px; color: var(--sub); line-height: 1.75;
-    border-bottom: 1px solid var(--rule);
+    border-bottom: 1px solid var(--line);
     padding-bottom: 20px; margin-bottom: 36px;
   }
-  .premise b { color: var(--ink); }
+  .premise b { color: var(--text); }
 
   /* 스텝 패널 */
-  .panel { animation: rise .28s ease both; }
-  @media (prefers-reduced-motion: reduce) { .panel { animation: none; } }
+  .panel { animation: rise .26s cubic-bezier(.16,1,.3,1) both; }
   @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
-  .kicker {
-    font-family: var(--mono); font-size: 11px; color: var(--accent);
-    margin-bottom: 10px;
-  }
-  h2.q {
-    font-size: 24px; line-height: 1.4; font-weight: 800; letter-spacing: -0.015em;
-    margin: 0 0 8px;
-  }
-  .qsub { font-size: 13.5px; color: var(--sub); margin: 0 0 28px; max-width: 62ch; }
+  .kicker { font-family: var(--mono); font-size: 11px; color: var(--accent); margin-bottom: 10px; }
+  h2.q { font-size: 22px; line-height: 1.4; font-weight: 800; letter-spacing: -0.015em; margin: 0 0 8px; }
+  .qsub { font-size: 13px; color: var(--sub); margin: 0 0 28px; max-width: 66ch; }
 
-  /* 선택지: 괘선 행 */
-  .opts { border-top: 1px solid var(--rule-dark); }
+  /* 선택지 행 */
+  .opts { border-top: 1px solid var(--line2); }
   .opt {
     display: flex; gap: 16px; align-items: baseline;
-    padding: 15px 4px; border-bottom: 1px solid var(--rule);
-    cursor: pointer; transition: background .12s;
+    padding: 15px 6px; border-bottom: 1px solid var(--line);
+    cursor: pointer; transition: background .12s ease; border-radius: 4px;
   }
-  .opt:hover { background: #f5f5f2; }
+  .opt:hover { background: var(--surface2); }
   .opt .mark {
     flex: 0 0 14px; height: 14px; border: 1.5px solid var(--faint);
     border-radius: 50%; position: relative; top: 2px;
   }
   .opt.sel .mark { border-color: var(--accent); }
-  .opt.sel .mark::after {
-    content: ""; position: absolute; inset: 2.5px; background: var(--accent); border-radius: 50%;
-  }
+  .opt.sel .mark::after { content: ""; position: absolute; inset: 2.5px; background: var(--accent); border-radius: 50%; }
   .opt .t { font-weight: 700; font-size: 14.5px; }
   .opt.sel .t { color: var(--accent); }
   .opt .d { font-size: 12.5px; color: var(--sub); margin-top: 1px; }
 
-  /* SaaS 선택: 활자 그리드 */
+  /* SaaS 선택 그리드 */
   .saasgrid {
     display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    border-top: 1px solid var(--rule-dark); border-left: 1px solid var(--rule);
-    margin-bottom: 34px;
+    gap: 10px; margin-bottom: 34px;
   }
   .saascell {
-    border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
-    padding: 18px 16px 14px; cursor: pointer; transition: background .12s;
+    border: 1px solid var(--line); border-radius: var(--r); background: var(--surface);
+    padding: 16px 16px 13px; cursor: pointer; transition: border-color .15s ease, transform .15s ease;
   }
-  .saascell:hover { background: #f5f5f2; }
+  .saascell:hover { border-color: var(--line2); transform: translateY(-1px); }
   .saascell .nm { font-weight: 800; font-size: 15px; letter-spacing: -0.01em; }
-  .saascell .ct { font-family: var(--mono); font-size: 10.5px; color: var(--faint); margin-top: 3px; }
-  .saascell.sel { background: var(--accent-bg); box-shadow: inset 0 0 0 1.5px var(--accent); }
+  .saascell .ct { font-family: var(--mono); font-size: 10px; color: var(--faint); margin-top: 3px; }
+  .saascell.sel { border-color: var(--accent); background: var(--accent-dim); }
   .saascell.sel .nm { color: var(--accent); }
 
-  /* 근거 항목: 괘선 리스트 */
-  .evi {
-    border-top: 1px solid var(--rule); padding: 18px 0 16px;
-  }
-  .evi:first-of-type { border-top: 1px solid var(--rule-dark); }
+  /* 근거 카드 */
+  .evi { border-top: 1px solid var(--line); padding: 18px 0 16px; }
+  .evi:first-of-type { border-top: 1px solid var(--line2); }
   .evi .head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
   .evi .feat { font-weight: 800; font-size: 14px; }
   .avtag { font-family: var(--mono); font-size: 11px; white-space: nowrap; }
@@ -154,10 +130,10 @@
   .avtag.none { color: var(--bad); }
   .avtag.unclear { color: var(--faint); }
   .conftag { font-family: var(--mono); font-size: 11px; color: var(--faint); }
-  .evi .ctrl { font-size: 13.5px; color: var(--ink); margin: 7px 0 0; max-width: 68ch; }
+  .evi .ctrl { font-size: 13.5px; color: var(--text); margin: 7px 0 0; max-width: 68ch; }
   .evi .quote {
     font-size: 12px; color: var(--sub); line-height: 1.6;
-    border-left: 2px solid var(--rule-dark);
+    border-left: 2px solid var(--line2);
     padding: 2px 0 2px 14px; margin: 10px 0 0; max-width: 66ch;
   }
   .evi .meta { font-size: 11.5px; color: var(--faint); margin-top: 8px; font-family: var(--mono); word-break: break-all; }
@@ -168,48 +144,49 @@
     display: flex; gap: 10px; align-items: flex-start;
     margin-top: 12px; font-size: 13px; cursor: pointer; max-width: 68ch;
   }
-  .applychk input {
-    margin-top: 4px; width: 15px; height: 15px; accent-color: var(--accent); flex: 0 0 auto;
-  }
+  .applychk input { margin-top: 4px; width: 15px; height: 15px; accent-color: var(--accent); flex: 0 0 auto; }
 
   /* 내비게이션 버튼 */
   .nav { display: flex; justify-content: space-between; align-items: center; margin-top: 40px; }
   .nav .r { display: flex; gap: 10px; }
   button {
-    font-family: inherit; font-size: 14px; font-weight: 700;
-    padding: 11px 26px; cursor: pointer; border-radius: 0;
-    border: 1px solid var(--rule-dark); background: var(--paper); color: var(--ink);
-    transition: transform .06s;
+    font-family: inherit; font-size: 13.5px; font-weight: 700;
+    padding: 10px 24px; cursor: pointer; border-radius: var(--r);
+    border: 1px solid var(--line2); background: transparent; color: var(--text);
+    transition: filter .15s ease, border-color .15s ease;
   }
-  button:active { transform: translateY(1px); }
-  button.primary { background: var(--ink); border-color: var(--ink); color: var(--paper); }
-  button.primary:disabled { background: #c6c7ca; border-color: #c6c7ca; cursor: not-allowed; }
+  button:hover { border-color: var(--sub); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  button.primary:hover { filter: brightness(1.12); border-color: var(--accent); }
+  button.primary:disabled { background: var(--line2); border-color: var(--line2); color: var(--faint); cursor: not-allowed; filter: none; }
   button.ghost { border: none; background: none; color: var(--sub); padding-left: 0; }
-  button.ghost:hover { color: var(--ink); }
+  button.ghost:hover { color: var(--text); }
+  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
   /* 판정 */
-  .verdict { border-top: 3px solid var(--rule-dark); padding-top: 26px; margin-bottom: 8px; }
+  .verdict { border-top: 2px solid var(--line2); padding-top: 26px; margin-bottom: 8px; }
   .verdict .lbl { font-family: var(--mono); font-size: 11px; color: var(--faint); margin-bottom: 10px; }
-  .verdict .word { font-size: 34px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.25; }
+  .verdict .word { font-size: 30px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.25; }
   .verdict.ok .word { color: var(--ok); }
   .verdict.cond .word { color: var(--warn); }
   .verdict.bad .word { color: var(--bad); }
   .verdict .why { font-size: 13px; color: var(--sub); max-width: 62ch; margin-top: 10px; }
 
-  .findings { margin-top: 26px; border-top: 1px solid var(--rule-dark); }
+  .findings { margin-top: 26px; border-top: 1px solid var(--line2); }
   .finding {
-    display: flex; gap: 14px; padding: 13px 2px; border-bottom: 1px solid var(--rule);
+    display: flex; gap: 14px; padding: 13px 4px; border-bottom: 1px solid var(--line);
     font-size: 13.5px; line-height: 1.65;
   }
   .finding .ic { font-family: var(--mono); font-weight: 700; flex: 0 0 14px; }
   .finding.r .ic { color: var(--bad); }
   .finding.w .ic { color: var(--warn); }
   .finding.g .ic { color: var(--ok); }
+  .finding .act { color: var(--accent); font-size: 12.5px; margin-top: 4px; }
 
   /* 하단 */
   footer.legal {
     max-width: 1060px; margin: 0 auto; padding: 26px 24px 60px;
-    border-top: 1px solid var(--rule);
+    border-top: 1px solid var(--line);
     font-size: 11.5px; color: var(--faint); line-height: 1.8;
   }
 
@@ -220,39 +197,44 @@
   }
   .profrow .pl { font-family: var(--mono); font-size: 11px; color: var(--faint); margin-right: 4px; }
   .profrow select {
-    font-family: inherit; font-size: 13px; padding: 7px 10px;
-    border: 1px solid var(--rule); background: #fff; color: var(--ink); border-radius: 0;
+    font-family: var(--sans); font-size: 13px; padding: 7px 10px;
+    border: 1px solid var(--line2); background: var(--surface); color: var(--text); border-radius: var(--r);
   }
-  /* 조치 제안 */
-  .finding .act { color: var(--accent); font-size: 12.5px; margin-top: 4px; }
+  .profrow select:focus { outline: 1px solid var(--accent); border-color: var(--accent); }
+
   /* 검증 데모 (모의 편집기) */
-  .detector { margin-top: 44px; border-top: 3px solid var(--rule-dark); padding-top: 24px; }
+  .detector { margin-top: 44px; border-top: 2px solid var(--line2); padding-top: 24px; }
   .detector h3 { font-size: 16px; font-weight: 800; margin: 0 0 6px; }
   .detector .note { font-size: 12.5px; color: var(--sub); margin: 0 0 14px; max-width: 66ch; }
   .detector textarea {
     width: 100%; min-height: 120px; resize: vertical;
-    font-family: inherit; font-size: 14px; line-height: 1.7; color: var(--ink);
-    border: 1px solid var(--rule-dark); background: #fff; padding: 14px; border-radius: 0;
+    font-family: var(--sans); font-size: 14px; line-height: 1.7; color: var(--text);
+    border: 1px solid var(--line2); background: var(--surface); padding: 14px; border-radius: var(--r);
   }
-  .detector textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  .detector textarea:focus { outline: 1px solid var(--accent); border-color: var(--accent); }
   .det-out { margin-top: 10px; }
-  .det-mode { display: flex; gap: 14px; align-items: center; margin-bottom: 10px; font-size: 12.5px; flex-wrap: wrap; }
+  .det-mode { display: flex; gap: 14px; align-items: center; margin-bottom: 10px; font-size: 12.5px; flex-wrap: wrap; color: var(--sub); }
   .det-mode label { display: flex; gap: 5px; align-items: center; cursor: pointer; }
   .det-mode input { accent-color: var(--accent); }
   .det-mode .ok-dot { font-family: var(--mono); font-size: 11px; color: var(--ok); }
   .det-mode .off-dot { font-family: var(--mono); font-size: 11px; color: var(--faint); }
   .det-hit {
-    display: flex; gap: 12px; padding: 10px 2px; border-bottom: 1px solid var(--rule);
+    display: flex; gap: 12px; padding: 10px 4px; border-bottom: 1px solid var(--line);
     font-size: 13px; align-items: baseline;
   }
   .det-hit .tag { font-family: var(--mono); font-size: 10.5px; white-space: nowrap; font-weight: 700; }
   .det-hit.viol .tag { color: var(--bad); }
   .det-hit.warn .tag { color: var(--warn); }
   .det-hit.info .tag { color: var(--faint); }
-  .det-hit .span { font-family: var(--mono); font-size: 12px; background: #f4f4f1; padding: 1px 6px; }
+  .det-hit .span { font-family: var(--mono); font-size: 12px; background: var(--surface2); border-radius: 4px; padding: 1px 7px; }
   .det-empty { font-size: 12.5px; color: var(--faint); padding: 10px 2px; }
 
-  /* ---------- 검토서 (인쇄 전용) ---------- */
+  @media (prefers-reduced-motion: reduce) {
+    .panel { animation: none; }
+    * { transition: none !important; }
+  }
+
+  /* ── 검토서 (인쇄 전용, 흰 종이) ── */
   #report { display: none; }
   @media print {
     body * { visibility: hidden; }
@@ -278,8 +260,8 @@
 
 <header class="top">
   <div class="in">
-    <div class="wordmark">살피<span style="font-weight:500;color:var(--faint);font-size:12px;margin-left:8px">SALPI · SaaS Assessment &amp; Live PII Inspector</span><span class="tag">데모</span></div>
-    <div class="statute">전자금융감독규정 시행세칙 제2조의3 제1항 제3호</div>
+    <div class="wordmark">살피<span class="sub">판정 워크벤치</span><span class="tag">데모</span></div>
+    <div class="statute">전자금융감독규정 시행세칙 제2조의3 제1항 제3호<a href="index.html">통합 앱으로</a></div>
   </div>
 </header>
 
@@ -314,15 +296,15 @@ const SAAS_LIST = [
   { key: 'dooray', name: 'NHN 두레이',     cat: 'ALL-IN-ONE' },
 ];
 const USAGES = [
-  { key: 'doc',   t: '사내 문서 작성·관리', d: '보고서, 회의록, 사내 위키' },
-  { key: 'chat',  t: '사내 메신저·협업',   d: '부서 간 커뮤니케이션, 파일 공유' },
-  { key: 'meet',  t: '화상회의',           d: '내부 회의, 외부 협력사 회의' },
-  { key: 'pm',    t: '프로젝트·업무 관리',  d: '일정, 업무 배분, 진행 관리' },
+  { key: 'doc',   t: '사내 문서 작성과 관리', d: '보고서, 회의록, 사내 위키' },
+  { key: 'chat',  t: '사내 메신저와 협업',   d: '부서 간 커뮤니케이션, 파일 공유' },
+  { key: 'meet',  t: '화상회의',            d: '내부 회의, 외부 협력사 회의' },
+  { key: 'pm',    t: '프로젝트와 업무 관리',  d: '일정, 업무 배분, 진행 관리' },
 ];
 const DATA_NATURE = [
-  { key: 'none',    grade: 0, t: '고객 정보가 업무상 등장하지 않음', d: '순수 내부 업무. 인사·총무·개발 등 고객 접점 없는 부서' },
-  { key: 'id_only', grade: 1, t: '고객 식별정보가 단독으로 등장할 수 있음', d: '이름·연락처 수준이고 거래·신용 내용과 결합되지 않음. 신용정보법상 식별정보는 다른 신용정보와 결합될 때에만 신용정보' },
-  { key: 'combined',grade: 2, t: '고객 식별정보가 거래·상담 내용과 결합될 수 있음', d: '예: 회의록에 적힌 "OOO 고객 대출 연체 건". 결합되면 개인신용정보에 해당' },
+  { key: 'none',    grade: 0, t: '고객 정보가 업무상 등장하지 않음', d: '순수 내부 업무. 인사, 총무, 개발 등 고객 접점 없는 부서' },
+  { key: 'id_only', grade: 1, t: '고객 식별정보가 단독으로 등장할 수 있음', d: '이름, 연락처 수준이고 거래나 신용 내용과 결합되지 않음. 신용정보법상 식별정보는 다른 신용정보와 결합될 때에만 신용정보' },
+  { key: 'combined',grade: 2, t: '고객 식별정보가 거래나 상담 내용과 결합될 수 있음', d: '예: 회의록에 적힌 "OOO 고객 대출 연체 건". 결합되면 개인신용정보에 해당' },
   { key: 'unique',  grade: 3, t: '주민등록번호 등 고유식별정보가 유입될 수 있음', d: '고유식별정보는 결합 여부와 무관하게 그 자체로 요건 저촉' },
   { key: 'intent',  grade: 4, t: '고객 정보를 다루는 것이 이 업무의 목적임', d: '고객 DB 관리, 고객 상담 기록 등. 처리하지 않는 "이용 목적"이라 볼 수 없음' },
 ];
@@ -381,7 +363,7 @@ function judge() {
   if (nature.key === 'intent')
     return { grade: 'bad', title: '예외 적용 불가', risks: [{lv:'r', t:'고객 정보를 다루는 것이 업무 목적 자체다. 제2조의3 제1항 제3호의 "처리하지 않는 이용 목적"에 해당하지 않는다. 혁신금융서비스(규제 샌드박스) 경로 또는 업무 범위 재설계가 필요하다.'}], oks };
   if (state.l1use === 'yes')
-    return { grade: 'bad', title: '예외 적용 불가', risks: [{lv:'r', t:'고객 정보를 필드 단위로 다루는 기능(연락처 DB, CRM성 기능) 사용 계획. 구조화된 저장·검색·출력으로서 명백한 처리에 해당한다. 해당 기능을 쓰지 않는 범위로 용도를 좁히면 재검토할 수 있다.'}], oks };
+    return { grade: 'bad', title: '예외 적용 불가', risks: [{lv:'r', t:'고객 정보를 필드 단위로 다루는 기능(연락처 DB, CRM성 기능) 사용 계획. 구조화된 저장, 검색, 출력으로서 명백한 처리에 해당한다. 해당 기능을 쓰지 않는 범위로 용도를 좁히면 재검토할 수 있다.'}], oks };
 
   if (nature.key === 'none') {
     oks.push({lv:'g', t:'업무상 고객 정보 유입 가능성 없음. 요건 저촉 소지가 낮다. 다만 업무 범위 변경 시 재검토가 필요하다(검토서에 용도 한정 명시).'});
@@ -390,7 +372,7 @@ function judge() {
     oks.push({lv:'g', t:'식별정보 단독은 신용정보법상 다른 신용정보와 결합될 때에만 개인신용정보다. 현재 용도는 저촉 소지가 낮다. 결합 발생 가능성을 입력 제한 기준에 명시할 것.'});
   }
   if (nature.key === 'unique') {
-    risks.push({lv:'w', t:'고유식별정보 유입 가능성. 결합 여부와 무관하게 그 자체로 요건 저촉이므로 입력 차단 통제가 필수이며, 미차단 상태 발견 시 즉시 삭제·보고 절차가 필요하다.'});
+    risks.push({lv:'w', t:'고유식별정보 유입 가능성. 결합 여부와 무관하게 그 자체로 요건 저촉이므로 입력 차단 통제가 필수이며, 미차단 상태 발견 시 즉시 삭제와 보고 절차가 필요하다.'});
   }
 
   const must = nature.grade >= 2;
@@ -407,7 +389,7 @@ function judge() {
     const has = e.control_availability === 'builtin' || e.control_availability === 'higher_tier' || e.control_availability === 'third_party';
     if (has && applied) oks.push({lv:'g', t:`${e.feature}: 통제 적용 계획 확인(${AV_PLAIN[e.control_availability]}${e.plan_note && e.plan_note !== '-' ? ', ' + e.plan_note : ''})`});
     else if (!has && comp) risks.push({lv:'w', t:`${e.feature}: 네이티브 통제 ${e.control_availability === 'none' ? '미제공' : '미확인'}. 보완통제 수립을 전제로 한 조건부 항목이다.`, act: actionFor(e, false)});
-    else if (must) risks.push({lv:'r', t:`${e.feature}: 통제 미적용 상태. 고객 정보 유입 가능성이 있는 용도에서 이 접점이 열려 있다(해설서 6장: 입력 제한·필터링 및 입력 점검 요구).`, act: actionFor(e, has)});
+    else if (must) risks.push({lv:'r', t:`${e.feature}: 통제 미적용 상태. 고객 정보 유입 가능성이 있는 용도에서 이 접점이 열려 있다(해설서 6장: 입력 제한과 필터링, 입력 점검 요구).`, act: actionFor(e, has)});
     else risks.push({lv:'w', t:`${e.feature}: 통제 미적용. 현재 용도는 유입 가능성이 낮으나 적용을 권고한다.`, act: actionFor(e, has)});
   });
 
@@ -436,9 +418,9 @@ function render() {
       <div class="profrow">
         <span class="pl">회사 프로필</span>
         <select data-prof="sector">
-          <option value="bank" ${state.profile.sector === 'bank' ? 'selected' : ''}>은행·금융지주</option>
-          <option value="mid" ${state.profile.sector === 'mid' ? 'selected' : ''}>저축은행·캐피탈</option>
-          <option value="fintech" ${state.profile.sector === 'fintech' ? 'selected' : ''}>핀테크·전자금융업자</option>
+          <option value="bank" ${state.profile.sector === 'bank' ? 'selected' : ''}>은행, 금융지주</option>
+          <option value="mid" ${state.profile.sector === 'mid' ? 'selected' : ''}>저축은행, 캐피탈</option>
+          <option value="fintech" ${state.profile.sector === 'fintech' ? 'selected' : ''}>핀테크, 전자금융업자</option>
         </select>
         <select data-prof="e5">
           <option value="yes" ${state.profile.e5 === 'yes' ? 'selected' : ''}>M365 E5급 보안 라이선스 보유</option>
@@ -458,7 +440,7 @@ function render() {
     app.innerHTML = `<div class="panel">
       <div class="kicker">근거: 시행세칙 제2조의3 제1항 제3호, 신용정보법 제2조(결합 요건), 개인정보보호법 제24조(고유식별정보)</div>
       <h2 class="q">이 업무에서 SaaS에 들어갈 수 있는 고객 정보의 성격은?</h2>
-      <p class="qsub">조문의 요건은 "이용자의" 고유식별정보·개인신용정보다. 임직원 정보는 조문 문언상 이 요건의 대상이 아니다. 단, 해설서는 표현이 달라 보수적 검토를 권고하며 이 내용은 검토서에 자동 기재된다.</p>
+      <p class="qsub">조문의 요건은 "이용자의" 고유식별정보와 개인신용정보다. 임직원 정보는 조문 문언상 이 요건의 대상이 아니다. 단, 해설서는 표현이 달라 보수적 검토를 권고하며 이 내용은 검토서에 자동 기재된다.</p>
       <div class="opts">${DATA_NATURE.map(n =>
         `<div class="opt ${state.nature === n.key ? 'sel' : ''}" data-nature="${n.key}">
           <span class="mark"></span><span><span class="t">${n.t}</span><div class="d">${n.d}</div></span></div>`).join('')}</div>
@@ -477,7 +459,7 @@ function render() {
         <div class="opt ${state.l1use === 'no' ? 'sel' : ''}" data-l1="no"><span class="mark"></span>
           <span><span class="t">사용하지 않는다</span><div class="d">해당 기능을 쓰지 않는 범위로 용도를 한정한다. 한정 조건이 검토서에 기재된다</div></span></div>
         <div class="opt ${state.l1use === 'yes' ? 'sel' : ''}" data-l1="yes"><span class="mark"></span>
-          <span><span class="t">사용한다</span><div class="d">고객 정보를 구조화해 저장·검색하게 된다. 명백한 처리</div></span></div>
+          <span><span class="t">사용한다</span><div class="d">고객 정보를 구조화해 저장하고 검색하게 된다. 명백한 처리</div></span></div>
       </div>
       <div class="nav"><button class="ghost" id="back">이전</button><button class="primary" id="next" ${state.l1use ? '' : 'disabled'}>다음</button></div>
     </div>`;
@@ -488,7 +470,7 @@ function render() {
     app.innerHTML = `<div class="panel">
       <div class="kicker">2층 사용자 자유 입력. 해설서 6장: "입력 제한 데이터를 명확화하여 기준을 마련하고 데이터 입력 시 사전에 필터 적용"</div>
       <h2 class="q">자유 입력 경로의 차단 수단</h2>
-      <p class="qsub">문서·채팅·회의 본문에 고객 정보가 들어가는 것을 막는 수단이다. 근거를 확인하고 적용 여부를 결정한다.</p>
+      <p class="qsub">문서, 채팅, 회의 본문에 고객 정보가 들어가는 것을 막는 수단이다. 근거를 확인하고 적용 여부를 결정한다.</p>
       ${l2.length ? l2.map(e => eviCard(e, true)).join('') : '<p class="qsub">이 SaaS의 L2 근거 데이터 없음. 직접 확인이 필요하다.</p>'}
       <div class="nav"><button class="ghost" id="back">이전</button><button class="primary" id="next">다음</button></div>
     </div>`;
@@ -499,7 +481,7 @@ function render() {
     app.innerHTML = `<div class="panel">
       <div class="kicker">3층 시스템 부수 생성: 검색 색인, 자동 녹취, AI 학습, 보존 사본</div>
       <h2 class="q">사용자가 넣지 않아도 SaaS가 만들어내는 데이터</h2>
-      <p class="qsub">고객 정보가 유입되면 이 경로들을 따라 복제·확산된다. 각 경로의 차단·설정 가능 여부를 확인한다.</p>
+      <p class="qsub">고객 정보가 유입되면 이 경로들을 따라 복제되고 확산된다. 각 경로의 차단과 설정 가능 여부를 확인한다.</p>
       ${l3.length ? l3.map(e => eviCard(e, true)).join('') : '<p class="qsub">이 SaaS의 L3 근거 데이터 없음. 직접 확인이 필요하다.</p>'}
       <div class="nav"><button class="ghost" id="back">이전</button><button class="primary" id="next">판정</button></div>
     </div>`;
@@ -520,10 +502,10 @@ function render() {
       </div>
       <div class="detector">
         <h3>운영 중 검증: 결합 탐지</h3>
-        <p class="note">도입 후에는 이 판정이 지속 통제로 이어진다. 아래에 문서를 붙여넣으면 유입되는 순간을 탐지한다. 규칙층(주민번호 체크섬, 카드 Luhn, 전화)은 실제 검증 로직이고, 결합층은 본 데모에서 휴리스틱 근사다. 실서비스의 결합 판단은 로컬 소형 LLM이 수행한다.</p>
+        <p class="note">도입 후에는 이 판정이 지속 통제로 이어진다. 아래에 문서를 붙여넣으면 유입되는 순간을 탐지한다. 규칙층(주민번호 체크섬, 카드 Luhn, 전화)은 실제 검증 로직이고, 결합층은 본 데모에서 근사 규칙이다. 실서비스의 결합 판단은 로컬 소형 LLM이 수행한다.</p>
         <div class="det-mode" id="det-mode"></div>
         <button id="det-sample" style="margin-bottom:10px">예시 회의록 넣기</button>
-        <textarea id="det-in" placeholder="여기에 문서·회의록 내용을 붙여넣으면 실시간으로 탐지한다"></textarea>
+        <textarea id="det-in" placeholder="여기에 문서나 회의록 내용을 붙여넣으면 실시간으로 탐지한다"></textarea>
         <div class="det-out" id="det-out"></div>
       </div>
       <div class="nav">
@@ -570,7 +552,7 @@ function buildReport(v) {
       <tr><td>자체 위험성 평가 실시 및 정보보호위원회 승인 (제2조의3 제3항)</td><td><span class="cb"></span>별도 진행</td></tr></table>
     <h2>3. 유입 데이터 성격 판단</h2>
     <p>선택된 판단: <b>${n.t}</b>. ${n.d}</p>
-    <p style="font-size:9pt;color:#555">참고: 조문은 "이용자의" 고유식별정보·개인신용정보로 한정하나, 금융보안원 해설서는 한정어 없이 "고유식별정보 및 개인신용정보 처리 불가"로 기재하고 가명정보를 포함한다(조문·해설 문언 불일치). 보수적 관점에서 임직원 고유식별정보와 가명정보도 입력 제한 기준에 포함할 것을 권고한다.</p>
+    <p style="font-size:9pt;color:#555">참고: 조문은 "이용자의" 고유식별정보와 개인신용정보로 한정하나, 금융보안원 해설서는 한정어 없이 "고유식별정보 및 개인신용정보 처리 불가"로 기재하고 가명정보를 포함한다(조문과 해설의 문언 불일치). 보수적 관점에서 임직원 고유식별정보와 가명정보도 입력 제한 기준에 포함할 것을 권고한다.</p>
     <h2>4. 층위별 통제 확인</h2>
     <p>1층(시스템 필드): 고객정보 필드형 기능 ${state.l1use === 'yes' ? '<b>사용. 요건 저촉</b>' : '미사용. 용도를 해당 기능 제외 범위로 한정'}</p>
     <table><tr><th>층위</th><th>접점</th><th>통제 수단 (제공 형태)</th><th>적용 상태</th><th>근거 출처</th></tr>${ctrls}</table>
@@ -588,7 +570,7 @@ function buildReport(v) {
 }
 
 /* ================= 검증 엔진 연결 =================
-   탐지 로직은 engine.js에 있다. 측정 하네스(eval/)도 같은 엔진을 쓴다.
+   탐지 로직은 engine.js에 있다. 측정 도구(eval/)도 같은 엔진을 쓴다.
    시연한 것과 측정한 것이 갈라지지 않게 하기 위해서다. */
 const detState = { mode: 'heuristic', model: SalpiEngine.DEFAULT_LLM.model, llmReady: false };
 
@@ -613,7 +595,7 @@ async function detRender() {
   if (!ta.value.trim()) { out.innerHTML = ''; return; }
 
   const seq = ++detSeq;
-  if (detState.mode === 'llm') out.innerHTML = '<div class="det-empty">로컬 모델 판단 중…</div>';
+  if (detState.mode !== 'heuristic') out.innerHTML = '<div class="det-empty">로컬 모델 판단 중…</div>';
 
   const res = await SalpiEngine.scan(ta.value, {
     mode: detState.mode,
@@ -644,9 +626,9 @@ async function detProbe() {
   const base = detState.model.split(':')[0];
   el.innerHTML = detState.llmReady
     ? `<label><input type="radio" name="detmode" value="heuristic" checked> 규칙 근사</label>
-       <label><input type="radio" name="detmode" value="llm"> 로컬 LLM (${esc(base)})</label>
+       <label><input type="radio" name="detmode" value="hybrid"> 로컬 LLM (${esc(base)})</label>
        <span class="ok-dot">연결됨</span>`
-    : `<span class="off-dot">로컬 모델 미연결 — 규칙 근사로 동작. Ollama 실행 후 새로고침하면 LLM 모드가 열린다</span>`;
+    : `<span class="off-dot">로컬 모델 미연결, 규칙 근사로 동작. Ollama 실행 후 새로고침하면 LLM 모드가 열린다</span>`;
   el.querySelectorAll('input[name="detmode"]').forEach(r => {
     r.onchange = () => { detState.mode = r.value; detRender(); };
   });
