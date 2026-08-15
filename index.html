@@ -387,7 +387,7 @@ function reconcile(text){
     const blk = isBlocked(host);
     if (blk) { rows.push({ host, info, status:'blocked', blk }); continue; }
     const base = Object.keys(CLASSIFY).find(k => host === k || host.endsWith('.'+k));
-    const cls = base ? CLASSIFY[base] : { kind:'미상 (LLM 분류 대상)', saasLike:false, risk:'대장의 어느 승인 콘딧에도 해당하지 않는 외부 연결' };
+    const cls = base ? CLASSIFY[base] : { kind:'미분류', saasLike:false, risk:'승인 대장의 어느 통로에도 해당하지 않는 외부 연결' };
     const rogue = { host, info, cls };
     rows.push({ host, info, status:'rogue', rogue });
     rogues.push(rogue);
@@ -462,13 +462,13 @@ function renderWizard(){
 
   if (w.step === 0) {
     body = `<p style="font-size:12.5px">등재 대상: <b>${esc(w.name)}</b> ${w.host?`<span class="mono" style="color:var(--faint)">(${esc(w.host)})</span>`:''}</p>
-      ${w.cls ? `<p style="font-size:12px;color:var(--sub)">로그 대조 발견 건. 분류: ${w.cls.kind}. 등재하려면 제1항 3호 적격 판정을 통과해야 한다.</p>` : ''}
-      <p style="font-size:12px;color:var(--sub)">${w.entries.length ? `통제 근거 ${w.entries.length}건 보유 (사전 수집).` : '통제 근거 미수집. 실서비스에서는 E 파이프라인(LLM 벤더 문서 추출)이 이 자리에서 근거를 수집한다.'}</p>` + nav(true);
+      ${w.cls ? `<p style="font-size:12px;color:var(--sub)">로그 대조에서 발견된 연결입니다. 분류: ${w.cls.kind}. 등재하려면 적격 판정을 통과해야 합니다.</p>` : ''}
+      <p style="font-size:12px;color:var(--sub)">${w.entries.length ? `통제 근거 ${w.entries.length}건이 준비되어 있습니다.` : '통제 근거가 아직 없습니다. 벤더 문서에서 근거를 수집한 뒤 재판정하는 것을 권장합니다.'}</p>` + nav(true);
   }
   if (w.step === 1) body = USAGES.map(u=>`<div class="opt ${w.usage===u.key?'sel':''}" data-w="usage:${u.key}"><span class="mark"></span><span class="t">${u.t}</span></div>`).join('') + nav(!!w.usage);
   if (w.step === 2) body = NATURES.map(n=>`<div class="opt ${w.nature===n.key?'sel':''}" data-w="nature:${n.key}"><span class="mark"></span><span><span class="t">${n.t}</span><div class="d">${n.d}</div></span></div>`).join('') + nav(!!w.nature);
   if (w.step === 3) body = `
-    <p style="font-size:12.5px">고객 정보를 필드 단위로 다루는 기능(연락처 DB, CRM, 외부 폼)을 사용하는가?</p>
+    <p style="font-size:12.5px">고객 정보를 필드 단위로 다루는 기능(연락처 DB, CRM, 외부 폼)을 사용할 계획인가요?</p>
     <div class="opt ${w.l1==='no'?'sel':''}" data-w="l1:no"><span class="mark"></span><span class="t">사용하지 않는다</span></div>
     <div class="opt ${w.l1==='yes'?'sel':''}" data-w="l1:yes"><span class="mark"></span><span><span class="t">사용한다</span><div class="d">명백한 처리. 즉시 불가</div></span></div>` + nav(!!w.l1);
   if (w.step === 4) {
@@ -481,7 +481,7 @@ function renderWizard(){
         <label class="applychk"><input type="checkbox" data-wc="${has?'applied':'comp'}:${e._i}" ${(has?w.applied:w.comp)[e._i]?'checked':''}>
         <span>${has?'이 통제를 적용한다':'벤더 미제공. <b>살피 내용검사를 보완통제로 지정</b>한다'}</span></label></div>`;
     }).join('') + nav(true, '판정')
-    : `<p style="font-size:12.5px;color:var(--sub)">이 SaaS의 통제 근거가 아직 없다. 실서비스에서는 여기서 E 파이프라인이 벤더 공개 문서를 읽어 근거 카드를 채운다(원문 인용 강제). 데모에서는 미수집 상태로 판정에 넘긴다.</p>` + nav(true, '판정');
+    : `<p style="font-size:12.5px;color:var(--sub)">이 SaaS의 통제 근거가 아직 없습니다. 미수집 상태로 판정을 진행합니다.</p>` + nav(true, '판정');
   }
   if (w.step === 5) {
     const v = wizJudge(w);
@@ -498,8 +498,8 @@ function renderWizard(){
         </span></div>`;
   }
 
-  $('#modal').innerHTML = `<h3>SaaS 콘딧 등재 판정</h3>
-    <div class="wsub">시행세칙 제2조의3 ①항 3호 적격 검토, 살피 판정 엔진. <a href="workbench.html" target="_blank">전체 워크벤치</a></div>
+  $('#modal').innerHTML = `<h3>SaaS 통로 등재 판정</h3>
+    <div class="wsub">시행세칙 제2조의3 제1항 제3호 적격 검토. <a href="workbench.html" target="_blank">전체 워크벤치</a></div>
     ${bar}${body}`;
   document.querySelectorAll('[data-w]').forEach(el => el.onclick = () => {
     const [k, val] = el.dataset.w.split(':'); state.wiz[k === 'l1' ? 'l1' : k] = val; renderWizard();
@@ -535,7 +535,7 @@ function wizBlock(){
 
 /* ═══════════════ 화면 ═══════════════ */
 const TABS = [
-  { k:'map', t:'경계 지도' }, { k:'ledger', t:'콘딧 대장' }, { k:'logs', t:'로그 대조' },
+  { k:'map', t:'경계 지도' }, { k:'ledger', t:'통로 대장' }, { k:'logs', t:'로그 대조' },
   { k:'content', t:'내용 검사' }, { k:'report', t:'반기 보고' },
 ];
 function renderStrip(){
@@ -543,11 +543,11 @@ function renderStrip(){
   const reviewDue = LEDGER.filter(c => c.review.soon && !c.review.type.includes('반기')).length;
   const detects = Object.values(state.contentLog).reduce((n,a)=>n+a.length,0);
   const items = [
-    { n: LEDGER.length, l:'승인 콘딧' },
-    { n: saasDue, l:'SaaS 반기평가 도래', cls: saasDue?'warn':'' },
-    { n: reviewDue, l:'재승인 임박', cls: reviewDue?'warn':'' },
-    { n: state.rogues.length, l: state.scanned?'미등록 연결':'미등록 연결 (대조 전)', cls: state.rogues.length?'bad':'' },
-    { n: detects, l:'내용검사 기록', cls: detects?'ok':'' },
+    { n: LEDGER.length, l:'승인된 통로' },
+    { n: saasDue, l:'반기 평가 예정', cls: saasDue?'warn':'' },
+    { n: reviewDue, l:'재승인 필요', cls: reviewDue?'warn':'' },
+    { n: state.scanned ? state.rogues.length : '-', l:'미등록 연결', cls: state.rogues.length?'bad':'' },
+    { n: detects, l:'위반 탐지', cls: detects?'ok':'' },
   ];
   if (state.blocked.length) items.push({ n: state.blocked.length, l:'차단 확정' });
   $('#strip').innerHTML = items.map(it =>
@@ -601,8 +601,8 @@ function renderMap(){
     <div class="pagehead">
       <div class="tx">
         <h2 class="q">경계 지도</h2>
-        <p class="qsub">내부업무망에 뚫린 승인된 통로 전부. 선 하나가 승인된 예외(콘딧) 하나다. 클릭하면 근거와 통제가 나온다.
-        ${state.scanned ? '<b>붉은 점선은 로그 대조가 찾아낸, 대장에 없는 연결</b>이다.' : '로그 대조를 실행하면 대장에 없는 연결이 이 지도에 나타난다.'}</p>
+        <p class="qsub">내부업무망에 연결된 승인 통로 전체입니다. 선을 클릭하면 승인 근거와 통제 내역이 표시됩니다.
+        ${state.scanned ? '<b>붉은 점선은 대장에 없는 연결</b>입니다.' : '로그 대조를 실행하면 대장에 없는 연결이 지도에 표시됩니다.'}</p>
       </div>
     </div>
     <div class="mapgrid">
@@ -610,7 +610,7 @@ function renderMap(){
         <div class="maphead"><span class="t">망분리 경계 실측도</span><span class="r">${new Date().toISOString().slice(0,10)}</span></div>
         <svg class="map" viewBox="0 0 900 ${H}" width="100%">${boxes}${lines}</svg>
         <div class="maplegend">
-          <span><i></i>승인 콘딧</span>
+          <span><i></i>승인 통로</span>
           <span class="r"><i></i>미등록 연결</span>
         </div>
       </div>
@@ -643,8 +643,8 @@ function showDetail(sel){
       <div class="grid">
         <dt>관측</dt><dd>${r.info.count}회, 단말 ${r.info.srcs.size}대, 포트 ${[...r.info.ports].join(', ')}</dd>
         <dt>분류</dt><dd>${r.cls.kind}</dd>
-        <dt>판정</dt><dd>승인 콘딧 대장에 부재 (결정적 대조)</dd></div>
-      <div class="ai-note"><span class="lbl">AI 분류와 사유 (실서비스: 로컬 LLM / 데모: 내장 근사)</span>${r.cls.risk}</div>
+        <dt>판정</dt><dd>승인 대장에 없음</dd></div>
+      <div class="ai-note"><span class="lbl">위험 요약</span>${r.cls.risk}</div>
       <div style="margin-top:12px;display:flex;gap:8px">
         ${r.cls.saasLike ? `<button class="act small" onclick='openWizard({host:${JSON.stringify(r.host)}, name:${JSON.stringify(r.host)}, fromRogue:true, cls:${JSON.stringify(r.cls)}})'>판정하기 (등재 절차)</button>` : ''}
         <button class="act danger small" onclick='quickBlock(${JSON.stringify(r.host)})'>차단 확정</button></div>`;
@@ -659,7 +659,7 @@ function showDetail(sel){
         <dt>승인</dt><dd>${c.approved}</dd>
         <dt>적용 통제</dt><dd>${c.controls}${c.pendingRisks?` <b style="color:var(--amber)">미해소 ${c.pendingRisks}건</b>`:''}</dd>
         <dt>다음 의무</dt><dd>${c.review.type} ${c.review.due} ${c.review.soon?'<b style="color:var(--amber)">임박</b>':''}</dd></div>
-      ${c.zone==='saas' ? `<div class="content-log">내용 검사(살피 탐지) 기록 <b>${n}건</b>${n?`. 반기 보고 2절에 자동 반영`:`. "내용 검사" 탭에서 이 콘딧을 대상으로 점검할 수 있다`}</div>` : ''}`;
+      ${c.zone==='saas' ? `<div class="content-log">내용검사 기록 <b>${n}건</b>${n?`. 반기 보고에 자동 반영됩니다`:`. 내용 검사 탭에서 이 통로를 점검할 수 있습니다`}</div>` : ''}`;
   }
 }
 function quickBlock(host){
@@ -683,14 +683,14 @@ function renderLedger(){
   $('#main').innerHTML = `<section class="view">
     <div class="pagehead">
       <div class="tx">
-        <h2 class="q">콘딧 대장</h2>
+        <h2 class="q">통로 대장</h2>
         <p class="qsub">승인 ${LEDGER.length}건${state.rogues.length?`, 미등록 ${state.rogues.length}건`:''}${state.blocked.length?`, 차단 ${state.blocked.length}건`:''}.
-        예외 유형별 근거 조문, 승인, 통제, 다음 의무를 한 장부로. 반기 자체평가(제4항)가 SaaS에만 붙는 것까지 구분한다.</p>
+        망분리 예외 통로의 근거, 승인, 통제, 다음 의무를 관리합니다.</p>
       </div>
-      <div class="actions"><button class="act" onclick="openWizard({name:'새 SaaS'})">SaaS 콘딧 등재</button></div>
+      <div class="actions"><button class="act" onclick="openWizard({name:'새 SaaS'})">SaaS 통로 등재</button></div>
     </div>
     <table class="ledger">
-      <tr><th style="width:17%">콘딧</th><th style="width:11%">유형</th><th style="width:15%">근거 조문</th><th style="width:17%">연결</th><th style="width:12%">승인</th><th>다음 의무</th><th style="width:12%"></th></tr>
+      <tr><th style="width:17%">통로</th><th style="width:11%">유형</th><th style="width:15%">근거 조문</th><th style="width:17%">연결</th><th style="width:12%">승인</th><th>다음 의무</th><th style="width:12%"></th></tr>
       ${rogueRows}
       ${LEDGER.map(c => { const n = contentCount(c.id); return `
       <tr>
@@ -712,15 +712,14 @@ function renderLogs(){
     <div class="pagehead">
       <div class="tx">
         <h2 class="q">로그 대조</h2>
-        <p class="qsub">선언된 망분리와 실제 트래픽의 대조. 방화벽이나 프록시 로그를 붙여넣으면 목적지를 추출해 대장과 대조한다.
-        판정은 결정적 집합 비교이고, 미확인 목적지의 분류와 사유만 AI가 맡는다.</p>
+        <p class="qsub">방화벽 또는 프록시 로그를 붙여넣으면 외부 목적지를 추출해 승인 대장과 대조합니다.</p>
       </div>
       <div class="actions">
         <button class="act ghost2" id="sample">샘플 로그 넣기</button>
         <button class="act" id="run">대조 실행</button>
       </div>
     </div>
-    <textarea id="logbox" style="height:150px" placeholder="HOST= 형식 로그 (데모)"></textarea>
+    <textarea id="logbox" style="height:150px" placeholder="방화벽 또는 프록시 로그를 붙여넣으세요"></textarea>
     <div id="result">${state.scanned?renderLogResult(reconcile($('#logbox')?.value||SAMPLE_LOG)):''}</div></section>`;
   $('#sample').onclick = () => { $('#logbox').value = SAMPLE_LOG; };
   $('#run').onclick = () => {
@@ -742,7 +741,7 @@ function renderLogResult(rec){
         <td><span class="st rogue">미등록</span></td><td><b>${r.rogue.cls.kind}</b><div class="aiwhy">${r.rogue.cls.risk}</div></td>
         <td style="white-space:nowrap">${r.rogue.cls.saasLike?`<button class="act small" onclick='openWizard({host:${JSON.stringify(r.host)}, name:${JSON.stringify(r.host)}, fromRogue:true, cls:${JSON.stringify(r.rogue.cls)}})'>판정</button> `:''}<button class="act danger small" onclick='quickBlock(${JSON.stringify(r.host)})'>차단</button></td></tr>`;
     }).join('')}</table>
-    <div class="hint">미등록 연결이 경계 지도와 대장에 반영됐다. SaaS류는 판정으로 등재 절차에 넘길 수 있다.</div>`;
+    <div class="hint">미등록 연결이 경계 지도와 대장에 반영되었습니다. SaaS형 연결은 판정을 눌러 등재 절차를 시작할 수 있습니다.</div>`;
 }
 
 /* ── 내용 검사 (살피 탐지 엔진) ── */
@@ -753,19 +752,19 @@ function renderContent(){
     <div class="pagehead">
       <div class="tx">
         <h2 class="q">내용 검사</h2>
-        <p class="qsub">SaaS 콘딧을 지나는 데이터의 결합 탐지. 통로 관리(대장)가 "어디로 다니는가"라면 내용 검사는 "무엇이 지나가는가"다.
-        탐지 기록은 해당 콘딧의 반기 자체평가 증적이 된다. 판정은 규칙과 검증이, 결합 판단은 로컬 LLM이 맡는다. 실측 F1 85.4.</p>
+        <p class="qsub">SaaS에 올리기 전 문서에서 고객 정보와 신용정보의 결합을 검사합니다.
+        탐지 기록은 마스킹되어 해당 통로의 반기 자체평가 증적으로 저장됩니다.</p>
       </div>
     </div>
     <div style="display:flex;gap:14px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
-      <span style="font-size:12.5px;color:var(--sub)">대상 콘딧</span>
+      <span style="font-size:12.5px;color:var(--sub)">대상 SaaS</span>
       <select id="det-target">
         ${saas.map(c=>`<option value="${c.id}">${c.id} ${esc(c.name)}</option>`).join('')}
       </select>
       <span class="det-mode" id="det-mode"></span>
       <button class="act ghost2 small" id="det-sample" style="margin-left:auto">예시 회의록 넣기</button>
     </div>
-    <textarea id="det-in" style="height:130px" placeholder="이 SaaS에 올리려는 문서나 회의록을 붙여넣으면 실시간으로 탐지한다"></textarea>
+    <textarea id="det-in" style="height:130px" placeholder="검사할 문서나 회의록을 붙여넣으세요"></textarea>
     <div id="det-out" class="det-out" style="display:none"></div>
     <div id="det-note"></div></section>`;
   $('#det-sample').onclick = () => {
@@ -780,9 +779,9 @@ async function detProbe(){
   const av = await SalpiEngine.llmAvailable();
   state.detReady = !!(av.ok && av.hasModel);
   el.innerHTML = state.detReady
-    ? `<label><input type="radio" name="dm" value="heuristic" ${state.detMode==='heuristic'?'checked':''}> 규칙 근사</label>
-       <label><input type="radio" name="dm" value="hybrid" ${state.detMode==='hybrid'?'checked':''}> 로컬 LLM</label><span class="ok-dot">모델 연결됨</span>`
-    : `<span class="off-dot">로컬 모델 미연결, 규칙 근사로 동작</span>`;
+    ? `<label><input type="radio" name="dm" value="heuristic" ${state.detMode==='heuristic'?'checked':''}> 빠른 검사</label>
+       <label><input type="radio" name="dm" value="hybrid" ${state.detMode==='hybrid'?'checked':''}> 정밀 검사 (로컬 AI)</label><span class="ok-dot">모델 연결됨</span>`
+    : `<span class="off-dot">로컬 모델 미연결, 빠른 검사로 동작</span>`;
   el.querySelectorAll('input[name="dm"]').forEach(r => r.onchange = () => { state.detMode = r.value; detRun(); });
 }
 async function detRun(){
@@ -791,7 +790,7 @@ async function detRun(){
   if (!ta.value.trim()) { out.innerHTML = ''; out.style.display = 'none'; note.innerHTML = ''; return; }
   const seq = ++detSeq;
   out.style.display = 'block';
-  if (state.detMode !== 'heuristic') out.innerHTML = '<div class="det-empty">로컬 모델 판단 중…</div>';
+  if (state.detMode !== 'heuristic') out.innerHTML = '<div class="det-empty">정밀 검사 중…</div>';
   const res = await SalpiEngine.scan(ta.value, { mode: state.detMode });
   if (seq !== detSeq) return;
   const target = $('#det-target')?.value || 'C-05';
@@ -806,7 +805,7 @@ async function detRun(){
       const lv = h.severity==='violation'?'viol':(h.label==='identifier_only'?'info':'warn');
       return `<div class="det-hit ${lv}"><span class="tag">[${esc(h.tag)}]</span><span class="span">${esc(h.span.slice(0,64))}</span><span class="note">${esc(h.note)}</span></div>`;
     }).join('') : '<div class="det-empty">탐지된 항목 없음</div>');
-  note.innerHTML = viols.length ? `<div class="hint">위반 ${viols.length}건이 ${target} 콘딧의 내용검사 기록에 저장됐다(마스킹). 대장과 반기 보고에 반영된다.</div>` : '';
+  note.innerHTML = viols.length ? `<div class="hint">위반 ${viols.length}건이 ${target} 내용검사 기록으로 저장되었습니다(마스킹). 대장과 반기 보고에 반영됩니다.</div>` : '';
 }
 
 /* ── 반기 보고 ── */
@@ -819,7 +818,7 @@ function renderReport(){
     <div class="pagehead">
       <div class="tx">
         <h2 class="q">반기 보고</h2>
-        <p class="qsub">정보보호위원회 제출 초안. 대장(통로 현황), 로그 대조(실측), 내용 검사(살피 증적)가 한 문서로 조립된다.</p>
+        <p class="qsub">정보보호위원회 제출용 초안입니다. 운영 현황, 자체평가, 내용검사 증적이 자동으로 채워집니다.</p>
       </div>
       <div class="actions"><button class="act" onclick="window.print()">인쇄 / PDF 저장</button></div>
     </div>
@@ -833,7 +832,7 @@ function renderReport(){
         ${state.blocked.length?`<tr><td>차단 확정</td><td>${state.blocked.length}</td></tr>`:''}
       </table>
       <h4>2. SaaS 반기 자체평가 (제4항)와 내용검사 증적</h4>
-      <table><tr><th>콘딧</th><th>적용 통제</th><th>내용검사 기록</th><th>기한</th></tr>
+      <table><tr><th>통로</th><th>적용 통제</th><th>내용검사 기록</th><th>기한</th></tr>
         ${saas.map(c=>`<tr><td>${c.id} ${esc(c.name)}</td><td style="font-size:11px">${esc(c.controls)}</td>
           <td>${contentCount(c.id)}건 (마스킹 저장)</td><td>${c.review.due}</td></tr>`).join('')}
       </table>
