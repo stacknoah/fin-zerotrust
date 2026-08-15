@@ -557,11 +557,11 @@ function buildReport(v) {
     <p>1층(시스템 필드): 고객정보 필드형 기능 ${state.l1use === 'yes' ? '<b>사용. 요건 저촉</b>' : '미사용. 용도를 해당 기능 제외 범위로 한정'}</p>
     <table><tr><th>층위</th><th>접점</th><th>통제 수단 (제공 형태)</th><th>적용 상태</th><th>근거 출처</th></tr>${ctrls}</table>
     <h2>5. 판정 결과 및 미해소 위험</h2>
-    ${v.risks.map(r => `<p>· ${r.t}${r.act ? '<br><span style="color:#2b55a3">조치: ' + r.act + '</span>' : ''}</p>`).join('')}
-    ${v.oks.map(r => `<p style="color:#176e4b">· ${r.t}</p>`).join('')}
+    ${v.risks.map(r => `<p>- ${r.t}${r.act ? '<br><span style="color:#2b55a3">조치: ' + r.act + '</span>' : ''}</p>`).join('')}
+    ${v.oks.map(r => `<p style="color:#176e4b">- ${r.t}</p>`).join('')}
     <h2>6. 후속 조치</h2>
-    <p>· 본 검토서를 도입 품의에 첨부하고, 미해소 위험 항목은 반기 자체평가(제2조의3 제4항)의 점검 항목으로 이관한다.</p>
-    <p>· 해설서 6장에 따라 입력 제한 데이터 기준을 내규로 명확화하고, SaaS 이용 로그를 주기적으로 점검한다.</p>
+    <p>- 본 검토서를 도입 품의에 첨부하고, 미해소 위험 항목은 반기 자체평가(제2조의3 제4항)의 점검 항목으로 이관한다.</p>
+    <p>- 해설서 6장에 따라 입력 제한 데이터 기준을 내규로 명확화하고, SaaS 이용 로그를 주기적으로 점검한다.</p>
     <div class="sig">
       <div class="box"><div class="line"></div>검토자</div>
       <div class="box"><div class="line"></div>정보보호최고책임자(CISO)</div>
