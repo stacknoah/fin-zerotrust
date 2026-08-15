@@ -151,26 +151,37 @@
 
 [판단 기준]
 - 식별정보(이름, 연락처 등)가 신용정보(대출, 연체, 상환, 한도, 담보, 잔액, 카드, 예금, 보험 등)와
-  같은 맥락에서 결합되어 특정 개인의 신용 상태를 알 수 있으면 label은 "combined"
-- 식별정보는 있으나 신용 맥락이 없으면 label은 "identifier_only"
+  결합되어 특정 개인의 신용 상태를 알 수 있으면 label은 "combined"
+- 결합은 한 문장 안이 아니어도 된다. 앞 줄의 이름을 뒷 줄에서 "해당 고객", "이 고객"으로
+  가리키며 신용 사실을 말하면 그것도 "combined"다
+- 식별정보는 있으나 신용 맥락이 전혀 없으면 label은 "identifier_only"
 - 주민등록번호, 여권번호, 운전면허번호, 외국인등록번호가 있으면 label은 "unique_id"
 - 신용 맥락만 있고 누구의 것인지 알 수 없으면 보고하지 않는다
 
 [출력 규칙]
-- 반드시 JSON 객체 하나만 출력한다. 형식: {"findings":[{"label":"...","evidence_span":"...","identifier":"...","credit_context":"..."}]}
-- evidence_span은 입력 텍스트에 있는 문자열을 그대로 복사한다. 요약하거나 바꾸지 않는다.
-- 입력에 없는 내용을 지어내지 않는다. 해당 없으면 {"findings":[]}
+- label은 반드시 "combined", "identifier_only", "unique_id" 셋 중 하나다. 다른 값을 쓰지 마라.
+- evidence_span은 입력에 있는 문자열을 그대로 복사한다. 요약하거나 고치지 마라.
+- label이 "combined"이면 identifier와 credit_context를 반드시 채운다. 빈 문자열은 안 된다.
+- 입력에서 찾은 것을 하나도 빠뜨리지 말고 전부 findings 배열에 담아라.
+- 반드시 이 형태의 JSON 하나만 출력한다:
+  {"findings":[{"label":"...","evidence_span":"...","identifier":"...","credit_context":"..."}]}
+- 해당 없으면 {"findings":[]}
 
-[예시]
-입력: 박지현 고객 주택담보대출 연체 3개월 경과 건. 재상담 예정.
+[예시 1] 한 줄 안의 결합
+입력:
+1. 박지현 고객 주택담보대출 연체 3개월 경과 건.
+2. 신규 상품 한도 정책은 다음 회의에서 확정.
 출력: {"findings":[{"label":"combined","evidence_span":"박지현 고객 주택담보대출 연체 3개월 경과","identifier":"박지현","credit_context":"주택담보대출 연체 3개월"}]}
 
-입력: 신규 상품 한도 정책은 다음 회의에서 확정.
-출력: {"findings":[]}
+[예시 2] 줄을 넘어가는 결합
+입력:
+3. 정해나 고객 재방문 상담 진행.
+   - 해당 고객은 신용대출 상환 지연 이력이 있음.
+출력: {"findings":[{"label":"combined","evidence_span":"정해나 고객 재방문 상담 진행","identifier":"정해나","credit_context":"신용대출 상환 지연"}]}
 
-입력: 김민수 고객 방문 예정.
-출력: {"findings":[{"label":"combined","evidence_span":"","identifier":"","credit_context":""}]}
-위 출력은 틀렸다. 올바른 출력: {"findings":[{"label":"identifier_only","evidence_span":"김민수 고객 방문 예정","identifier":"김민수","credit_context":""}]}`;
+[예시 3] 이름만 있는 경우
+입력: 4. 김민수 고객 방문 예정.
+출력: {"findings":[{"label":"identifier_only","evidence_span":"김민수 고객 방문 예정","identifier":"김민수","credit_context":""}]}`;
 
   const LABELS = ['combined', 'identifier_only', 'unique_id', 'none'];
 
@@ -249,39 +260,66 @@
     }
   }
 
-  async function llmCombine(text, opts) {
-    const o = Object.assign({}, DEFAULT_LLM, opts);
+  // 문서를 통째로 넣으면 소형 모델이 앞의 몇 개만 보고하고 멈춘다.
+  // 줄 단위로 자르되 겹치는 창으로 묶어 줄 넘김 결합도 볼 수 있게 한다.
+  function makeWindows(text, size, stride) {
+    const units = splitUnits(text);
+    const wins = [];
+    for (let i = 0; i < units.length; i += stride) {
+      const chunk = units.slice(i, i + size);
+      if (!chunk.length) break;
+      wins.push(chunk.map(u => u.text).join('\n'));
+      if (i + size >= units.length) break;
+    }
+    return wins.length ? wins : [text];
+  }
+
+  async function llmOnce(chunk, o) {
     const out = await fetchJSON(o.endpoint + '/api/generate', {
       model: o.model,
-      prompt: SYSTEM_PROMPT + '\n\n입력: ' + text + '\n출력:',
+      prompt: SYSTEM_PROMPT + '\n\n입력:\n' + chunk + '\n출력:',
       format: 'json',
       stream: false,
-      options: { temperature: 0, num_predict: 512 },
+      options: { temperature: 0, num_predict: 1024 },
     }, o.timeoutMs);
+    return out.response;
+  }
 
-    let parsed;
-    try {
-      parsed = JSON.parse(out.response);
-    } catch (e) {
-      return { hits: [], rejected: [{ reason: 'invalid_json', raw: String(out.response).slice(0, 200) }] };
-    }
-
-    const findings = Array.isArray(parsed.findings) ? parsed.findings : [];
+  async function llmCombine(text, opts) {
+    const o = Object.assign({}, DEFAULT_LLM, opts);
     const hits = [], rejected = [];
-    for (const f of findings) {
-      const v = verifyFinding(f, text);
-      if (!v.ok) { rejected.push({ reason: v.reason, finding: f }); continue; }
-      const span = norm(f.evidence_span);
-      hits.push({
-        layer: 'combine', mode: 'llm', label: f.label,
-        tag: f.label === 'combined' ? '결합' : f.label === 'unique_id' ? '고유식별정보' : '식별정보',
-        span, index: norm(text).indexOf(span),
-        identifier: norm(f.identifier), credit_context: norm(f.credit_context),
-        confidence: 'high',
-        note: f.label === 'combined'
-          ? `식별정보(${norm(f.identifier)})와 신용정보(${norm(f.credit_context)})가 결합. 개인신용정보에 해당(신용정보법 제2조)`
-          : '식별정보 단독. 다른 신용정보와 결합될 때에만 신용정보',
-      });
+    const seen = new Set();
+
+    for (const chunk of makeWindows(text, 3, 2)) {
+      let parsed = null;
+      // JSON이 깨지면 한 번 더 시도한다
+      for (let attempt = 0; attempt < 2 && !parsed; attempt++) {
+        let raw;
+        try { raw = await llmOnce(chunk, o); } catch (e) { rejected.push({ reason: 'call_failed' }); break; }
+        try { parsed = JSON.parse(raw); }
+        catch (e) { if (attempt === 1) rejected.push({ reason: 'invalid_json', raw: String(raw).slice(0, 160) }); }
+      }
+      if (!parsed) continue;
+
+      const findings = Array.isArray(parsed.findings) ? parsed.findings
+                     : Array.isArray(parsed) ? parsed : [];
+      for (const f of findings) {
+        const v = verifyFinding(f, chunk);
+        if (!v.ok) { rejected.push({ reason: v.reason, finding: f }); continue; }
+        const span = norm(f.evidence_span);
+        if (seen.has(f.label + '|' + span)) continue;   // 겹치는 창에서 중복 제거
+        seen.add(f.label + '|' + span);
+        hits.push({
+          layer: 'combine', mode: 'llm', label: f.label,
+          tag: f.label === 'combined' ? '결합' : f.label === 'unique_id' ? '고유식별정보' : '식별정보',
+          span, index: norm(text).indexOf(span),
+          identifier: norm(f.identifier), credit_context: norm(f.credit_context),
+          confidence: 'high',
+          note: f.label === 'combined'
+            ? `식별정보(${norm(f.identifier)})와 신용정보(${norm(f.credit_context)})가 결합. 개인신용정보에 해당(신용정보법 제2조)`
+            : '식별정보 단독. 다른 신용정보와 결합될 때에만 신용정보',
+        });
+      }
     }
     return { hits, rejected };
   }
@@ -310,7 +348,7 @@
 
   /**
    * @param {string} text
-   * @param {{mode?: 'rules'|'heuristic'|'llm', llm?: object}} opts
+   * @param {{mode?: 'rules'|'heuristic'|'llm'|'hybrid', llm?: object}} opts
    * @returns {Promise<{hits: Array, mode: string, degraded?: string, rejected?: Array}>}
    */
   async function scan(text, opts) {
@@ -320,12 +358,15 @@
 
     if (mode === 'rules') return { hits: confirm(ruleHits), mode: 'rules' };
 
-    if (mode === 'llm') {
+    if (mode === 'llm' || mode === 'hybrid') {
+      // llm    : 규칙 + LLM만. LLM 단독 기여를 분리해 재기 위한 측정용
+      // hybrid : 규칙 + 휴리스틱 + LLM 합집합. 실서비스 구성
+      //          휴리스틱은 같은 줄 결합에 강하고 LLM은 줄 넘김·지시어 결합에 강해 서로 보완한다
+      const base = mode === 'hybrid' ? ruleHits.concat(heuristicCombine(text)) : ruleHits;
       try {
         const r = await llmCombine(text, o.llm);
-        return { hits: confirm(ruleHits.concat(r.hits)), mode: 'llm', rejected: r.rejected };
+        return { hits: confirm(base.concat(r.hits)), mode, rejected: r.rejected };
       } catch (e) {
-        // 모델이 죽어도 규칙층으로 강등해서 계속 동작한다
         return {
           hits: confirm(ruleHits.concat(heuristicCombine(text))),
           mode: 'heuristic',

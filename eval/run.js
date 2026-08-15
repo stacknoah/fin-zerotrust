@@ -124,8 +124,12 @@ async function runMethod(name, docs, opts) {
         continue;
       }
       methods.push({
-        name: `LLM: ${shortName(model)}`,
+        name: `LLM단독: ${shortName(model)}`,
         opts: { mode: 'llm', llm: { endpoint: ENDPOINT, model } },
+      });
+      methods.push({
+        name: `합집합: ${shortName(model)}`,
+        opts: { mode: 'hybrid', llm: { endpoint: ENDPOINT, model } },
       });
     }
   }

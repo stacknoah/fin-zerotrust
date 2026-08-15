@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-10T07:50:29.777Z",
+  "generatedAt": "2026-08-15T03:14:15.270Z",
   "seed": 20260810,
   "docs": 30,
   "goldViolations": 84,
@@ -69,39 +69,6 @@
       },
       "elapsedSec": 0.001,
       "rejectedCount": 0
-    },
-    {
-      "name": "LLM: kanana-2-3b-instruct",
-      "tp": 39,
-      "fp": 0,
-      "fn": 45,
-      "precision": 1,
-      "recall": 0.4642857142857143,
-      "f1": 0.6341463414634146,
-      "perType": {
-        "card": {
-          "total": 19,
-          "hit": 19
-        },
-        "combined_same_line": {
-          "total": 14,
-          "hit": 3
-        },
-        "combined_cross_line": {
-          "total": 14,
-          "hit": 0
-        },
-        "combined_indirect": {
-          "total": 20,
-          "hit": 0
-        },
-        "rrn": {
-          "total": 17,
-          "hit": 17
-        }
-      },
-      "elapsedSec": 30.727,
-      "rejectedCount": 27
     }
   ]
 }
