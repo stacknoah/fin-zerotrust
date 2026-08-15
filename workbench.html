@@ -9,13 +9,13 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #f4f5f7; --panel: #ffffff;
+    --bg: #f2f4f7; --panel: #ffffff;
     --line: #e5e7ec; --line2: #d5d8df;
     --ink: #1a1c20; --sub: #5f6470; --faint: #9aa0ab;
-    --blue: #2f6bff; --blue-dark: #2456d6; --blue-bg: #eef3ff;
-    --green: #0e9f6e; --green-bg: #e6f6f0;
-    --amber: #b45309; --amber-bg: #fdf3e3;
-    --red: #d92d20; --red-bg: #fdecea;
+    --blue: #175cd3; --blue-dark: #1249a8; --blue-bg: #eff4ff;
+    --green: #067647; --green-bg: #e6f6f0;
+    --amber: #b54708; --amber-bg: #fffaeb;
+    --red: #b42318; --red-bg: #fef3f2;
     --mono: "IBM Plex Mono", monospace;
     --sans: "Pretendard Variable", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
   }
@@ -27,18 +27,18 @@
   }
   ::selection { background: var(--blue-bg); }
 
-  /* 앱바 */
-  header.top { background: var(--panel); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 20; }
+  /* 상단 바 */
+  header.top { background: #101828; position: sticky; top: 0; z-index: 20; }
   header.top .in {
-    max-width: 1100px; margin: 0 auto; padding: 0 24px;
-    display: flex; align-items: center; height: 56px; gap: 12px; flex-wrap: wrap;
+    margin: 0; padding: 0 20px;
+    display: flex; align-items: center; height: 46px; gap: 12px;
   }
-  .wordmark { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; }
-  .wordmark .sub { font-weight: 600; color: var(--sub); font-size: 13px; margin-left: 10px; }
-  .wordmark .tag { font-size: 10px; font-weight: 700; color: var(--blue); background: var(--blue-bg); border-radius: 4px; padding: 2px 8px; margin-left: 10px; vertical-align: 2px; }
-  .statute { margin-left: auto; font-size: 11px; color: var(--faint); }
-  .statute a { color: var(--sub); text-decoration: none; margin-left: 14px; padding: 6px 10px; border: 1px solid var(--line2); border-radius: 6px; font-weight: 600; font-size: 12px; }
-  .statute a:hover { border-color: var(--faint); color: var(--ink); }
+  .wordmark { font-size: 16px; font-weight: 800; letter-spacing: -0.01em; color: #fff; }
+  .wordmark .sub { font-weight: 600; color: rgba(255,255,255,.75); font-size: 13px; margin-left: 12px; }
+  .wordmark .tag { font-size: 10px; font-weight: 700; color: #fff; background: rgba(255,255,255,.14); border-radius: 999px; padding: 2px 9px; margin-left: 10px; vertical-align: 2px; }
+  .statute { margin-left: auto; font-size: 11px; color: rgba(255,255,255,.5); }
+  .statute a { color: rgba(255,255,255,.75); text-decoration: none; margin-left: 14px; font-weight: 600; font-size: 12px; }
+  .statute a:hover { color: #fff; }
 
   /* 본문 그리드 */
   .frame {
@@ -150,7 +150,7 @@
   .nav .r { display: flex; gap: 8px; }
   button {
     font-family: inherit; font-size: 13px; font-weight: 700;
-    padding: 9px 20px; cursor: pointer; border-radius: 6px;
+    padding: 8px 20px; cursor: pointer; border-radius: 999px;
     border: 1px solid var(--line2); background: var(--panel); color: var(--ink);
   }
   button:hover { border-color: var(--faint); }
