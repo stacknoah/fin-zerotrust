@@ -1248,6 +1248,7 @@ async function detProbe(){
        <label><input type="radio" name="dm" value="hybrid" ${state.detMode==='hybrid'?'checked':''}> 정밀 검사 (로컬 AI)</label><span class="status-dot">모델 연결됨</span>`
     : `<span class="status-dot off">로컬 모델 미연결, 빠른 검사로 동작</span>`;
   el.querySelectorAll('input[name="dm"]').forEach(r => r.onchange = () => { state.detMode = r.value; detRun(); });
+  applyAIStatus(av);
 }
 const DROP_KO = {
   span_not_in_source: '원문에 없는 근거, 폐기',
@@ -1405,14 +1406,16 @@ function initSearch(){
   });
 }
 /* 사이드바 AI 상태 */
-async function initAIStatus(){
+function applyAIStatus(av){
   const el = $('#ai-side-status'), sub = $('#ai-side-sub');
   if (!el) return;
-  const av = await SalpiEngine.llmAvailable();
   const on = !!(av.ok && av.hasModel);
   el.className = 'status-dot' + (on ? '' : ' off');
   el.textContent = on ? 'AI 모델 연결됨' : 'AI 모델 미연결';
   if (sub) sub.textContent = 'Kanana-2-3B, ' + (window.SALPI_LLM_ENDPOINT ? '원격 추론' : '로컬 추론');
+}
+async function initAIStatus(){
+  applyAIStatus(await SalpiEngine.llmAvailable());
 }
 
 /* ── 데모 로그인 ── */
@@ -1422,7 +1425,10 @@ function boot(){
   const authed = sessionStorage.getItem('salpi_auth');
   $('#login').style.display = authed ? 'none' : 'flex';
   $('#appshell').style.display = authed ? '' : 'none';
-  if (authed) { render(); initSearch(); initAIStatus(); }
+  if (authed) {
+    render(); initSearch(); initAIStatus();
+    if (!window._aiPoll) window._aiPoll = setInterval(initAIStatus, 30000);
+  }
 }
 boot();
 </script>
