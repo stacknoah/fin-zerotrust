@@ -440,6 +440,50 @@
     .login-brand { display: none; }
   }
 
+  /* ── 토스트 ── */
+  #toasts { position: fixed; right: 20px; bottom: 20px; z-index: 90; display: flex; flex-direction: column; gap: 8px; }
+  .toast {
+    display: flex; align-items: center; gap: 10px; min-width: 260px; max-width: 380px;
+    background: var(--panel); border-radius: var(--r-pop); box-shadow: var(--shadow-overlay);
+    padding: 12px 16px; font-size: 14px; color: var(--ink);
+    border-left: 3px solid var(--blue);
+    animation: toast-in 200ms var(--ease) both;
+  }
+  .toast.ok { border-left-color: #45a557; }
+  .toast.bad { border-left-color: #e5484d; }
+  .toast.out { animation: toast-out 150ms var(--ease) both; }
+  @keyframes toast-in { from { opacity: 0; transform: translateY(8px); } }
+  @keyframes toast-out { to { opacity: 0; } }
+
+  /* ── D-day 배지 ── */
+  .dday { font-family: var(--mono); font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 4px; background: var(--neutral-bg); color: var(--neutral-fg); white-space: nowrap; }
+  .dday.soon { background: var(--warn-bg); color: var(--warn-fg); }
+  .dday.over { background: var(--bad-bg); color: var(--bad-fg); }
+
+  /* ── 요약 칩 행 ── */
+  .sumchips { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .sumchip { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--body); background: var(--hover); border: 1px solid var(--hair); border-radius: 999px; padding: 3px 12px; }
+  .sumchip b { font-weight: 600; color: var(--ink); }
+  .sumchip.bad b { color: var(--bad-fg); }
+  .lastscan { font-size: 13px; color: var(--disabled); margin-left: auto; }
+
+  /* ── 상세 헤더 ── */
+  .detail-hd { display: flex; align-items: center; gap: 12px; padding: 16px 20px 12px; }
+  .detail-hd .t { font: 600 16px/24px var(--sans); color: var(--ink); }
+  .detail-hd .r { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+
+  /* ── 제출 전 점검 ── */
+  .precheck { display: flex; flex-direction: column; gap: 0; }
+  .precheck .pc { display: flex; align-items: center; gap: 10px; padding: 10px 20px; border-top: 1px solid var(--line); font-size: 14px; color: var(--body); }
+  .precheck .pc:first-child { border-top: none; }
+  .precheck .pc .ic { width: 18px; height: 18px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 11px; font-weight: 700; }
+  .precheck .pc.done .ic { background: #d7f7c2; color: #05690d; }
+  .precheck .pc.todo .ic { background: var(--warn-bg); color: var(--warn-fg); }
+  .precheck .pc .r { margin-left: auto; font-size: 13px; color: var(--muted); }
+
+  /* 위저드 완료 단계 체크 */
+  .wsteps .s.done { color: #45a557; border-color: #a4e0af; }
+
   /* 30. HoverArrow (Stripe) */
   .arrow-link { display: inline-flex; align-items: center; gap: 4px; }
   .arrow-link svg { width: 10px; height: 10px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; }
@@ -543,6 +587,7 @@
 </div>
 
 <div class="overlay" id="overlay"><div class="modal" id="modal"></div></div>
+<div id="toasts"></div>
 
 <script>
 /* 추론 서버 주소 결정. 우선순위: 주소의 llm 파라미터 > 배포본의 llm-endpoint.txt > localhost Ollama.
@@ -636,6 +681,22 @@ const state = {
 };
 
 /* ═══════════════ 유틸 ═══════════════ */
+function toast(msg, kind){
+  const box = document.querySelector('#toasts');
+  const el = document.createElement('div');
+  el.className = 'toast ' + (kind || '');
+  el.textContent = msg;
+  box.appendChild(el);
+  setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 180); }, 3600);
+}
+function dday(due){
+  // due: "2026-11" 또는 "2026-11-30"
+  const parts = due.split('-').map(Number);
+  const d = new Date(parts[0], parts[1]-1, parts[2] || 28);
+  const n = Math.ceil((d - new Date()) / 86400000);
+  const cls = n < 0 ? 'over' : n <= 45 ? 'soon' : '';
+  return `<span class="dday ${cls}">${n < 0 ? 'D+' + (-n) : 'D-' + n}</span>`;
+}
 const $ = s => document.querySelector(s);
 function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 function mask(s){
@@ -744,7 +805,7 @@ function wizJudge(w){
 function renderWizard(){
   const w = state.wiz; if (!w) return;
   const steps = ['대상', '용도', '데이터 성격', 'L1 필드', '통제 확인', '판정'];
-  const bar = `<div class="wsteps">${steps.map((s,i)=>`<div class="s ${i===w.step?'on':''}">${i+1} ${s}</div>`).join('')}</div>`;
+  const bar = `<div class="wsteps">${steps.map((s,i)=>`<div class="s ${i===w.step?'on':i<w.step?'done':''}">${i<w.step?'✓':(i+1)} ${s}</div>`).join('')}</div>`;
   const nav = (canNext, nextLabel='다음') => `<div class="wnav">
     <button class="act ghost2 small" onclick="${w.step===0?'closeWizard()':'wizBack()'}">${w.step===0?'취소':'이전'}</button>
     <button class="act small" id="wnext" ${canNext?'':'disabled'}>${nextLabel}</button></div>`;
@@ -815,12 +876,14 @@ function wizRegister(){
   });
   if (w.fromRogue != null) state.rogues = state.rogues.filter(r => r.host !== w.host);
   closeWizard(); render();
+  toast(`${id} ${w.name} 등재됨, 위원회 상정 대기`, 'ok');
 }
 function wizBlock(){
   const w = state.wiz;
   state.blocked.push({ host: w.host, kind: w.cls?.kind || 'SaaS', reason: w.verdict.risks[0]?.t || '적격 미충족' });
   state.rogues = state.rogues.filter(r => r.host !== w.host);
   closeWizard(); render();
+  toast(`${w.host} 차단 확정`, 'bad');
 }
 
 /* ═══════════════ 화면 ═══════════════ */
@@ -914,12 +977,12 @@ function renderMap(){
     chips += `<rect class="chip ${rogue?'rogue':''}" x="${mx-21}" y="${my-10}" width="42" height="20" rx="10" data-sel="${key}"></rect>
       <text class="chip-t ${rogue?'rogue':''}" x="${mx}" y="${my+4}" text-anchor="middle" data-sel="${key}">${rogue?'!':key}</text>`;
   };
-  const zoneFrame=(x,y,w,h,title)=>`
+  const zoneFrame=(x,y,w,h,title,n)=>`
     <rect class="zone-frame" x="${x}" y="${y}" width="${w}" height="${h}" rx="14"></rect>
-    <text class="zone-title" x="${x+16}" y="${y+24}">${title}</text>`;
+    <text class="zone-title" x="${x+16}" y="${y+24}">${title}${n!=null?` (${n})`:''}</text>`;
 
   // 외부기관 (좌)
-  out += zoneFrame(36, 116, 252, 52+fin.length*56, '외부기관 (전용회선)');
+  out += zoneFrame(36, 116, 252, 52+fin.length*56, '외부기관', fin.length);
   fin.forEach((c,i)=>{ const y=152+i*56;
     out += nodeBox(52, y, 220, c.id, c.name, state.sel===c.id, false, 'fin');
     edge(272, y+23, core.x, core.y + 26 + i*32, 'out', c.id, state.sel===c.id);
@@ -927,13 +990,13 @@ function renderMap(){
   // SaaS (상)
   const sw = Math.max(2,saas.length)*206;
   const sx = (core.x+core.w/2) - sw/2;
-  out += zoneFrame(sx-18, 36, sw+36, 110, 'SaaS (인터넷)');
+  out += zoneFrame(sx-18, 36, sw+36, 110, 'SaaS', saas.length);
   saas.forEach((c,i)=>{ const x=sx+i*206;
     out += nodeBox(x, 72, 188, c.id, c.name, state.sel===c.id, false, 'saas');
     edge(x+94, 118, Math.min(core.x+core.w-26, Math.max(core.x+26, x+94)), core.y, 'out', c.id, state.sel===c.id);
   });
   // 원격접속 (우상)
-  out += zoneFrame(966, 116, 252, 52+remote.length*56, '원격접속');
+  out += zoneFrame(966, 116, 252, 52+remote.length*56, '원격접속', remote.length);
   remote.forEach((c,i)=>{ const y=152+i*56;
     out += nodeBox(982, y, 220, c.id, c.name, state.sel===c.id, false, 'remote');
     edge(982, y+23, core.x+core.w, core.y + 26 + i*32, 'in', c.id, state.sel===c.id);
@@ -941,14 +1004,14 @@ function renderMap(){
   // DMZ (하)
   const dw = Math.max(2,dmz.length)*226;
   const dx0 = (core.x+core.w/2) - dw/2;
-  out += zoneFrame(dx0-18, 500, dw+36, 110, 'DMZ / 계열사');
+  out += zoneFrame(dx0-18, 500, dw+36, 110, 'DMZ / 계열사', dmz.length);
   dmz.forEach((c,i)=>{ const x=dx0+i*226;
     out += nodeBox(x, 536, 208, c.id, c.name, state.sel===c.id, false, 'dmz');
     edge(x+104, 536, Math.min(core.x+core.w-26, Math.max(core.x+26, x+104)), core.y+core.h, 'both', c.id, state.sel===c.id);
   });
   // 미등록 (우하)
   if (ROGUES.length) {
-    out += zoneFrame(966, 372, 252, 52+ROGUES.length*56, '미등록 목적지');
+    out += zoneFrame(966, 372, 252, 52+ROGUES.length*56, '미등록 목적지', ROGUES.length);
     ROGUES.forEach((r,i)=>{ const y=408+i*56;
       out += nodeBox(982, y, 220, '?', r.host, false, true);
       edge(982, y+23, core.x+core.w, core.y+core.h-16-i*15, 'out', 'R-'+i, false, true);
@@ -981,7 +1044,7 @@ function renderMap(){
     <div class="subgrid">
       <div class="panel">
         <div class="panel-hd"><span class="t">다가오는 의무</span></div>
-        ${dueList.length ? dueList.map(c=>`<div class="rowitem"><span><b>${c.id}</b> ${c.review.type.replace(' (제4항)','')}</span><span class="when">${c.review.due.slice(5)}</span></div>`).join('') : '<div class="none">없음</div>'}
+        ${dueList.length ? dueList.map(c=>`<div class="rowitem"><span><b>${c.id}</b> ${c.review.type.replace(' (제4항)','')}</span><span style="margin-left:auto;display:flex;gap:8px;align-items:center"><span class="when">${c.review.due.slice(5)}</span>${dday(c.review.due)}</span></div>`).join('') : '<div class="none">없음</div>'}
       </div>
       <div class="panel">
         <div class="panel-hd"><span class="t">미등록 연결 조치</span></div>
@@ -1021,13 +1084,17 @@ function showDetail(sel){
     const c = LEDGER.find(x => x.id === sel); if (!c) return;
     const n = contentCount(c.id);
     boxEl.className = 'detail panel'; boxEl.style.display = 'block';
-    boxEl.innerHTML = `<div class="panel-hd"><span class="t">${c.id} ${esc(c.name)}</span><span class="badge gray">${c.type}</span></div>
-      <div class="panel-bd"><div class="grid">
+    boxEl.innerHTML = `<div class="detail-hd">
+        <span class="org-chip ${c.zone==='saas'?'saas':''}">${esc(c.name.replace(/^NHN |^Microsoft /,'')[0])}</span>
+        <span class="t">${c.id} ${esc(c.name)}</span><span class="badge gray">${c.type}</span>
+        <span class="r">${dday(c.review.due)}${c.zone==='saas' ? `<button class="act ghost2 small" onclick="state.tab='content'; render(); setTimeout(()=>{const t=document.querySelector('#det-target'); if(t) t.value='${c.id}';},0)">이 통로 내용 검사</button>` : ''}</span>
+      </div>
+      <div class="panel-bd" style="padding-top:4px"><div class="grid">
         <dt>근거 조문</dt><dd>${c.basis}</dd>
-        <dt>연결</dt><dd>${c.domains.join(', ')} 포트 ${c.ports}, ${c.dir}</dd>
+        <dt>연결</dt><dd><span class="badge-id" style="margin-top:0">${c.domains.join(', ')} :${c.ports}</span> ${c.dir}</dd>
         <dt>승인</dt><dd>${c.approved}</dd>
-        <dt>적용 통제</dt><dd>${c.controls}${c.pendingRisks?` <b style="color:var(--amber)">미해소 ${c.pendingRisks}건</b>`:''}</dd>
-        <dt>다음 의무</dt><dd>${c.review.type} ${c.review.due} ${c.review.soon?'<b style="color:var(--amber)">임박</b>':''}</dd></div>
+        <dt>적용 통제</dt><dd>${c.controls}${c.pendingRisks?` <b style="color:var(--warn-fg)">미해소 ${c.pendingRisks}건</b>`:''}</dd>
+        <dt>다음 의무</dt><dd>${c.review.type} ${c.review.due}</dd></div>
       ${c.zone==='saas' ? `<div class="content-log">내용검사 기록 <b>${n}건</b>${n?`. 반기 보고에 자동 반영됩니다`:`. 내용 검사 탭에서 이 통로를 점검할 수 있습니다`}</div>` : ''}</div>`;
   }
 }
@@ -1036,6 +1103,7 @@ function quickBlock(host){
   state.blocked.push({ host, kind: r.cls.kind, reason: r.cls.risk });
   state.rogues = state.rogues.filter(x => x.host !== host);
   state.sel = null; render();
+  toast(`${host} 차단 확정`, 'bad');
 }
 
 /* ── 대장: 장부는 표로 ── */
@@ -1096,13 +1164,23 @@ function renderLogs(){
   $('#run').onclick = () => {
     const rec = reconcile($('#logbox').value);
     state.rogues = rec.rogues; state.scanned = true;
+    state.lastScan = new Date().toTimeString().slice(0,5);
     renderStrip(); renderTabs();
     $('#result').innerHTML = renderLogResult(rec);
+    toast(`대조 완료: 목적지 ${rec.rows.length}곳, 미등록 ${rec.rogues.length}건`, rec.rogues.length ? 'bad' : 'ok');
   };
 }
 function renderLogResult(rec){
+  const okN = rec.rows.filter(r=>r.status==='ok').length, badN = rec.rows.filter(r=>r.status==='rogue').length, blkN = rec.rows.filter(r=>r.status==='blocked').length;
   return `<div class="panel" style="margin-top:16px;overflow:hidden">
-    <div class="panel-hd"><span class="t">대조 결과</span><span class="count">(${rec.rows.length})</span></div>
+    <div class="panel-hd rule"><span class="t">대조 결과</span>
+      <span class="sumchips" style="margin-left:8px">
+        <span class="sumchip">목적지 <b>${rec.rows.length}</b></span>
+        <span class="sumchip">승인됨 <b>${okN}</b></span>
+        <span class="sumchip ${badN?'bad':''}">미등록 <b>${badN}</b></span>
+        ${blkN?`<span class="sumchip">차단 확정 <b>${blkN}</b></span>`:''}
+      </span>
+      <span class="lastscan">${state.lastScan ? '마지막 대조 ' + state.lastScan : ''}</span></div>
     <table class="res">
     <tr><th>목적지</th><th>관측</th><th>판정</th><th>대응 / 분류와 사유</th><th></th></tr>
     ${rec.rows.map(r => {
@@ -1241,6 +1319,15 @@ function renderReport(){
         <p class="qsub">정보보호위원회 제출용 초안입니다. 운영 현황, 자체평가, 내용검사 증적이 자동으로 채워집니다.</p>
       </div>
       <div class="actions"><button class="act" onclick="window.print()">인쇄 / PDF 저장</button></div>
+    </div>
+    <div class="panel" style="max-width:880px;margin-bottom:16px">
+      <div class="panel-hd rule"><span class="t">제출 전 점검</span></div>
+      <div class="precheck">
+        <div class="pc done"><span class="ic">✓</span>예외 운영 현황 집계 완료<span class="r">${LEDGER.length}건</span></div>
+        <div class="pc done"><span class="ic">✓</span>SaaS 반기 자체평가 대상 정리<span class="r">${saas.length}건</span></div>
+        <div class="pc ${Object.values(state.contentLog).reduce((n,a)=>n+a.length,0) ? 'done' : 'todo'}"><span class="ic">${Object.values(state.contentLog).reduce((n,a)=>n+a.length,0) ? '✓' : '!'}</span>내용검사 증적${Object.values(state.contentLog).reduce((n,a)=>n+a.length,0) ? '' : ', 아직 없음'}<span class="r">${Object.values(state.contentLog).reduce((n,a)=>n+a.length,0)}건</span></div>
+        <div class="pc ${state.rogues.length ? 'todo' : 'done'}"><span class="ic">${state.rogues.length ? '!' : '✓'}</span>${state.rogues.length ? '미등록 연결 조치 대기' : '미등록 연결 전부 조치됨'}<span class="r">${state.rogues.length}건</span></div>
+      </div>
     </div>
     <div class="panel report-page">
       <h3>망분리 적용 예외 운영 현황 및 반기 자체평가 보고 (초안)</h3>
