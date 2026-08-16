@@ -207,6 +207,21 @@
   .maplegend { display: flex; gap: var(--sp-24); font-size: 13px; color: var(--muted); padding: 12px 20px; border-top: 1px solid var(--line); }
   .maplegend i { display: inline-block; width: 22px; height: 0; border-top: 1.7px solid #dbe3ec; vertical-align: 4px; margin-right: 8px; }
   .maplegend .r i { border-top: 1.9px dashed #e5484d; }
+  .maplegend .d em { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; }
+  .maplegend .d em.ok { background: #2da44e; } .maplegend .d em.soon { background: #e8a23d; } .maplegend .d em.over { background: #e5484d; }
+  .mapstatus { display: flex; align-items: center; gap: 10px; margin: 14px 20px 0; padding: 10px 16px; border-radius: 8px; font-size: 13px; }
+  .mapstatus b { font-weight: 600; margin-right: 2px; }
+  .mapstatus svg { flex: none; }
+  .mapstatus.ok { background: #f2fbf3; color: #116329; border: 1px solid #cdeed6; }
+  .mapstatus.bad { background: #fff5f5; color: #a41c1c; border: 1px solid #ffd9d9; }
+  .mapstatus.idle { background: var(--bg); color: var(--body); border: 1px solid var(--line); }
+  .ndot.ok { fill: #2da44e; } .ndot.soon { fill: #e8a23d; } .ndot.over { fill: #e5484d; }
+  .zone-st { font-size: 10.5px; font-weight: 600; }
+  .zone-st.ok { fill: #2da44e; } .zone-st.soon { fill: #bf8700; } .zone-st.bad { fill: #e5484d; }
+  .core-k { font-size: 11.5px; fill: var(--muted); }
+  .core-v { font-family: var(--mono); font-size: 12px; font-weight: 600; fill: var(--ink); }
+  .core-v.bad { fill: #c62a2f; } .core-v.ok { fill: #116329; } .core-v.dim { fill: var(--disabled); font-weight: 400; }
+  .core-div { stroke: #d3e5f8; stroke-width: 1; }
 
   .subgrid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-16); margin-top: var(--sp-16); }
   .rowitem { display: flex; gap: var(--sp-12); align-items: center; font-size: 14px; color: var(--body); padding: 10px 20px; border-top: 1px solid var(--line); }
@@ -960,9 +975,17 @@ function renderMap(){
   const W=1250, ROGUES=state.rogues;
   const zoneOf = z => LEDGER.filter(c => c.zone === z);
   const fin=zoneOf('fin'), saas=zoneOf('saas'), remote=zoneOf('remote'), dmz=zoneOf('dmz');
-  const H = Math.max(640, 480 + Math.max(0, ROGUES.length-2)*54);
-  const core = { x:495, y:288, w:260, h:126 };
+  const H = Math.max(640, 440 + ROGUES.length*56);
+  const core = { x:495, y:288, w:260, h:148 };
   let out='', edges='', chips='';
+
+  const daysTo = due => { const p=due.split('-').map(Number); return Math.ceil((new Date(p[0],p[1]-1,p[2]||28) - new Date())/86400000); };
+  const stOf = c => { const n=daysTo(c.review.due); return n<0?'over':(c.review.soon||n<=45)?'soon':'ok'; };
+  const zoneSt = list => {
+    const over = list.filter(c=>stOf(c)==='over').length, soon = list.filter(c=>stOf(c)==='soon').length;
+    return over ? {cls:'bad',t:'기한 경과 '+over} : soon ? {cls:'soon',t:'점검 임박 '+soon} : {cls:'ok',t:'정상'};
+  };
+  const detects = Object.values(state.contentLog).reduce((n,a)=>n+a.length,0);
 
   const NODE_IC = {
     fin: 'M5 21V7l7-4 7 4v14M9 21v-4h6v4M9 10h.5M9 13.5h.5M14.5 10h.5M14.5 13.5h.5',
@@ -971,9 +994,10 @@ function renderMap(){
     dmz: 'M4 5h16v5H4zM4 14h16v5H4zM7 7.5h.5M7 16.5h.5',
     rogue: 'M12 3 2.5 20h19zM12 9.5V14M12 17h.01',
   };
-  const nodeBox=(x,y,w,id,name,sel,rogue,zone)=>`
+  const nodeBox=(x,y,w,id,name,sel,rogue,zone,st)=>`
     <rect class="node ${sel?'sel':''} ${rogue?'rogue':''}" x="${x}" y="${y}" width="${w}" height="46" rx="9" data-sel="${id==='?'?name:id}"></rect>
-    <text class="node-id" x="${x+14}" y="${y+18}">${rogue?'미등록':id}</text>
+    ${st?`<circle class="ndot ${st}" cx="${x+17}" cy="${y+14}" r="3.5"></circle>`:''}
+    <text class="node-id" x="${x+(st?27:14)}" y="${y+18}">${rogue?'미등록':id}</text>
     <text class="node-name ${rogue?'rogue':''}" x="${x+14}" y="${y+35}">${esc(name)}</text>
     <g transform="translate(${x+w-30}, ${y+14}) scale(0.75)"><path class="node-ic ${rogue?'rogue':''}" d="${NODE_IC[rogue?'rogue':zone]||NODE_IC.saas}"/></g>`;
   const edge=(x1,y1,x2,y2,dir,key,sel,rogue)=>{
@@ -986,50 +1010,59 @@ function renderMap(){
     chips += `<rect class="chip ${rogue?'rogue':''}" x="${mx-21}" y="${my-10}" width="42" height="20" rx="10" data-sel="${key}"></rect>
       <text class="chip-t ${rogue?'rogue':''}" x="${mx}" y="${my+4}" text-anchor="middle" data-sel="${key}">${rogue?'!':key}</text>`;
   };
-  const zoneFrame=(x,y,w,h,title,n)=>`
+  const zoneFrame=(x,y,w,h,title,n,st)=>`
     <rect class="zone-frame" x="${x}" y="${y}" width="${w}" height="${h}" rx="14"></rect>
-    <text class="zone-title" x="${x+16}" y="${y+24}">${title}${n!=null?` (${n})`:''}</text>`;
+    <text class="zone-title" x="${x+16}" y="${y+24}">${title}${n!=null?` (${n})`:''}</text>
+    ${st?`<text class="zone-st ${st.cls}" x="${x+w-16}" y="${y+24}" text-anchor="end">${st.t}</text>`:''}`;
 
   // 외부기관 (좌)
-  out += zoneFrame(36, 116, 252, 52+fin.length*56, '외부기관', fin.length);
+  out += zoneFrame(36, 116, 252, 52+fin.length*56, '외부기관', fin.length, zoneSt(fin));
   fin.forEach((c,i)=>{ const y=152+i*56;
-    out += nodeBox(52, y, 220, c.id, c.name, state.sel===c.id, false, 'fin');
+    out += nodeBox(52, y, 220, c.id, c.name, state.sel===c.id, false, 'fin', stOf(c));
     edge(272, y+23, core.x, core.y + 26 + i*32, 'out', c.id, state.sel===c.id);
   });
   // SaaS (상)
   const sw = Math.max(2,saas.length)*206;
   const sx = (core.x+core.w/2) - sw/2;
-  out += zoneFrame(sx-18, 36, sw+36, 110, 'SaaS', saas.length);
+  out += zoneFrame(sx-18, 36, sw+36, 110, 'SaaS', saas.length, zoneSt(saas));
   saas.forEach((c,i)=>{ const x=sx+i*206;
-    out += nodeBox(x, 72, 188, c.id, c.name, state.sel===c.id, false, 'saas');
+    out += nodeBox(x, 72, 188, c.id, c.name, state.sel===c.id, false, 'saas', stOf(c));
     edge(x+94, 118, Math.min(core.x+core.w-26, Math.max(core.x+26, x+94)), core.y, 'out', c.id, state.sel===c.id);
   });
   // 원격접속 (우상)
-  out += zoneFrame(966, 116, 252, 52+remote.length*56, '원격접속', remote.length);
+  out += zoneFrame(966, 116, 252, 52+remote.length*56, '원격접속', remote.length, zoneSt(remote));
   remote.forEach((c,i)=>{ const y=152+i*56;
-    out += nodeBox(982, y, 220, c.id, c.name, state.sel===c.id, false, 'remote');
+    out += nodeBox(982, y, 220, c.id, c.name, state.sel===c.id, false, 'remote', stOf(c));
     edge(982, y+23, core.x+core.w, core.y + 26 + i*32, 'in', c.id, state.sel===c.id);
   });
   // DMZ (하)
   const dw = Math.max(2,dmz.length)*226;
   const dx0 = (core.x+core.w/2) - dw/2;
-  out += zoneFrame(dx0-18, 500, dw+36, 110, 'DMZ / 계열사', dmz.length);
+  out += zoneFrame(dx0-18, 500, dw+36, 110, 'DMZ / 계열사', dmz.length, zoneSt(dmz));
   dmz.forEach((c,i)=>{ const x=dx0+i*226;
-    out += nodeBox(x, 536, 208, c.id, c.name, state.sel===c.id, false, 'dmz');
+    out += nodeBox(x, 536, 208, c.id, c.name, state.sel===c.id, false, 'dmz', stOf(c));
     edge(x+104, 536, Math.min(core.x+core.w-26, Math.max(core.x+26, x+104)), core.y+core.h, 'both', c.id, state.sel===c.id);
   });
   // 미등록 (우하)
   if (ROGUES.length) {
-    out += zoneFrame(966, 372, 252, 52+ROGUES.length*56, '미등록 목적지', ROGUES.length);
+    out += zoneFrame(966, 372, 252, 52+ROGUES.length*56, '미등록 목적지', ROGUES.length, {cls:'bad',t:'조치 필요'});
     ROGUES.forEach((r,i)=>{ const y=408+i*56;
       out += nodeBox(982, y, 220, '?', r.host, false, true);
       edge(982, y+23, core.x+core.w, core.y+core.h-16-i*15, 'out', 'R-'+i, false, true);
     });
   }
-  // 중심
+  // 중심: 경계 현황 요약판
+  const coreRow = (dy, k, v, cls) =>
+    `<text class="core-k" x="${core.x+24}" y="${core.y+dy}">${k}</text>
+     <text class="core-v ${cls||''}" x="${core.x+core.w-24}" y="${core.y+dy}" text-anchor="end">${v}</text>`;
   out += `<rect class="core-box" x="${core.x}" y="${core.y}" width="${core.w}" height="${core.h}" rx="14"></rect>
-    <text class="core-title" x="${core.x+24}" y="${core.y+54}">내부업무망</text>
-    <text class="core-sub" x="${core.x+24}" y="${core.y+78}">페이몬 업무 구역, 단말 152대</text>`;
+    <text class="core-title" x="${core.x+24}" y="${core.y+30}">내부업무망</text>
+    <text class="core-k" x="${core.x+core.w-24}" y="${core.y+30}" text-anchor="end">단말 152대</text>
+    <line class="core-div" x1="${core.x+16}" y1="${core.y+44}" x2="${core.x+core.w-16}" y2="${core.y+44}"></line>
+    ${coreRow(68, '승인 통로', LEDGER.length)}
+    ${coreRow(90, '미등록 연결', state.scanned ? ROGUES.length : '실측 전', state.scanned ? (ROGUES.length?'bad':'ok') : 'dim')}
+    ${coreRow(112, '위반 기록', detects, detects?'bad':'')}
+    ${coreRow(134, '마지막 대조', state.lastScan || '없음', state.lastScan?'':'dim')}`;
 
   const dueList = LEDGER.filter(c => c.review.soon);
   $('#main').innerHTML = `<section class="view">
@@ -1042,11 +1075,19 @@ function renderMap(){
     </div>
     <div class="panel">
       <div class="panel-hd"><span class="t">망분리 경계 실측도</span><span class="r">${new Date().toISOString().slice(0,10)} 기준</span></div>
+      ${!state.scanned
+        ? `<div class="mapstatus idle"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="#8792a2" stroke-width="1.3"/><path d="M8 7.5V11M8 5.2h.01" stroke="#8792a2" stroke-width="1.3" stroke-linecap="round"/></svg>승인 장부 기준의 지도입니다. 로그 대조를 실행하면 실제 트래픽과의 일치 여부가 여기에 표시됩니다.<button class="act ghost2 small" style="margin-left:auto" onclick="state.tab='logs'; render()">로그 대조 실행</button></div>`
+        : ROGUES.length
+        ? `<div class="mapstatus bad"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 2.2 1.8 13.5h12.4z" stroke="#e5484d" stroke-width="1.3" stroke-linejoin="round"/><path d="M8 6.8v3M8 12h.01" stroke="#e5484d" stroke-width="1.3" stroke-linecap="round"/></svg><b>경계 불일치</b>대장에 없는 연결 ${ROGUES.length}건이 관측되고 있습니다. 지도 아래에서 판정 또는 차단으로 조치하세요.</div>`
+        : `<div class="mapstatus ok"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="#2da44e" stroke-width="1.4"/><path d="M5.2 8.2l2 2 3.6-4" stroke="#2da44e" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><b>경계 일치</b>관측된 모든 연결이 승인 통로입니다.${state.lastScan ? ' 마지막 대조 ' + state.lastScan : ''}</div>`}
       <div style="padding:4px 12px 0">
       <svg class="map" viewBox="0 0 ${W} ${H}" width="100%">${edges}${out}${chips}</svg></div>
       <div class="maplegend">
         <span><i></i>승인 통로</span>
         <span class="r"><i></i>미등록 연결</span>
+        <span class="d"><em class="ok"></em>기한 정상</span>
+        <span class="d"><em class="soon"></em>점검 임박</span>
+        <span class="d"><em class="over"></em>기한 경과</span>
       </div>
     </div>
     <div class="detail" id="detail"></div>
