@@ -138,7 +138,7 @@
   .badge.gray { color: var(--sub); background: var(--bg); border-color: var(--line2); }
 
   /* ── 지도 ── */
-  .mapgrid { display: grid; grid-template-columns: 1fr 288px; gap: 16px; align-items: start; }
+  .subgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
   svg.map { display: block; width: 100%; }
   svg.map text { font-family: var(--sans); }
   .zone-frame { fill: none; stroke: var(--line2); stroke-width: 1; stroke-dasharray: 3 4; }
@@ -296,11 +296,11 @@
 
   @media (max-width: 980px) {
     .layout { grid-template-columns: 1fr; }
+    .subgrid { grid-template-columns: 1fr; }
     aside.sidenav { position: static; height: auto; flex-direction: row; flex-wrap: wrap; padding: 8px 10px; border-right: none; border-bottom: 1px solid var(--line); }
     .side-foot, .side-sec { display: none; }
     .nav-it { width: auto; }
     .content { padding: 14px 16px 40px; }
-    .mapgrid { grid-template-columns: 1fr; }
     .who .org { display: none; }
   }
   @media print {
@@ -745,39 +745,37 @@ function renderMap(){
         ${state.scanned ? '<b>붉은 점선은 대장에 없는 연결</b>입니다.' : '로그 대조를 실행하면 대장에 없는 연결이 지도에 표시됩니다.'}</p>
       </div>
     </div>
-    <div class="mapgrid">
-      <div class="panel">
-        <div class="panel-hd"><span class="t">망분리 경계 실측도</span><span class="r">${new Date().toISOString().slice(0,10)} 기준</span></div>
-        <div style="padding:6px 10px 0">
-        <svg class="map" viewBox="0 0 ${W} ${H}" width="100%">
-          <defs>
-            <pattern id="dots" width="26" height="26" patternUnits="userSpaceOnUse">
-              <circle cx="1.2" cy="1.2" r="1.2" fill="rgba(16,24,40,.055)"/>
-            </pattern>
-          </defs>
-          <rect width="${W}" height="${H}" fill="url(#dots)"></rect>
-          ${edges}${out}${chips}
-        </svg></div>
-        <div class="maplegend">
-          <span><i></i>승인 통로</span>
-          <span class="r"><i></i>미등록 연결</span>
-        </div>
-      </div>
-      <div class="side">
-        <div class="panel">
-          <div class="panel-hd"><span class="t">다가오는 의무</span></div>
-          ${dueList.length ? dueList.map(c=>`<div class="rowitem"><span><b>${c.id}</b> ${c.review.type.replace(' (제4항)','')}</span><span class="when">${c.review.due.slice(5)}</span></div>`).join('') : '<div class="none">없음</div>'}
-        </div>
-        <div class="panel">
-          <div class="panel-hd"><span class="t">미등록 연결 조치</span></div>
-          ${state.rogues.length ? state.rogues.map(r=>`<div class="rowitem"><span class="host">${esc(r.host)}</span><span class="sp">${
-            r.cls.saasLike?`<button class="act small" onclick='openWizard({host:${JSON.stringify(r.host)}, name:${JSON.stringify(r.host)}, fromRogue:true, cls:${JSON.stringify(r.cls)}})'>판정</button>`:''}
-            <button class="act danger small" onclick='quickBlock(${JSON.stringify(r.host)})'>차단</button></span></div>`).join('')
-          : `<div class="none">${state.scanned?'전부 조치됨':'로그 대조 실행 전'}</div>`}
-        </div>
+    <div class="panel">
+      <div class="panel-hd"><span class="t">망분리 경계 실측도</span><span class="r">${new Date().toISOString().slice(0,10)} 기준</span></div>
+      <div style="padding:6px 10px 0">
+      <svg class="map" viewBox="0 0 ${W} ${H}" width="100%">
+        <defs>
+          <pattern id="dots" width="26" height="26" patternUnits="userSpaceOnUse">
+            <circle cx="1.2" cy="1.2" r="1.2" fill="rgba(16,24,40,.055)"/>
+          </pattern>
+        </defs>
+        <rect width="${W}" height="${H}" fill="url(#dots)"></rect>
+        ${edges}${out}${chips}
+      </svg></div>
+      <div class="maplegend">
+        <span><i></i>승인 통로</span>
+        <span class="r"><i></i>미등록 연결</span>
       </div>
     </div>
     <div class="detail" id="detail"></div>
+    <div class="subgrid">
+      <div class="panel">
+        <div class="panel-hd"><span class="t">다가오는 의무</span></div>
+        ${dueList.length ? dueList.map(c=>`<div class="rowitem"><span><b>${c.id}</b> ${c.review.type.replace(' (제4항)','')}</span><span class="when">${c.review.due.slice(5)}</span></div>`).join('') : '<div class="none">없음</div>'}
+      </div>
+      <div class="panel">
+        <div class="panel-hd"><span class="t">미등록 연결 조치</span></div>
+        ${state.rogues.length ? state.rogues.map(r=>`<div class="rowitem"><span class="host">${esc(r.host)}</span><span class="sp">${
+          r.cls.saasLike?`<button class="act small" onclick='openWizard({host:${JSON.stringify(r.host)}, name:${JSON.stringify(r.host)}, fromRogue:true, cls:${JSON.stringify(r.cls)}})'>판정</button>`:''}
+          <button class="act danger small" onclick='quickBlock(${JSON.stringify(r.host)})'>차단</button></span></div>`).join('')
+        : `<div class="none">${state.scanned?'전부 조치됨':'로그 대조 실행 전'}</div>`}
+      </div>
+    </div>
   </section>`;
   document.querySelectorAll('[data-sel]').forEach(el => el.addEventListener('click', () => {
     const v = el.dataset.sel;
