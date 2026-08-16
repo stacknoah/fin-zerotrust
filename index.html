@@ -379,8 +379,17 @@
 <div class="overlay" id="overlay"><div class="modal" id="modal"></div></div>
 
 <script>
-/* 배포 데모에서 ?llm=https://터널주소 로 추론 서버를 지정한다. 없으면 localhost Ollama */
-(function(){ const v = new URLSearchParams(location.search).get('llm'); if (v) window.SALPI_LLM_ENDPOINT = v; })();
+/* 추론 서버 주소 결정. 우선순위: 주소의 llm 파라미터 > 배포본의 llm-endpoint.txt > localhost Ollama.
+   배포 후 터널 주소가 바뀌면 llm-endpoint.txt만 다시 올리면 된다 */
+(function(){
+  const v = new URLSearchParams(location.search).get('llm');
+  if (v) { window.SALPI_LLM_ENDPOINT = v; return; }
+  if (location.protocol === 'file:' || ['localhost','127.0.0.1'].includes(location.hostname)) return;
+  fetch('llm-endpoint.txt').then(r => r.ok ? r.text() : '').then(t => {
+    t = (t || '').trim();
+    if (t.startsWith('https://')) { window.SALPI_LLM_ENDPOINT = t; if (typeof detProbe === 'function') detProbe(); }
+  }).catch(() => {});
+})();
 </script>
 <script src="engine.js"></script>
 <script src="evidence.js"></script>

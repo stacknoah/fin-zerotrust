@@ -253,15 +253,20 @@
    *       OLLAMA_ORIGINS="*" ollama serve 로 띄우거나 로컬 서버로 데모를 열 것.
    */
   const DEFAULT_LLM = {
-    endpoint: (typeof window !== 'undefined' && window.SALPI_LLM_ENDPOINT) || 'http://localhost:11434',
+    endpoint: 'http://localhost:11434',
     model: 'hf.co/mradermacher/kanana-2-3b-instruct-GGUF:Q4_K_M',
     timeoutMs: 30000,
   };
+  // 호출 시점 평가. 배포 데모는 window.SALPI_LLM_ENDPOINT로 원격 추론 서버를 지정한다
+  function llmBase(o) {
+    if (typeof window !== 'undefined' && window.SALPI_LLM_ENDPOINT) return window.SALPI_LLM_ENDPOINT;
+    return o.endpoint;
+  }
 
   async function llmAvailable(opts) {
     const o = Object.assign({}, DEFAULT_LLM, opts);
     try {
-      const res = await fetch(o.endpoint + '/api/tags');
+      const res = await fetch(llmBase(o) + '/api/tags');
       if (!res.ok) return { ok: false, reason: 'HTTP ' + res.status };
       const j = await res.json();
       const names = (j.models || []).map(m => m.name);
@@ -286,7 +291,7 @@
   }
 
   async function llmOnce(chunk, o) {
-    const out = await fetchJSON(o.endpoint + '/api/generate', {
+    const out = await fetchJSON(llmBase(o) + '/api/generate', {
       model: o.model,
       prompt: SYSTEM_PROMPT + '\n\n입력:\n' + chunk + '\n출력:',
       format: 'json',
