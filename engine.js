@@ -253,7 +253,7 @@
    *       OLLAMA_ORIGINS="*" ollama serve 로 띄우거나 로컬 서버로 데모를 열 것.
    */
   const DEFAULT_LLM = {
-    endpoint: 'http://localhost:11434',
+    endpoint: (typeof window !== 'undefined' && window.SALPI_LLM_ENDPOINT) || 'http://localhost:11434',
     model: 'hf.co/mradermacher/kanana-2-3b-instruct-GGUF:Q4_K_M',
     timeoutMs: 30000,
   };
@@ -298,33 +298,44 @@
 
   async function llmCombine(text, opts) {
     const o = Object.assign({}, DEFAULT_LLM, opts);
+    const emit = typeof o.onEvent === 'function' ? o.onEvent : null;
     const hits = [], rejected = [];
     const seen = new Set();
     let repaired = 0;
 
-    for (const chunk of makeWindows(text, 3, 2)) {
+    const windows = makeWindows(text, 3, 2);
+    if (emit) emit({ type: 'start', windows: windows.length, model: o.model });
+    let wi = 0;
+    for (const chunk of windows) {
+      wi++;
+      if (emit) emit({ type: 'window', i: wi, total: windows.length, chunk });
+      const t0 = Date.now();
+      const winEvents = [];
       let parsed = null;
       // JSON이 깨지면 한 번 더 시도한다
       for (let attempt = 0; attempt < 2 && !parsed; attempt++) {
         let raw;
-        try { raw = await llmOnce(chunk, o); } catch (e) { rejected.push({ reason: 'call_failed' }); break; }
+        try { raw = await llmOnce(chunk, o); } catch (e) { rejected.push({ reason: 'call_failed' }); winEvents.push({ ok: false, reason: 'call_failed' }); break; }
         try { parsed = JSON.parse(raw); }
-        catch (e) { if (attempt === 1) rejected.push({ reason: 'invalid_json', raw: String(raw).slice(0, 160) }); }
+        catch (e) { if (attempt === 1) { rejected.push({ reason: 'invalid_json', raw: String(raw).slice(0, 160) }); winEvents.push({ ok: false, reason: 'invalid_json' }); } }
       }
-      if (!parsed) continue;
+      if (!parsed) { if (emit) emit({ type: 'result', i: wi, total: windows.length, ms: Date.now() - t0, accepted: [], dropped: winEvents }); continue; }
 
       const findings = Array.isArray(parsed.findings) ? parsed.findings
                      : Array.isArray(parsed) ? parsed : [];
+      const winAccepted = [], winDropped = [];
       for (const raw0 of findings) {
         const f = raw0;
         const v = verifyFinding(f, chunk);
         if (!v.ok) {
           rejected.push({ reason: v.reason, label: f && f.label, span: norm(f && f.evidence_span).slice(0, 60) });
+          if (v.reason !== 'label_none') winDropped.push({ ok: false, reason: v.reason, span: norm(f && f.evidence_span).slice(0, 40) });
           continue;
         }
         const span = norm(f.evidence_span);
         if (seen.has(f.label + '|' + span)) continue;   // 겹치는 창에서 중복 제거
         seen.add(f.label + '|' + span);
+        winAccepted.push({ label: f.label, span: span.slice(0, 40) });
         hits.push({
           layer: 'combine', mode: 'llm', label: f.label,
           tag: f.label === 'combined' ? '결합' : f.label === 'unique_id' ? '고유식별정보' : '식별정보',
@@ -336,7 +347,9 @@
             : '식별정보 단독. 다른 신용정보와 결합될 때에만 신용정보',
         });
       }
+      if (emit) emit({ type: 'result', i: wi, total: windows.length, ms: Date.now() - t0, accepted: winAccepted, dropped: winDropped });
     }
+    if (emit) emit({ type: 'done', windows: windows.length, accepted: hits.length, dropped: rejected.filter(r => r.reason !== 'label_none').length });
     return { hits, rejected, repaired };
   }
 

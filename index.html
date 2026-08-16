@@ -216,6 +216,19 @@
   .det-hit .note { font-size: 11.5px; color: var(--sub); }
   .det-empty { color: var(--faint); font-size: 12px; padding: 11px 18px; }
 
+  /* AI 판정 실황 */
+  .ai-bar { height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; margin: 0 18px 4px; }
+  .ai-bar i { display: block; height: 100%; width: 0; background: var(--blue); border-radius: 2px; transition: width .3s ease; }
+  .ai-row { display: flex; gap: 12px; padding: 9px 18px; border-bottom: 1px solid var(--line); font-size: 12px; align-items: baseline; animation: fade .25s ease both; }
+  .ai-row:last-of-type { border-bottom: none; }
+  .ai-row .no { font-family: var(--mono); font-size: 10px; color: var(--faint); flex: 0 0 34px; }
+  .ai-row .chunk { font-family: var(--mono); font-size: 11px; color: var(--sub); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ai-row .out { flex: 0 0 auto; display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+  .ai-row .ms { font-family: var(--mono); font-size: 10px; color: var(--faint); flex: 0 0 46px; text-align: right; }
+  .ai-row.pending .chunk { color: var(--ink); }
+  .ai-row.pending .out::after { content: "판정 중"; font-size: 11px; color: var(--blue); font-weight: 600; animation: blink 1s ease infinite; }
+  @keyframes blink { 50% { opacity: .35; } }
+
   /* ── 모달 ── */
   .overlay {
     position: fixed; inset: 0; background: rgba(16,24,40,.5);
@@ -365,6 +378,10 @@
 
 <div class="overlay" id="overlay"><div class="modal" id="modal"></div></div>
 
+<script>
+/* 배포 데모에서 ?llm=https://터널주소 로 추론 서버를 지정한다. 없으면 localhost Ollama */
+(function(){ const v = new URLSearchParams(location.search).get('llm'); if (v) window.SALPI_LLM_ENDPOINT = v; })();
+</script>
 <script src="engine.js"></script>
 <script src="evidence.js"></script>
 <script>
@@ -919,6 +936,11 @@ function renderContent(){
       <span class="r"><button class="act ghost2 small" id="det-sample">예시 회의록 넣기</button></span>
     </div><div class="panel-bd">
     <textarea id="det-in" style="height:130px" placeholder="검사할 문서나 회의록을 붙여넣으세요"></textarea></div></div>
+    <div id="ai-live" class="panel" style="display:none;margin-top:14px">
+      <div class="panel-hd"><span class="t">AI 판정 실황</span><span class="badge gray" id="ai-model"></span><span class="r" id="ai-stat"></span></div>
+      <div class="ai-bar"><i id="ai-prog"></i></div>
+      <div id="ai-rows"></div>
+    </div>
     <div id="det-out" class="det-out panel" style="display:none;margin-top:14px"></div>
     <div id="det-note"></div></section>`;
   $('#det-sample').onclick = () => {
@@ -938,14 +960,56 @@ async function detProbe(){
     : `<span class="off-dot">로컬 모델 미연결, 빠른 검사로 동작</span>`;
   el.querySelectorAll('input[name="dm"]').forEach(r => r.onchange = () => { state.detMode = r.value; detRun(); });
 }
+const DROP_KO = {
+  span_not_in_source: '원문에 없는 근거, 폐기',
+  identifier_not_in_span: '근거 밖 이름 지목, 폐기',
+  combined_missing_parts: '결합 요소 불명, 폐기',
+  bad_label: '형식 벗어난 판정, 폐기',
+  empty_span: '근거 없음, 폐기',
+  invalid_json: '형식 오류, 폐기',
+  call_failed: '호출 실패',
+};
+function aiEvent(ev){
+  const live = $('#ai-live'), rows = $('#ai-rows'); if (!live || !rows) return;
+  if (ev.type === 'start') {
+    live.style.display = 'block'; rows.innerHTML = '';
+    $('#ai-model').textContent = 'Kanana-2-3B, ' + (window.SALPI_LLM_ENDPOINT ? '원격 추론' : '로컬 추론');
+    $('#ai-stat').textContent = '문서를 창 ' + ev.windows + '개로 분할';
+    $('#ai-prog').style.width = '0%';
+  }
+  if (ev.type === 'window') {
+    rows.insertAdjacentHTML('beforeend', `<div class="ai-row pending" id="ai-w${ev.i}">
+      <span class="no">${ev.i}/${ev.total}</span>
+      <span class="chunk">${esc(ev.chunk.replace(/\n/g, ' ⏎ ').slice(0, 90))}</span>
+      <span class="out"></span><span class="ms"></span></div>`);
+    rows.lastElementChild.scrollIntoView({ block: 'nearest' });
+  }
+  if (ev.type === 'result') {
+    const row = $('#ai-w' + ev.i); if (!row) return;
+    row.classList.remove('pending');
+    const out = row.querySelector('.out');
+    const parts = [];
+    ev.accepted.forEach(a => parts.push(`<span class="badge ${a.label==='identifier'?'gray':'bad'}">${a.label==='combined'?'결합 위반':a.label==='unique_id'?'고유식별정보':'식별정보'}</span>`));
+    ev.dropped.forEach(d => parts.push(`<span class="badge warn">${DROP_KO[d.reason]||d.reason}</span>`));
+    if (!parts.length) parts.push('<span class="badge ok">이상 없음</span>');
+    out.innerHTML = parts.join('');
+    row.querySelector('.ms').textContent = (ev.ms/1000).toFixed(1) + 's';
+    $('#ai-prog').style.width = Math.round(ev.i/ev.total*100) + '%';
+  }
+  if (ev.type === 'done') {
+    $('#ai-stat').textContent = `창 ${ev.windows}개 판정 완료, 채택 ${ev.accepted}건, 검증 폐기 ${ev.dropped}건`;
+    $('#ai-prog').style.width = '100%';
+  }
+}
 async function detRun(){
   const ta = $('#det-in'), out = $('#det-out'), note = $('#det-note');
   if (!ta || !out) return;
-  if (!ta.value.trim()) { out.innerHTML = ''; out.style.display = 'none'; note.innerHTML = ''; return; }
+  if (!ta.value.trim()) { out.innerHTML = ''; out.style.display = 'none'; note.innerHTML = ''; $('#ai-live').style.display = 'none'; return; }
   const seq = ++detSeq;
   out.style.display = 'block';
   if (state.detMode !== 'heuristic') out.innerHTML = '<div class="det-empty">정밀 검사 중…</div>';
-  const res = await SalpiEngine.scan(ta.value, { mode: state.detMode });
+  else $('#ai-live').style.display = 'none';
+  const res = await SalpiEngine.scan(ta.value, { mode: state.detMode, llm: { onEvent: aiEvent } });
   if (seq !== detSeq) return;
   const target = $('#det-target')?.value || 'C-05';
   const viols = res.hits.filter(h => h.severity==='violation');
