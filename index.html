@@ -124,7 +124,7 @@
   /* ── 6. KPI 스탯 카드 (shadcn) ── */
   .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(168px, 1fr)); gap: var(--sp-16); margin-bottom: var(--sp-16); }
   .stat { background: var(--panel); border-radius: var(--radius); box-shadow: var(--shadow-card); padding: 16px 20px 14px; }
-  .stat span.l { display: block; font-size: 14px; line-height: 20px; color: var(--muted); margin-bottom: 4px; }
+  .stat .l { display: block; font-size: 14px; line-height: 20px; color: var(--muted); margin-bottom: 4px; white-space: nowrap; }
   .stat b { display: block; font: 600 30px/36px var(--sans); color: var(--ink); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
   .stat.bad b { color: var(--bad-fg); } .stat.warn b { color: var(--warn-fg); } .stat.ok b { color: var(--ok-fg); }
 
@@ -351,6 +351,95 @@
   .login-card button { width: 100%; margin-top: 26px; height: 36px; justify-content: center; font-size: 14px; font-weight: 600; }
   .login-card .demo-note { font-size: 12px; line-height: 18px; color: var(--disabled); margin-top: 18px; text-align: center; }
 
+  /* ── 상단바 검색 ── */
+  .tsearch { position: relative; margin-left: 8px; width: 340px; }
+  .tsearch svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; stroke: #8aa2b8; fill: none; stroke-width: 1.8; stroke-linecap: round; pointer-events: none; }
+  .tsearch input {
+    width: 100%; height: 32px; padding: 0 12px 0 32px; font-family: var(--sans); font-size: 13px;
+    color: #fff; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12); border-radius: var(--r-ctl);
+    transition: background-color var(--t), border-color var(--t);
+  }
+  .tsearch input::placeholder { color: #8aa2b8; }
+  .tsearch input:focus { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.3); box-shadow: none; }
+  .tsearch-drop {
+    display: none; position: absolute; top: 38px; left: 0; right: 0; z-index: 60;
+    background: var(--panel); border-radius: var(--r-pop); box-shadow: var(--shadow-overlay);
+    padding: 6px; max-height: 320px; overflow: auto;
+    animation: pop-in 150ms var(--ease) both; transform-origin: top;
+  }
+  .tsearch-drop.open { display: block; }
+  .tsearch-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--r-ctl); cursor: pointer; font-size: 14px; color: var(--ink); transition: background-color var(--t); }
+  .tsearch-item:hover { background: var(--hover); }
+  .tsearch-item .ti-id { font-family: var(--mono); font-size: 11px; color: var(--muted); flex: 0 0 40px; }
+  .tsearch-item .ti-host { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  .tsearch-empty { padding: 10px 12px; font-size: 13px; color: var(--disabled); }
+
+  /* ── 사이드바 상태 카드 ── */
+  .side-status {
+    margin: 12px 4px 0; padding: 10px 12px; background: var(--hover);
+    border: 1px solid var(--hair); border-radius: var(--r-pop);
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .side-status-sub { font-family: var(--mono); font-size: 11px; color: var(--disabled); padding-left: 14px; }
+
+  /* ── KPI 미니 시각화 ── */
+  .stat { display: flex; align-items: center; gap: 12px; }
+  .stat .tx { min-width: 0; }
+  .stat .viz { margin-left: auto; flex-shrink: 0; }
+  .spark { display: flex; align-items: flex-end; gap: 3px; height: 34px; }
+  .spark i { width: 7px; border-radius: 2px 2px 0 0; background: #f3c7c7; }
+  .spark i.now { background: #e5484d; }
+  .spark.calm i { background: var(--line); }
+
+  /* ── 대장 이니셜 칩 ── */
+  .org-chip {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
+    background: var(--neutral-bg); color: var(--neutral-fg);
+    font-size: 13px; font-weight: 700;
+  }
+  .org-chip.saas { background: var(--blue-soft); color: var(--blue); }
+  .org-chip.rogue { background: var(--bad-bg); color: var(--bad-fg); }
+  .cell-org { display: flex; align-items: center; gap: 10px; }
+
+  /* ── 노드 아이콘 ── */
+  .node-ic { stroke: #aab6c4; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+  .node-ic.rogue { stroke: #e5484d; }
+
+  /* ── 빈 상태 ── */
+  .empty { padding: 24px 20px 26px; text-align: center; }
+  .empty svg { width: 40px; height: 40px; stroke: #aab6c4; fill: none; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; margin-bottom: 8px; }
+  .empty p { font-size: 13px; line-height: 18px; color: var(--muted); margin-bottom: 12px; }
+
+  /* ── 로그인 분할 ── */
+  .login-split {
+    display: grid; grid-template-columns: 1fr 400px; width: 880px; max-width: 100%;
+    border-radius: var(--r-modal); overflow: hidden; box-shadow: var(--shadow-overlay);
+  }
+  .login-brand { background: #0a2540; padding: 44px 40px 36px; display: flex; flex-direction: column; }
+  .lb-logo { font: 700 30px/38px var(--sans); color: #fff; letter-spacing: -0.4px; }
+  .lb-logo small { font-family: var(--mono); font-size: 10px; color: #adbdcc; letter-spacing: .26em; margin-left: 10px; }
+  .lb-tag { font-size: 15px; color: #adbdcc; margin: 4px 0 22px; }
+  .lb-desc { font-size: 14px; line-height: 22px; color: #d6e3ef; max-width: 40ch; margin-bottom: 20px; }
+  .lb-points { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .lb-points li { position: relative; padding-left: 22px; font-size: 13.5px; line-height: 19px; color: #adbdcc; }
+  .lb-points li::before {
+    content: ""; position: absolute; left: 0; top: 3px; width: 13px; height: 13px;
+    border-radius: 50%; background: rgba(77,161,240,.22);
+    box-shadow: inset 0 0 0 4.5px rgba(77,161,240,.0), 0 0 0 0 transparent;
+  }
+  .lb-points li::after {
+    content: ""; position: absolute; left: 3.5px; top: 7.5px; width: 6px; height: 3.5px;
+    border-left: 1.6px solid #4ba1f0; border-bottom: 1.6px solid #4ba1f0; transform: rotate(-45deg);
+  }
+  .lb-foot { margin-top: auto; padding-top: 28px; font-size: 12px; color: #6b8299; }
+  .login-card { background: var(--panel); border-radius: 0; box-shadow: none; width: auto; padding: 44px 38px 30px; }
+  .lf-title { font: 600 20px/28px var(--sans); color: var(--ink); letter-spacing: -0.4px; }
+  @media (max-width: 900px) {
+    .login-split { grid-template-columns: 1fr; width: 420px; }
+    .login-brand { display: none; }
+  }
+
   /* 30. HoverArrow (Stripe) */
   .arrow-link { display: inline-flex; align-items: center; gap: 4px; }
   .arrow-link svg { width: 10px; height: 10px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; }
@@ -383,16 +472,30 @@
 <body>
 
 <div class="login-screen" id="login" style="display:none">
-  <form class="login-card" onsubmit="doLogin(event)">
-    <div class="logo">살피<small>SALPI</small></div>
-    <p class="ld">금융권 망분리 경계 관제</p>
-    <label for="lg-id">아이디</label>
-    <input id="lg-id" type="text" value="paymon.sec" autocomplete="off">
-    <label for="lg-pw">비밀번호</label>
-    <input id="lg-pw" type="password" value="demo-pass" autocomplete="off">
-    <button class="act" type="submit">로그인</button>
-    <p class="demo-note">데모 환경입니다. 입력값과 관계없이<br>데모 계정(페이몬 정보보호팀)으로 입장합니다.</p>
-  </form>
+  <div class="login-split">
+    <div class="login-brand">
+      <div class="lb-logo">살피<small>SALPI</small></div>
+      <p class="lb-tag">금융권 망분리 경계 관제</p>
+      <p class="lb-desc">내부업무망에 뚫린 모든 인터넷 통로를 한 장부로 관리하고, 실제 트래픽과 대조해 장부에 없는 연결을 찾아냅니다.</p>
+      <ul class="lb-points">
+        <li>승인 통로의 근거, 통제, 다음 의무를 한눈에</li>
+        <li>프록시 로그 대조로 미등록 연결 발견</li>
+        <li>로컬 AI가 문서 속 고객정보 결합을 탐지</li>
+        <li>반기 자체평가 보고서 자동 조립</li>
+      </ul>
+      <div class="lb-foot">전자금융감독규정 시행세칙 제2조의3</div>
+    </div>
+    <form class="login-card" onsubmit="doLogin(event)">
+      <div class="lf-title">로그인</div>
+      <p class="ld">페이몬 정보보호팀 콘솔</p>
+      <label for="lg-id">아이디</label>
+      <input id="lg-id" type="text" value="paymon.sec" autocomplete="off">
+      <label for="lg-pw">비밀번호</label>
+      <input id="lg-pw" type="password" value="demo-pass" autocomplete="off">
+      <button class="act" type="submit">로그인</button>
+      <p class="demo-note">데모 환경입니다. 입력값과 관계없이<br>데모 계정으로 입장합니다.</p>
+    </form>
+  </div>
 </div>
 
 <div id="appshell" style="display:none">
@@ -400,6 +503,11 @@
   <h1 class="brand" onclick="state.tab='map'; state.sel=null; render(); window.scrollTo(0,0)">살피<small>SALPI</small></h1>
   <span class="divider"></span>
   <span class="svc">망분리 경계 관제</span>
+  <div class="tsearch" id="tsearch">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.5-4.5"/></svg>
+    <input id="tsearch-in" type="text" placeholder="통로, 도메인 검색" autocomplete="off">
+    <div class="tsearch-drop" id="tsearch-drop"></div>
+  </div>
   <span class="who">
     <span class="org"><span class="avatar">페</span>페이몬 정보보호팀</span>
     <a href="#" onclick="logout(); return false">로그아웃</a>
@@ -415,6 +523,10 @@
       <span>판정 워크벤치</span>
       <svg viewBox="0 0 10 10" style="width:10px;height:10px;margin-left:auto"><path class="stem" d="M0 5h7"/><path class="head" d="M1 1l4 4-4 4"/></svg>
     </a>
+    <div class="side-status">
+      <span class="status-dot off" id="ai-side-status">AI 모델 확인 중</span>
+      <span class="side-status-sub" id="ai-side-sub">Kanana-2-3B</span>
+    </div>
     <div class="side-foot">페이몬, 가상 전자금융업자<br>시행세칙 제2조의3 데모</div>
   </aside>
   <div class="content">
@@ -716,20 +828,43 @@ const TABS = [
   { k:'map', t:'경계 지도' }, { k:'ledger', t:'통로 대장' }, { k:'logs', t:'로그 대조' },
   { k:'content', t:'내용 검사' }, { k:'report', t:'반기 보고' },
 ];
+/* 통로 유형 분포 도넛 (SVG stroke-dasharray) */
+function donutSVG(){
+  const groups = {};
+  for (const c of LEDGER) groups[c.type] = (groups[c.type]||0)+1;
+  const colors = ['#006ce0','#7fb5ff','#b9d6ff','#84d59b','#f3d27f'];
+  const total = LEDGER.length || 1;
+  const R = 15, C = 2*Math.PI*R;
+  let off = 0, segs = '';
+  Object.values(groups).forEach((n,i)=>{
+    const len = n/total*C;
+    segs += `<circle r="${R}" cx="19" cy="19" fill="none" stroke="${colors[i%colors.length]}" stroke-width="7"
+      stroke-dasharray="${Math.max(len-1.6,0.5)} ${C}" stroke-dashoffset="${-off}" transform="rotate(-90 19 19)"/>`;
+    off += len;
+  });
+  return `<svg width="38" height="38" viewBox="0 0 38 38">${segs}</svg>`;
+}
+function sparkSVG(){
+  const hist = [0,1,0,2, state.scanned ? state.rogues.length + state.blocked.length : 0];
+  const max = Math.max(...hist, 1);
+  const calm = !state.scanned;
+  return `<span class="spark ${calm?'calm':''}">${hist.map((v,i)=>
+    `<i class="${i===hist.length-1&&!calm?'now':''}" style="height:${Math.max(v/max*34,4)}px"></i>`).join('')}</span>`;
+}
 function renderStrip(){
   const saasDue = LEDGER.filter(c => c.review.soon && c.review.type.includes('반기')).length;
   const reviewDue = LEDGER.filter(c => c.review.soon && !c.review.type.includes('반기')).length;
   const detects = Object.values(state.contentLog).reduce((n,a)=>n+a.length,0);
   const items = [
-    { n: LEDGER.length, l:'승인된 통로' },
+    { n: LEDGER.length, l:'승인된 통로', viz: donutSVG() },
     { n: saasDue, l:'반기 평가 예정', cls: saasDue?'warn':'' },
     { n: reviewDue, l:'재승인 필요', cls: reviewDue?'warn':'' },
-    { n: state.scanned ? state.rogues.length : '-', l:'미등록 연결', cls: state.rogues.length?'bad':'' },
+    { n: state.scanned ? state.rogues.length : '-', l:'미등록 연결', cls: state.rogues.length?'bad':'', viz: sparkSVG() },
     { n: detects, l:'위반 탐지', cls: detects?'ok':'' },
   ];
   if (state.blocked.length) items.push({ n: state.blocked.length, l:'차단 확정' });
   $('#strip').innerHTML = items.map(it =>
-    `<div class="stat ${it.cls||''}"><b>${it.n}</b><span class="l">${it.l}</span></div>`).join('');
+    `<div class="stat ${it.cls||''}"><span class="tx"><span class="l">${it.l}</span><b>${it.n}</b></span>${it.viz?`<span class="viz">${it.viz}</span>`:''}</div>`).join('');
 }
 const ICONS = {
   map: '<svg viewBox="0 0 24 24"><circle cx="5.5" cy="6" r="2"/><circle cx="18.5" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><path d="M7 7.3 10.8 16M17 7.3 13.2 16M7.5 6h9"/></svg>',
@@ -757,10 +892,18 @@ function renderMap(){
   const core = { x:495, y:288, w:260, h:126 };
   let out='', edges='', chips='';
 
-  const nodeBox=(x,y,w,id,name,sel,rogue)=>`
+  const NODE_IC = {
+    fin: 'M5 21V7l7-4 7 4v14M9 21v-4h6v4M9 10h.5M9 13.5h.5M14.5 10h.5M14.5 13.5h.5',
+    saas: 'M7 18a4.5 4.5 0 1 1 .6-8.96A6 6 0 0 1 19 11a3.5 3.5 0 0 1-1 6.9H7z',
+    remote: 'M4 5h16v11H4zM9 20h6M12 16v4',
+    dmz: 'M4 5h16v5H4zM4 14h16v5H4zM7 7.5h.5M7 16.5h.5',
+    rogue: 'M12 3 2.5 20h19zM12 9.5V14M12 17h.01',
+  };
+  const nodeBox=(x,y,w,id,name,sel,rogue,zone)=>`
     <rect class="node ${sel?'sel':''} ${rogue?'rogue':''}" x="${x}" y="${y}" width="${w}" height="46" rx="9" data-sel="${id==='?'?name:id}"></rect>
     <text class="node-id" x="${x+14}" y="${y+18}">${rogue?'미등록':id}</text>
-    <text class="node-name ${rogue?'rogue':''}" x="${x+14}" y="${y+35}">${esc(name)}</text>`;
+    <text class="node-name ${rogue?'rogue':''}" x="${x+14}" y="${y+35}">${esc(name)}</text>
+    <g transform="translate(${x+w-30}, ${y+14}) scale(0.75)"><path class="node-ic ${rogue?'rogue':''}" d="${NODE_IC[rogue?'rogue':zone]||NODE_IC.saas}"/></g>`;
   const edge=(x1,y1,x2,y2,dir,key,sel,rogue)=>{
     const dx=Math.abs(x2-x1), dy=Math.abs(y2-y1);
     const horiz = dx > dy;
@@ -778,7 +921,7 @@ function renderMap(){
   // 외부기관 (좌)
   out += zoneFrame(36, 116, 252, 52+fin.length*56, '외부기관 (전용회선)');
   fin.forEach((c,i)=>{ const y=152+i*56;
-    out += nodeBox(52, y, 220, c.id, c.name, state.sel===c.id);
+    out += nodeBox(52, y, 220, c.id, c.name, state.sel===c.id, false, 'fin');
     edge(272, y+23, core.x, core.y + 26 + i*32, 'out', c.id, state.sel===c.id);
   });
   // SaaS (상)
@@ -786,13 +929,13 @@ function renderMap(){
   const sx = (core.x+core.w/2) - sw/2;
   out += zoneFrame(sx-18, 36, sw+36, 110, 'SaaS (인터넷)');
   saas.forEach((c,i)=>{ const x=sx+i*206;
-    out += nodeBox(x, 72, 188, c.id, c.name, state.sel===c.id);
+    out += nodeBox(x, 72, 188, c.id, c.name, state.sel===c.id, false, 'saas');
     edge(x+94, 118, Math.min(core.x+core.w-26, Math.max(core.x+26, x+94)), core.y, 'out', c.id, state.sel===c.id);
   });
   // 원격접속 (우상)
   out += zoneFrame(966, 116, 252, 52+remote.length*56, '원격접속');
   remote.forEach((c,i)=>{ const y=152+i*56;
-    out += nodeBox(982, y, 220, c.id, c.name, state.sel===c.id);
+    out += nodeBox(982, y, 220, c.id, c.name, state.sel===c.id, false, 'remote');
     edge(982, y+23, core.x+core.w, core.y + 26 + i*32, 'in', c.id, state.sel===c.id);
   });
   // DMZ (하)
@@ -800,7 +943,7 @@ function renderMap(){
   const dx0 = (core.x+core.w/2) - dw/2;
   out += zoneFrame(dx0-18, 500, dw+36, 110, 'DMZ / 계열사');
   dmz.forEach((c,i)=>{ const x=dx0+i*226;
-    out += nodeBox(x, 536, 208, c.id, c.name, state.sel===c.id);
+    out += nodeBox(x, 536, 208, c.id, c.name, state.sel===c.id, false, 'dmz');
     edge(x+104, 536, Math.min(core.x+core.w-26, Math.max(core.x+26, x+104)), core.y+core.h, 'both', c.id, state.sel===c.id);
   });
   // 미등록 (우하)
@@ -845,7 +988,11 @@ function renderMap(){
         ${state.rogues.length ? state.rogues.map(r=>`<div class="rowitem"><span class="host">${esc(r.host)}</span><span class="sp">${
           r.cls.saasLike?`<button class="act small" onclick='openWizard({host:${JSON.stringify(r.host)}, name:${JSON.stringify(r.host)}, fromRogue:true, cls:${JSON.stringify(r.cls)}})'>판정</button>`:''}
           <button class="act danger small" onclick='quickBlock(${JSON.stringify(r.host)})'>차단</button></span></div>`).join('')
-        : `<div class="none">${state.scanned?'전부 조치됨':'로그 대조 실행 전'}</div>`}
+        : `<div class="empty">
+            <svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="m9 12 2 2 4-4.5"/></svg>
+            <p>${state.scanned?'발견된 미등록 연결이 전부 조치되었습니다':'아직 로그를 대조하지 않았습니다.<br>실제 트래픽과 대장을 비교해 보세요.'}</p>
+            ${state.scanned?'':'<button class="act ghost2 small" onclick="state.tab=\'logs\'; render()">로그 대조로 이동</button>'}
+          </div>`}
       </div>
     </div>
   </section>`;
@@ -895,7 +1042,7 @@ function quickBlock(host){
 function renderLedger(){
   const rogueRows = state.rogues.map(r => `
     <tr class="row-rogue">
-      <td><span class="nm mono" style="color:var(--red)">${esc(r.host)}</span><span class="idcode">미등록</span></td>
+      <td><span class="cell-org"><span class="org-chip rogue">!</span><span><span class="nm mono" style="color:var(--bad-fg)">${esc(r.host)}</span><span class="idcode">미등록</span></span></span></td>
       <td><span class="badge bad">${r.cls.kind}</span></td>
       <td colspan="2"><div class="aiwhy" style="margin:0">${r.cls.risk}</div></td>
       <td>관측 ${r.info.count}회, 단말 ${r.info.srcs.size}대</td>
@@ -917,7 +1064,7 @@ function renderLedger(){
       ${rogueRows}
       ${LEDGER.map(c => { const n = contentCount(c.id); return `
       <tr>
-        <td><span class="nm">${esc(c.name)}</span><span class="idcode">${c.id}</span></td>
+        <td><span class="cell-org"><span class="org-chip ${c.zone==='saas'?'saas':''}">${esc(c.name.replace(/^NHN |^Microsoft /,'')[0])}</span><span><span class="nm">${esc(c.name)}</span><span class="idcode">${c.id}</span></span></span></td>
         <td><span class="badge gray">${c.type}</span></td>
         <td>${c.basis}</td>
         <td><span class="badge-id" style="margin-top:0">${c.domains[0]} :${c.ports}</span></td>
@@ -1125,6 +1272,53 @@ function render(){
   ({ map:renderMap, ledger:renderLedger, logs:renderLogs, content:renderContent, report:renderReport })[state.tab]();
 }
 
+/* ── 상단바 검색 ── */
+function searchTargets(q){
+  q = q.trim().toLowerCase();
+  if (!q) return [];
+  const hits = [];
+  for (const c of LEDGER) {
+    if (c.name.toLowerCase().includes(q) || c.id.toLowerCase().includes(q) || c.domains.some(d=>d.includes(q)))
+      hits.push({ id: c.id, name: c.name, host: c.domains[0] });
+  }
+  for (const r of state.rogues) {
+    if (r.host.includes(q)) hits.push({ id: 'R-'+state.rogues.indexOf(r), name: r.host, host: '미등록', rogue: true });
+  }
+  return hits.slice(0, 8);
+}
+function initSearch(){
+  const inp = $('#tsearch-in'), drop = $('#tsearch-drop');
+  if (!inp) return;
+  const close = () => drop.classList.remove('open');
+  inp.oninput = () => {
+    const hits = searchTargets(inp.value);
+    if (!inp.value.trim()) { close(); return; }
+    drop.innerHTML = hits.length ? hits.map(h =>
+      `<div class="tsearch-item" data-goto="${h.id}"><span class="ti-id">${h.rogue?'!':h.id}</span><span>${esc(h.name)}</span><span class="ti-host">${esc(h.host)}</span></div>`).join('')
+      : '<div class="tsearch-empty">검색 결과 없음</div>';
+    drop.classList.add('open');
+    drop.querySelectorAll('[data-goto]').forEach(el => el.onclick = () => {
+      close(); inp.value = '';
+      state.tab = 'map'; state.sel = el.dataset.goto; render();
+    });
+  };
+  inp.onkeydown = e => { if (e.key === 'Escape') { close(); inp.blur(); } };
+  document.addEventListener('click', e => { if (!e.target.closest('.tsearch')) close(); });
+  document.addEventListener('keydown', e => {
+    if (e.key === '/' && !/input|textarea|select/i.test(document.activeElement.tagName)) { e.preventDefault(); inp.focus(); }
+  });
+}
+/* 사이드바 AI 상태 */
+async function initAIStatus(){
+  const el = $('#ai-side-status'), sub = $('#ai-side-sub');
+  if (!el) return;
+  const av = await SalpiEngine.llmAvailable();
+  const on = !!(av.ok && av.hasModel);
+  el.className = 'status-dot' + (on ? '' : ' off');
+  el.textContent = on ? 'AI 모델 연결됨' : 'AI 모델 미연결';
+  if (sub) sub.textContent = 'Kanana-2-3B, ' + (window.SALPI_LLM_ENDPOINT ? '원격 추론' : '로컬 추론');
+}
+
 /* ── 데모 로그인 ── */
 function doLogin(e){ e.preventDefault(); sessionStorage.setItem('salpi_auth','1'); boot(); }
 function logout(){ sessionStorage.removeItem('salpi_auth'); location.reload(); }
@@ -1132,7 +1326,7 @@ function boot(){
   const authed = sessionStorage.getItem('salpi_auth');
   $('#login').style.display = authed ? 'none' : 'flex';
   $('#appshell').style.display = authed ? '' : 'none';
-  if (authed) render();
+  if (authed) { render(); initSearch(); initAIStatus(); }
 }
 boot();
 </script>
