@@ -9,7 +9,7 @@ cd "$(dirname "$0")"
 rm -rf dist && mkdir dist
 cp index.html workbench.html engine.js evidence.js dist/
 
-TUNNEL=$(grep -o "https://[a-z0-9-]*\.trycloudflare\.com" /tmp/salpi-tunnel.log 2>/dev/null | tail -1)
+TUNNEL=$(grep -oE "https://[a-z0-9-]+\.(lhr\.life|trycloudflare\.com)" /tmp/salpi-tunnel.log 2>/dev/null | tail -1)
 if [ -n "$TUNNEL" ] && curl -s --max-time 5 "$TUNNEL/api/tags" >/dev/null 2>&1; then
   echo "$TUNNEL" > dist/llm-endpoint.txt
   echo "추론 터널 연결: $TUNNEL"
