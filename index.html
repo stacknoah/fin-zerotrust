@@ -596,9 +596,18 @@
   const v = new URLSearchParams(location.search).get('llm');
   if (v) { window.SALPI_LLM_ENDPOINT = v; return; }
   if (location.protocol === 'file:' || ['localhost','127.0.0.1'].includes(location.hostname)) return;
-  fetch('llm-endpoint.txt').then(r => r.ok ? r.text() : '').then(t => {
+  fetch('llm-endpoint.txt').then(r => r.ok ? r.text() : '').then(async t => {
     t = (t || '').trim();
-    if (t.startsWith('https://')) { window.SALPI_LLM_ENDPOINT = t; if (typeof detProbe === 'function') detProbe(); }
+    if (!t.startsWith('https://')) return;
+    // 적힌 터널 주소가 죽어 있으면 무시하고 localhost로 남긴다 (시연자 맥에서는 직접 붙는다)
+    try {
+      const ctl = new AbortController(); setTimeout(() => ctl.abort(), 4000);
+      const r = await fetch(t + '/api/tags', { signal: ctl.signal });
+      if (!r.ok) return;
+    } catch (e) { return; }
+    window.SALPI_LLM_ENDPOINT = t;
+    if (typeof detProbe === 'function') detProbe();
+    if (typeof initAIStatus === 'function') initAIStatus();
   }).catch(() => {});
 })();
 </script>
