@@ -14,10 +14,7 @@
  * 브라우저와 Node 양쪽에서 쓰인다. 데모(index.html)와 측정 하네스(eval/)가
  * 같은 엔진을 쓰게 해서 "시연한 것"과 "측정한 것"이 갈라지지 않게 한다.
  */
-(function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory();
-  else root.SalpiEngine = factory();
-})(typeof self !== 'undefined' ? self : this, function () {
+const SalpiEngine = (function () {
   'use strict';
 
   /* ────────── 1층: 결정적 규칙 ────────── */
@@ -446,4 +443,5 @@ saas_like는 업무용 SaaS로 등재 검토가 가능한 종류(협업 SaaS, �
     rrnValid, luhnValid, verifyFinding, splitUnits,
     SYSTEM_PROMPT, DEFAULT_LLM, CREDIT_KW, NAME_PAT, findNames,
   };
-});
+})();
+export default SalpiEngine
