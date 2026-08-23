@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useStore, type EventKind } from '@/store'
 import { PageHeader, Panel } from '@/components/salpi'
 import { Button } from '@/components/ui/button'
-import { EventRow } from '@/features/home/HomePage'
+import { EventRow, FeedLine } from '@/features/home/HomePage'
 import { cn } from '@/lib/utils'
 
 const FILTERS: { key: string; label: string; kinds: EventKind[] | null }[] = [
@@ -16,6 +16,7 @@ export function ActivityPage() {
   const feed = useStore(s => s.feed)
   const events = useStore(s => s.events)
   const detReady = useStore(s => s.detReady)
+  const ledger = useStore(s => s.ledger)
   const startFeed = useStore(s => s.startFeed)
   const pauseFeed = useStore(s => s.pauseFeed)
   const [f, setF] = useState('all')
@@ -31,8 +32,8 @@ export function ActivityPage() {
         <Panel title="AI 활동" right={detReady ? <span className="font-mono text-[11px]">Kanana 2 3B</span> : 'AI 미연결'}>
           <div className="flex gap-1.5 px-5 pb-3">
             {FILTERS.map(x => (
-              <button key={x.key} onClick={() => setF(x.key)} className={cn('inline-flex h-7 items-center gap-1.5 rounded-full px-3 text-[12.5px] font-medium transition-colors', f === x.key ? 'bg-ink text-white' : 'bg-[rgba(19,23,34,.05)] text-body hover:bg-[rgba(19,23,34,.09)]')}>
-                {x.label}<span className={cn('font-mono text-[11px] nums', f === x.key ? 'text-white/60' : 'text-dim')}>{counts(x.kinds)}</span>
+              <button key={x.key} onClick={() => setF(x.key)} className={cn('inline-flex h-7 items-center gap-1.5 rounded-full px-3 text-[12.5px] font-medium transition-colors', f === x.key ? 'bg-[rgba(19,23,34,.08)] font-semibold text-ink' : 'text-faint hover:bg-[rgba(19,23,34,.05)] hover:text-ink')}>
+                {x.label}<span className={cn('font-mono text-[11px] nums', 'text-dim')}>{counts(x.kinds)}</span>
               </button>
             ))}
           </div>
@@ -47,7 +48,7 @@ export function ActivityPage() {
             <span className="ml-auto text-[11.5px] text-white/40">데모 피드(합성){feed.last ? `, 마지막 수신 ${feed.last}` : ''}</span>
           </header>
           <div className="max-h-[560px] min-h-[200px] overflow-auto px-5 pt-1 pb-4 font-mono text-[11.5px] leading-[21px] text-white/70">
-            {lines.length ? lines.map((l, i) => <div key={i} className="whitespace-nowrap">{l}</div>) : <div className="text-[12.5px] text-white/40">수신 없음. 데모를 실행하면 합성 피드가 들어옵니다</div>}
+            {lines.length ? lines.map((l, i) => <FeedLine key={i} l={l} ledger={ledger} />) : <div className="text-[12.5px] text-white/40">수신 없음. 데모를 실행하면 합성 피드가 들어옵니다</div>}
           </div>
         </section>
       </div>

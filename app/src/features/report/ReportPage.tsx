@@ -16,7 +16,7 @@ export function ReportPage() {
   const detects = detectCount(contentLog)
   const Check = ({ ok, children, n }: { ok: boolean; children: React.ReactNode; n: number }) => (
     <div className={cn('flex items-center gap-3 border-t px-5 py-2.5 text-sm', ok ? 'text-ink' : 'text-warn-fg')}>
-      {ok ? <IconCheck className="size-4 text-ok-fg" stroke={2.5} /> : <IconAlertCircle className="size-4" stroke={2} />}{children}<span className="ml-auto font-mono text-xs text-faint">{n}건</span>
+      {ok ? <IconCheck className="size-4 text-ok-fg" stroke={2.5} /> : <IconAlertCircle className="size-4" stroke={2} />}{children}<span className={cn('ml-auto font-mono text-xs', ok ? 'text-dim' : 'text-warn-fg')}>{n}건</span>
     </div>
   )
   const Th = ({ children, w }: { children: React.ReactNode; w?: string }) => <th className="border border-[#bbb] bg-[#f2f2ef] px-2 py-1.5 text-left text-[9.5pt] font-bold" style={{ width: w }}>{children}</th>

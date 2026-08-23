@@ -34,8 +34,8 @@ function Head() {
       </div>
       <div className="ml-auto flex items-center gap-2">
         {feed.on
-          ? <Button variant="outline" className="h-10 rounded-full px-4" onClick={pauseFeed}><IconPlayerPause className="size-4" stroke={1.75} />일시정지</Button>
-          : <Button className="h-10 rounded-full bg-ink px-5 text-[14px] font-medium text-white hover:bg-ink/90" onClick={startFeed}><IconPlayerPlay className="size-4" stroke={1.75} />{feed.started ? '관측 재개' : '데모 실행'}</Button>}
+          ? <Button variant="outline" className="h-10 px-4" onClick={pauseFeed}><IconPlayerPause className="size-4" stroke={1.75} />일시정지</Button>
+          : <Button className="h-10 px-5 text-[14px] font-medium" onClick={startFeed}><IconPlayerPlay className="size-4" stroke={1.75} />{feed.started ? '관측 재개' : '데모 실행'}</Button>}
       </div>
     </div>
   )
@@ -52,7 +52,7 @@ function Ticker() {
   const reviewDue = ledger.filter(c => c.review.soon && !c.review.type.includes('반기')).length
   const hosts = new Set(feed.lines.map(l => (l.match(/HOST=(\S+)/) || [])[1]))
   const Item = ({ l, n, tone }: { l: string; n: string | number; tone?: string }) => (
-    <span className="flex items-baseline gap-1.5 whitespace-nowrap"><span className="text-[12px] text-faint">{l}</span><b className={cn('font-mono text-[13px] font-medium text-ink nums', tone)}>{n}</b></span>
+    <span className="flex items-baseline gap-1.5 whitespace-nowrap"><span className="text-[11.5px] text-faint">{l}</span><b className={cn('font-mono text-[14px] font-semibold nums', n === 0 || n === '-' ? 'text-dim' : 'text-ink', tone)}>{n}</b></span>
   )
   return (
     <div className="mb-3 flex h-10 items-center gap-5 surface px-4 text-[12.5px]">
@@ -62,7 +62,7 @@ function Ticker() {
       <span className="h-4 w-px bg-[rgba(19,23,34,.1)]" />
       <Item l="승인 통로" n={ledger.length} />
       <Item l="반기 평가 예정" n={saasDue} />
-      <Item l="재승인 필요" n={reviewDue} tone={reviewDue ? 'text-warn-fg' : ''} />
+      <Item l="재승인 필요" n={reviewDue} />
       <Item l="미등록 연결" n={scanned ? rogues.length : '-'} tone={rogues.length ? 'text-bad-fg' : ''} />
       <Item l="위반 탐지" n={detectCount(contentLog)} />
       {feed.started && <>
@@ -76,11 +76,24 @@ function Ticker() {
   )
 }
 
+/* 관측 피드 한 줄. 어두운 패널 전용 */
+export function FeedLine({ l, ledger }: { l: string; ledger: { domains: string[] }[] }) {
+  const m = l.match(/^(\S+ \S+) SRC=(\S+) HOST=(\S+) DPT=(\S+) ACTION=(\S+)/)
+  if (!m) return <div className="truncate text-white/60">{l}</div>
+  const known = ledger.some(c => c.domains.some(d => m[3] === d || m[3].endsWith('.' + d)))
+  return (
+    <div className="flex gap-4 whitespace-nowrap">
+      <span className="w-[62px] shrink-0 text-white/40">{m[1].slice(11)}</span><span className="w-[88px] shrink-0 text-white/55">{m[2]}</span>
+      <span className={cn('w-[170px] shrink-0 truncate', known ? 'text-[#9ec0ff]' : 'text-[#ff9a93]')}>{m[3]}</span><span className="w-[44px] shrink-0 text-white/40">:{m[4]}</span><span className="truncate text-white/40">{m[5]}</span>
+    </div>
+  )
+}
+
 export function EventRow({ e, full }: { e: { t: string; kind: EventKind; text: string }; full?: boolean }) {
   return (
-    <div className="grid grid-cols-[52px_34px_1fr] items-baseline gap-2.5 px-5 py-[6px] text-[12.5px] leading-[18px] text-body">
+    <div className="grid grid-cols-[52px_44px_1fr] items-baseline gap-2.5 px-5 py-[6px] text-[12.5px] leading-[18px] text-body">
       <span className="font-mono text-[11px] text-dim nums">{e.t}</span>
-      <span className={cn('text-[11px] font-semibold', EV_TONE[e.kind])}>{EV_KO[e.kind]}</span>
+      <span className={cn('inline-flex h-[18px] translate-y-[3px] items-center justify-center self-center rounded-full border text-[10.5px] font-medium', e.kind === 'rogue' || e.kind === 'block' ? 'border-[rgba(196,48,43,.35)] text-bad-fg' : e.kind === 'tele' ? 'border-[rgba(178,106,0,.4)] text-warn-fg' : e.kind === 'register' ? 'border-[rgba(26,127,55,.4)] text-ok-fg' : 'border-[rgba(19,23,34,.16)] text-faint')}>{EV_KO[e.kind]}</span>
       <span className={cn('text-ink', !full && 'line-clamp-2')}>{e.text}</span>
     </div>
   )
@@ -100,23 +113,12 @@ function ActivityPanels() {
       <span className="text-[14px] font-semibold">{t}</span><span className={cn('ml-auto inline-flex items-center gap-0.5 text-[12.5px] font-medium', dark ? 'text-white/50' : 'text-faint')}>전체 보기<IconArrowRight className="size-3.5" stroke={1.75} /></span>
     </button>
   )
-  const Line = ({ l }: { l: string }) => {
-    const m = l.match(/^(\S+ \S+) SRC=(\S+) HOST=(\S+) DPT=(\S+) ACTION=(\S+)/)
-    if (!m) return <div className="truncate text-white/60">{l}</div>
-    const known = ledger.some(c => c.domains.some(d => m[3] === d || m[3].endsWith('.' + d)))
-    return (
-      <div className="flex gap-4 whitespace-nowrap">
-        <span className="w-[62px] text-white/40">{m[1].slice(11)}</span><span className="w-[88px] text-white/55">{m[2]}</span>
-        <span className={cn('w-[170px] truncate', known ? 'text-[#9ec0ff]' : 'text-[#ff9a93]')}>{m[3]}</span><span className="w-[40px] text-white/40">:{m[4]}</span><span className="text-white/40">{m[5]}</span>
-      </div>
-    )
-  }
   return (
     <div className="mt-4 grid grid-cols-[7fr_5fr] gap-4">
       <section className="overflow-hidden rounded-[14px] bg-[#131722] shadow-[var(--shadow-card)]">
         <Head t="관측 피드" dark />
         <div className="min-h-[150px] px-5 pt-1 pb-4 font-mono text-[11.5px] leading-[21px]">
-          {lines.length ? lines.map((l, i) => <Line key={i} l={l} />) : <div className="text-[12.5px] text-white/40">수신 없음. 데모를 실행하면 합성 피드가 들어옵니다</div>}
+          {lines.length ? lines.map((l, i) => <FeedLine key={i} l={l} ledger={ledger} />) : <div className="text-[12.5px] text-white/40">수신 없음. 데모를 실행하면 합성 피드가 들어옵니다</div>}
         </div>
       </section>
       <section className="surface overflow-hidden">
@@ -131,6 +133,7 @@ function ActivityPanels() {
 
 function Detail() {
   const sel = useStore(s => s.sel)
+  const feedLines = useStore(s => s.feed.lines)
   const setSel = useStore(s => s.setSel)
   const ledger = useStore(s => s.ledger)
   const rogues = useStore(s => s.rogues)
@@ -156,14 +159,18 @@ function Detail() {
             <dt className="text-faint">판정</dt><dd className="text-ink">승인 대장에 없음</dd>
           </dl>
           <div className="mt-4 flex gap-2">
-            {r.cls.saasLike && <Button size="sm" className="h-9 rounded-full bg-ink px-4 text-white hover:bg-ink/90" onClick={() => open({ host: r.host, name: r.host, fromRogue: true, cls: r.cls })}>판정하기 (등재 절차)</Button>}
-            <Button size="sm" variant="outline" className="h-9 rounded-full px-4 text-bad-fg hover:text-bad-fg" onClick={() => quickBlock(r.host)}>차단 확정</Button>
+            {r.cls.saasLike && <Button size="sm" className="h-9 px-4" onClick={() => open({ host: r.host, name: r.host, fromRogue: true, cls: r.cls })}>판정하기 (등재 절차)</Button>}
+            <Button size="sm" variant="outline" className="h-9 px-4 text-bad-fg hover:text-bad-fg" onClick={() => quickBlock(r.host)}>차단 확정</Button>
           </div>
         </div>
         <div className="relative border-l border-[rgba(19,23,34,.07)] bg-bad-bg/60 px-6 py-5">
           <div className="absolute top-3 right-3"><Close /></div>
           <div className="text-[12px] font-semibold text-bad-fg">위험 요약</div>
           <p className="mt-1.5 text-[13.5px] leading-[21px] text-ink">{r.cls.risk}</p>
+          {(() => { const ex = feedLines.filter(l => l.includes(r.host)).slice(-3); return ex.length ? <div className="mt-3 border-t border-[rgba(196,48,43,.15)] pt-2.5">
+            <div className="mb-1 text-[11px] font-medium text-bad-fg">관측 로그 발췌</div>
+            {ex.map((l, i) => { const m = l.match(/^\S+ (\S+) SRC=(\S+) HOST=(\S+) DPT=(\S+)/); return <div key={i} className="font-mono text-[11px] leading-[18px] whitespace-nowrap text-[#7a3b38]">{m ? `${m[1]}  ${m[3]} :${m[4]}  단말 ${m[2]}` : l}</div> })}
+          </div> : null })()}
         </div>
       </div>
     )
@@ -175,7 +182,7 @@ function Detail() {
       <div className="flex items-center gap-3 px-6 pt-5 pb-3">
         <span className={cn('inline-flex size-8 items-center justify-center rounded-lg text-[13px] font-semibold', c.zone === 'saas' ? 'bg-accent text-primary' : 'bg-[rgba(19,23,34,.06)] text-body')}>{c.name.replace(/^NHN |^Microsoft /, '')[0]}</span>
         <span className="text-[16px] font-semibold text-ink">{c.name}</span><span className="font-mono text-[12px] text-dim">{c.id}</span><Pill>{c.type}</Pill>
-        <span className="ml-auto flex items-center gap-2"><DDay due={c.review.due} />{c.zone === 'saas' && <Button size="sm" variant="outline" className="h-8 rounded-full px-3.5" onClick={() => nav('/content?target=' + c.id)}>이 통로 내용 검사</Button>}<Close /></span>
+        <span className="ml-auto flex items-center gap-2"><DDay due={c.review.due} />{c.zone === 'saas' && <Button size="sm" variant="outline" className="h-8 px-3.5" onClick={() => nav('/content?target=' + c.id)}>이 통로 내용 검사</Button>}<Close /></span>
       </div>
       <div className="grid grid-cols-[1fr_1fr] gap-x-10 px-6 pb-5">
         <dl className="grid grid-cols-[96px_1fr] gap-x-5 gap-y-2 text-[13.5px]">
@@ -213,9 +220,9 @@ function Bottom() {
         <header className="flex items-center px-5 pt-4 pb-2 text-[14px] font-semibold text-ink">미등록 연결 조치<span className="ml-2 font-mono text-[12px] font-normal text-dim nums">{rogues.length}</span></header>
         {rogues.length ? rogues.map(r => (
           <div key={r.host} className="flex items-center gap-3 border-t border-[rgba(19,23,34,.06)] px-5 py-2 text-sm"><span className="font-mono text-[13px] font-medium text-bad-fg">{r.host}</span><span className="text-[12px] text-faint">{r.cls.kind}</span><span className="ml-auto flex gap-1.5">
-            {r.cls.saasLike && <Button size="sm" className="h-7 rounded-full bg-ink px-3 text-[12px] text-white hover:bg-ink/90" onClick={() => open({ host: r.host, name: r.host, fromRogue: true, cls: r.cls })}>판정</Button>}
-            <Button size="sm" variant="outline" className="h-7 rounded-full px-3 text-[12px] text-bad-fg hover:text-bad-fg" onClick={() => quickBlock(r.host)}>차단</Button></span></div>
-        )) : <Empty action={!scanned ? <Button size="sm" variant="outline" className="rounded-full" onClick={startFeed}>데모 실행</Button> : undefined}><IconShieldCheck className="mx-auto mb-2 size-8 text-dim" stroke={1.4} />{scanned ? '조치할 미등록 연결 없음' : '대조 결과 없음'}</Empty>}
+            {r.cls.saasLike && <Button size="sm" className="h-7 px-3 text-[12px]" onClick={() => open({ host: r.host, name: r.host, fromRogue: true, cls: r.cls })}>판정</Button>}
+            <Button size="sm" variant="outline" className="h-7 px-3 text-[12px] text-bad-fg hover:text-bad-fg" onClick={() => quickBlock(r.host)}>차단</Button></span></div>
+        )) : <Empty action={!scanned ? <Button size="sm" variant="outline" onClick={startFeed}>데모 실행</Button> : undefined}><IconShieldCheck className="mx-auto mb-2 size-8 text-dim" stroke={1.4} />{scanned ? '조치할 미등록 연결 없음' : '대조 결과 없음'}</Empty>}
       </section>
     </div>
   )

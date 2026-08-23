@@ -37,7 +37,7 @@ export function LandingPage() {
   const data = usePreview()
   const enter = () => { login(); nav('/map') }
   return (
-    <div className="min-h-dvh bg-background">
+    <div className="min-h-dvh bg-background" style={{ background: 'radial-gradient(ellipse 80% 55% at 50% -12%, #e8eefb 0%, rgba(247,248,250,0) 60%), var(--background)' }}>
       <header className="mx-auto flex h-16 max-w-[1200px] items-center px-6">
         <span className="flex items-center gap-2 text-[16px] font-semibold tracking-tight text-ink"><Mark className="size-6" />살피<span className="ml-1.5 font-mono text-[9px] font-medium tracking-[.3em] text-dim">SALPI</span></span>
         <span className="ml-auto flex items-center gap-2">
@@ -46,25 +46,24 @@ export function LandingPage() {
         </span>
       </header>
 
-      <section className="mx-auto max-w-[1200px] px-6 pt-16 text-center">
+      <section className="mx-auto max-w-[1200px] px-6 pt-12 text-center">
         <div className="inline-flex h-7 items-center gap-2 rounded-full bg-card px-3.5 text-[12px] font-medium text-faint shadow-[var(--shadow-ring)]"><i className="size-1.5 rounded-full bg-primary" />전자금융감독규정 시행세칙 제2조의3</div>
         <h1 className="mx-auto mt-6 max-w-[860px] text-[54px] font-semibold leading-[1.12] tracking-[-0.032em] text-ink">
-          망분리 경계를 넘는 모든 연결,<br /><span className="text-faint"><span className="text-primary" style={{ background: 'linear-gradient(transparent 62%, #dbe7fd 62%)' }}>승인 대장</span>과 대조합니다</span>
+          망분리 경계를 넘는 모든 연결,<br /><span><span className="text-primary">승인 대장</span>과 대조합니다</span>
         </h1>
         <p className="mx-auto mt-5 max-w-[600px] text-[17px] leading-[1.65] text-faint">
           외부기관, 원격접속, 재택근무, SaaS 예외 통로를 한 장부로 관리하고
           장부에 없는 연결은 내부에서 도는 소형 AI가 찾아 분류합니다.
         </p>
-        <div className="mt-8 flex items-center justify-center gap-3">
+        <div className="mt-8 flex items-center justify-center">
           <button onClick={enter} className="inline-flex h-11 items-center gap-1.5 rounded-full bg-ink px-6 text-[15px] font-medium text-white transition hover:bg-ink/90">
             데모 열기<IconArrowRight className="size-4" stroke={2} />
           </button>
-          <button onClick={() => nav('/login')} className="h-11 rounded-full px-5 text-[15px] font-medium text-body transition hover:bg-[rgba(19,23,34,.05)]">로그인</button>
         </div>
       </section>
 
       {/* 제품 실물: 경계 지도가 실제로 돈다 */}
-      <section className="mx-auto mt-14 max-w-[1200px] px-6">
+      <section className="mx-auto mt-11 max-w-[1200px] px-6">
         <div className="overflow-hidden rounded-[16px] bg-card shadow-[var(--shadow-float)]">
           <div className="flex items-center gap-2 border-b border-[rgba(19,23,34,.06)] px-4 py-2.5">
             <span className="flex gap-1.5"><i className="size-2.5 rounded-full bg-[#e3e6ea]" /><i className="size-2.5 rounded-full bg-[#e3e6ea]" /><i className="size-2.5 rounded-full bg-[#e3e6ea]" /></span>
@@ -88,16 +87,16 @@ export function LandingPage() {
             { t: '반기 보고', d: '제2조의3 제4항 자체평가 초안을 장부와 검사 기록에서 바로 만듭니다. 예외 운영 현황, 조치 내역, 서명란까지 인쇄 그대로.' },
           ].map((f, i) => (
             <div key={f.t} className={i > 0 ? 'border-l border-[rgba(19,23,34,.08)] pl-10' : 'pr-10'}>
-              <i className="mb-3 block h-[2px] w-6 bg-ink" />
+              <div className="mb-2.5 font-mono text-[11.5px] font-medium text-dim">0{i + 1}</div>
               <h3 className="text-[17px] font-semibold text-ink">{f.t}</h3>
               <p className="mt-2 text-[14px] leading-[1.7] text-faint">{f.d}</p>
             </div>
           ))}
         </div>
         <div className="mt-16 flex items-center justify-center gap-3 text-[12px] text-dim">
-          <span className="rounded-full bg-[rgba(19,23,34,.045)] px-3 py-1"><span className="font-mono">Kanana 2 3B</span> 로컬 추론</span>
-          <span className="rounded-full bg-[rgba(19,23,34,.045)] px-3 py-1">규칙과 AI의 3층 탐지</span>
-          <span className="rounded-full bg-[rgba(19,23,34,.045)] px-3 py-1">합성 데이터 데모</span>
+          <span className="inline-flex items-center gap-2 rounded-full bg-card px-3.5 py-1.5 text-body shadow-[var(--shadow-ring)]"><i className="size-1.5 rounded-full bg-primary" /><span className="font-mono">Kanana 2 3B</span> 로컬 추론</span>
+          <span className="inline-flex items-center gap-2 rounded-full bg-card px-3.5 py-1.5 text-body shadow-[var(--shadow-ring)]"><i className="size-1.5 rounded-full bg-primary" />규칙과 AI의 3층 탐지</span>
+          <span className="inline-flex items-center gap-2 rounded-full bg-card px-3.5 py-1.5 text-body shadow-[var(--shadow-ring)]"><i className="size-1.5 rounded-full bg-primary" />합성 데이터 데모</span>
         </div>
       </section>
 

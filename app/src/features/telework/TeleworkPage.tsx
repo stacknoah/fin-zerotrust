@@ -19,22 +19,25 @@ function Timeline({ sessions }: { sessions: TeleSession[] }) {
   return (
     <div className="px-5 pb-4">
       <div className="relative">
-        <div className="pointer-events-none absolute inset-y-0 right-[52px] left-[166px]">
+        <div className="pointer-events-none absolute inset-y-0 right-[52px] left-[174px]">
           {ticks.map(m => <div key={m} className="absolute inset-y-0 border-l border-[rgba(19,23,34,.05)]" style={{ left: x(m) + '%' }} />)}
+          <div className="absolute inset-y-0 w-[1.5px] bg-ink/70" style={{ left: x(nowM) + '%' }} />
         </div>
         {sorted.map(s => (
           <div key={s.id} className="flex h-[26px] items-center gap-3">
-            <span className={cn('w-[64px] shrink-0 truncate text-[12px]', s.check === 'fail' ? 'font-medium text-bad-fg' : 'text-body')}>{s.user}</span>
+            <span className={cn('flex w-[64px] shrink-0 items-center gap-1.5 truncate text-[12px]', s.check === 'fail' ? 'font-medium text-bad-fg' : 'text-body')}>{s.check === 'fail' && <i className="size-1.5 shrink-0 rounded-full bg-bad" />}{s.user}</span>
             <span className="w-[86px] shrink-0 truncate text-[11.5px] text-dim">{s.dept}</span>
             <div className="relative h-full flex-1">
-              <span className={cn('absolute top-1/2 h-[7px] -translate-y-1/2 rounded-full', s.check === 'fail' ? 'bg-bad/75' : 'bg-[rgba(122,128,137,.28)]')}
+              <span className="absolute inset-x-0 top-1/2 h-[7px] -translate-y-1/2 rounded-full bg-[rgba(19,23,34,.035)]" />
+              <span className={cn('absolute top-1/2 h-[7px] -translate-y-1/2 rounded-full', s.check === 'fail' ? 'bg-bad' : 'bg-[rgba(101,112,128,.55)]')}
                 style={{ left: x(mins(s.since)) + '%', right: (100 - x(nowM)) + '%' }} />
+              <span className={cn('absolute top-1/2 size-[5px] -translate-y-1/2 translate-x-[2px] rounded-full', s.check === 'fail' ? 'bg-bad' : 'bg-[#4a5566]')} style={{ left: `calc(${x(nowM)}% - 5px)` }} />
             </div>
             <span className="w-[40px] shrink-0 text-right font-mono text-[11px] text-dim nums">{s.since}</span>
           </div>
         ))}
       </div>
-      <div className="mt-1 flex pr-[52px] pl-[166px]">
+      <div className="mt-1 flex pr-[52px] pl-[174px]">
         <div className="relative h-4 flex-1">
           {ticks.map(m => (
             <span key={m} className="absolute -translate-x-1/2 font-mono text-[10.5px] text-dim nums" style={{ left: x(m) + '%' }}>{String(Math.floor(m / 60)).padStart(2, '0')}:00</span>

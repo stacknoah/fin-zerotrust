@@ -16,7 +16,7 @@ const STEPS = ['대상 선택', '데이터 성격', 'L1 시스템 필드', 'L2 �
 function Seg<T extends string>({ value, options, onChange }: { value: T; options: [T, string][]; onChange: (v: T) => void }) {
   return (
     <span className="inline-flex rounded-md border bg-card p-0.5">
-      {options.map(([k, t]) => <button key={k} type="button" onClick={() => onChange(k)} className={cn('h-7 rounded px-2.5 text-[12.5px] transition', value === k ? 'bg-ink font-semibold text-white' : 'text-body hover:text-ink')}>{t}</button>)}
+      {options.map(([k, t]) => <button key={k} type="button" onClick={() => onChange(k)} className={cn('h-7 rounded px-2.5 text-[12.5px] transition', value === k ? 'bg-[rgba(19,23,34,.08)] font-semibold text-ink' : 'text-body hover:text-ink')}>{t}</button>)}
     </span>
   )
 }
@@ -100,7 +100,7 @@ export function WorkbenchPage() {
               {SAAS_LIST.map(s => (
                 <button key={s.key} type="button" onClick={() => setSaas(s.key)} className={cn('flex items-center gap-3 rounded-xl border px-4 py-3.5 text-left transition', saas === s.key ? 'border-ink ring-1 ring-ink' : 'border-[rgba(19,23,34,.1)] hover:border-[rgba(19,23,34,.25)]')}>
                   <span className={cn('flex size-[34px] shrink-0 items-center justify-center rounded-lg text-[15px] font-bold transition', saas === s.key ? 'text-white' : 'bg-[rgba(19,23,34,.06)] text-body')} style={saas === s.key ? { background: s.color } : undefined}>{s.mono}</span>
-                  <span><div className="text-sm font-semibold text-ink">{s.name}</div><div className="font-mono text-[10px] tracking-wide text-faint">{s.cat}</div></span>
+                  <span><div className="text-sm font-semibold text-ink">{s.name}</div><div className="font-mono text-[10px] tracking-wide whitespace-nowrap text-faint">{s.cat}</div></span>
                 </button>
               ))}
             </div>

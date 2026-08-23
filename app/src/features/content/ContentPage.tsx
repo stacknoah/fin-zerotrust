@@ -53,7 +53,7 @@ export function ContentPage() {
   const [params] = useSearchParams()
   const saas = ledger.filter(c => c.zone === 'saas')
   const [target, setTarget] = useState(params.get('target') || saas[0]?.id || 'C-05')
-  const [text, setText] = useState('')
+  const [text, setText] = useState(DET_SAMPLE)
   const [res, setRes] = useState<ScanResult | null>(null)
   const [live, setLive] = useState<Live | null>(null)
   const [busy, setBusy] = useState(false)
@@ -137,7 +137,7 @@ export function ContentPage() {
                 <span className="flex gap-1.5">
                   {r.ms == null ? <span className="text-xs text-faint">판정 중</span> : <>
                     {r.accepted?.map((a, i) => <Pill key={'a' + i} tone={a.label === 'identifier' || a.label === 'identifier_only' ? 'gray' : 'bad'}>{LABEL_KO(a.label)}</Pill>)}
-                    {r.dropped?.map((d, i) => <Pill key={'d' + i} tone="warn">{DROP_KO[d.reason] || d.reason}</Pill>)}
+                    {r.dropped?.map((d, i) => <span key={'d' + i} className="inline-flex h-[22px] items-center rounded-full border border-[rgba(19,23,34,.16)] px-2 text-[11.5px] font-medium whitespace-nowrap text-faint">{DROP_KO[d.reason] || d.reason}</span>)}
                     {!r.accepted?.length && !r.dropped?.length && <Pill tone="ok">이상 없음</Pill>}
                   </>}
                 </span>
