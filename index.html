@@ -502,7 +502,7 @@
     --m-bz: #eef3fa; --m-bz-line: #9fb3cc;
     --m-node: #ffffff; --m-node-line: #d5dde7; --m-node-hover: #b9c7d8;
     --m-text-1: #0a2540; --m-text-2: #425466; --m-text-3: #697386;
-    --m-edge: #b8c4d3; --m-edge-hover: #7b8a9c;
+    --m-edge: #5d85df; --m-edge-hover: #2157d1;
     --m-ok: #1f8a4c; --m-soon: #b7791f; --m-over: #c53030; --m-sel: var(--blue);
     position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-pop); overflow: hidden;
   }
@@ -536,8 +536,16 @@
   .node.rogue:hover rect.bg { stroke: var(--m-over); }
   .node .chev { fill: none; stroke: var(--m-text-3); stroke-width: 1.25; stroke-linecap: round; stroke-linejoin: round; }
   .node .aux { font-size: 12px; font-weight: 500; fill: var(--m-text-2); }
-  .tele-hd { display: flex; gap: 20px; font-size: 13px; color: var(--body); margin: 14px 0 8px; }
-  .tele-hd b { font-weight: 600; color: var(--ink); } .tele-hd b.bad { color: var(--bad-fg); }
+  .mappop { position: absolute; z-index: 5; min-width: 240px; max-width: 320px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-pop); box-shadow: var(--shadow-overlay); padding: 10px 12px; font-size: 12.5px; line-height: 18px; color: var(--body); pointer-events: none; opacity: 0; transition: opacity 120ms var(--ease); }
+  .mappop.on { opacity: 1; }
+  .mappop .ph { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; color: var(--ink); }
+  .mappop .ph b { font-weight: 600; } .mappop .ph .mono { font-size: 11px; color: var(--disabled); }
+  .mappop .pr { display: flex; gap: 14px; align-items: center; }
+  .mappop .pr b { font-weight: 600; color: var(--ink); } .mappop .pr b.bad { color: var(--bad-fg); }
+  .mappop .pl { display: flex; flex-direction: column; margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--line); color: var(--ink); }
+  .mappop .pl i { font-style: normal; color: var(--disabled); margin-left: 6px; }
+  .mappop .pt { margin-top: 4px; color: var(--body); }
+  .mappop .pf { margin-top: 6px; font-size: 11.5px; color: var(--blue); }
   table.tele { font-size: 13px; }
   table.tele tr.bad td { background: #fff7f7; }
   table.tele .note { font-size: 12px; color: var(--body); margin-left: 6px; }
@@ -551,7 +559,7 @@
   .core-v { font-size: 12.5px; font-weight: 500; fill: var(--ink); }
   .core-v.bad { fill: var(--bad-fg); } .core-v.ok { fill: var(--ok-fg); } .core-v.dim { fill: var(--disabled); font-weight: 400; }
 
-  .edge { fill: none; stroke: var(--m-edge); stroke-width: 1; stroke-linecap: round; stroke-linejoin: round; transition: stroke var(--t); }
+  .edge { fill: none; stroke: var(--m-edge); stroke-width: 1.25; stroke-linecap: round; stroke-linejoin: round; transition: stroke var(--t); }
   .edge.soon { stroke: var(--m-soon); }
   .edge.over { stroke: var(--m-over); }
   .edge.rogue { stroke: var(--m-over); stroke-width: 1.5; stroke-dasharray: 3 4; }
@@ -563,17 +571,17 @@
 
   .chip { cursor: pointer; }
   .chip .cut { fill: none; stroke: var(--m-bz); stroke-width: 4; }
-  .chip .pill { fill: #ffffff; stroke: #c5cfdb; stroke-width: 1; transition: stroke var(--t); }
+  .chip .pill { fill: #ffffff; stroke: #9fb5e6; stroke-width: 1; transition: stroke var(--t); }
   .chip:hover .pill { stroke: var(--m-edge-hover); }
   .chip.soon .pill { stroke: var(--m-soon); } .chip.over .pill { stroke: var(--m-over); } .chip.sel .pill { stroke: var(--m-sel); }
-  .chip .t { font-size: 10px; font-weight: 500; fill: var(--m-text-2); letter-spacing: .03em; }
+  .chip .t { font-size: 10px; font-weight: 500; fill: #2f56b3; letter-spacing: .03em; }
   .chip.soon .t { fill: #8a5a10; } .chip.over .t { fill: var(--m-over); } .chip.sel .t { fill: var(--m-sel); }
 
   .maplegend { display: flex; gap: 20px; align-items: center; padding: 10px 20px; border-top: 1px solid var(--line); font: 400 12px/16px var(--sans); color: var(--muted); }
   .maplegend .grp { display: flex; gap: 16px; align-items: center; }
   .maplegend .grp + .grp { margin-left: 16px; padding-left: 20px; border-left: 1px solid var(--line); }
   .maplegend .hd { font: 500 11px/16px var(--sans); color: var(--disabled); margin-right: 2px; }
-  .maplegend i { display: inline-block; width: 16px; height: 0; border-top: 1px solid #b8c4d3; margin-right: 8px; vertical-align: 3px; }
+  .maplegend i { display: inline-block; width: 16px; height: 0; border-top: 1.25px solid #5d85df; margin-right: 8px; vertical-align: 3px; }
   .maplegend .s i { border-top: 1px solid #b7791f; }
   .maplegend .r i { border-top: 1.5px dashed #c53030; }
   .maplegend .d em { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 6px; }
@@ -606,7 +614,7 @@
   .actbox.full .ev .x { white-space: normal; }
   .feedbox.full { max-height: 520px; overflow: auto; }
   .view.still { animation: none; }
-  .pkt { fill: var(--ink); opacity: .5; pointer-events: none; }
+  .pkt { fill: var(--blue); opacity: .8; pointer-events: none; }
   .pkt.rogue { fill: var(--m-over); opacity: .7; }
   .node.enter { animation: nodeIn 600ms var(--ease) both; transform-box: fill-box; transform-origin: center; }
   .edge.enter { animation: edgeIn 700ms var(--ease) both; }
@@ -925,7 +933,7 @@ function feedTick(){
   // 지도는 미등록이 새로 생겼을 때만 다시 그리고, 평소엔 숫자만 갱신
   state.freshHosts = new Set(fresh.map(r => r.host));
   state.quiet = true;
-  if ((state.tab === 'map' && fresh.length) || state.tab === 'activity') render();
+  if ((state.tab === 'map' && fresh.length) || state.tab === 'activity' || state.tab === 'tele') render();
   else { renderStrip(); renderTabs(); renderObs(); renderActivity(); }
   state.quiet = false; state.freshHosts = null;
   if (state.tab === 'map') packets(hitHosts);
@@ -1217,7 +1225,7 @@ function renderTabs(){
     `<button class="nav-it ${state.tab===t.k?'on':''}" data-tab="${t.k}">${ICONS[t.k]}<span>${t.t}</span>${
       t.k==='logs' && state.rogues.length ? `<b class="cnt">${state.rogues.length}</b>`:''}</button>`).join('');
   document.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { state.tab = b.dataset.tab; state.sel = null; render(); });
-  const cur = TABS.find(t => t.k === state.tab);
+  const cur = TABS.find(t => t.k === state.tab) || ({ tele: { t:'재택근무' } })[state.tab];
   const crumb = $('#crumb');
   if (crumb) crumb.innerHTML = `<a onclick="state.tab='map'; state.sel=null; render()">살피</a><span class="sep">/</span>${cur ? cur.t : ''}`;
 }
@@ -1438,11 +1446,52 @@ function renderMap(){
   </section>`;
   document.querySelectorAll('[data-sel]').forEach(el => el.addEventListener('click', () => {
     const v = el.dataset.sel;
-    showDetail(v.startsWith('R-') ? v : (LEDGER.find(c=>c.id===v) ? v : 'R-'+state.rogues.findIndex(r=>r.host===v)));
+    const c = LEDGER.find(x => x.id === v);
+    if (c && c.zone === 'tele') { state.tab = 'tele'; state.sel = null; render(); window.scrollTo(0,0); return; }
+    showDetail(v.startsWith('R-') ? v : (c ? v : 'R-'+state.rogues.findIndex(r=>r.host===v)));
   }));
+  bindMapHover();
   document.querySelectorAll('[data-act="scan"]').forEach(el => el.addEventListener('click', () => { state.tab='logs'; render(); }));
   renderActivity(); renderObs();
   if (state.sel) showDetail(state.sel);
+}
+/* 노드에 커서를 올리면 요약 팝오버. 재택은 세션 요약, 나머지는 근거와 기한 */
+function popContent(v){
+  const c = LEDGER.find(x => x.id === v);
+  if (c && c.zone === 'tele') {
+    const ts = teleStat(), recent = state.tele.sessions.slice(-3).reverse();
+    return `<div class="ph"><b>${esc(c.name)}</b><span class="mono">${c.id}</span></div>
+      <div class="pr"><span>접속 중 <b>${ts.n}</b>명</span><span>${ts.fail ? `단말 점검 미통과 <b class="bad">${ts.fail}</b>` : '단말 점검 전원 통과'}</span></div>
+      <div class="pl">${recent.map(x => `<span>${esc(x.user)} <i>${esc(x.dept)} ${x.since}</i></span>`).join('')}</div>
+      <div class="pf">클릭하면 세션 상세</div>`;
+  }
+  if (c) return `<div class="ph"><b>${esc(c.name)}</b><span class="mono">${c.id}</span></div>
+      <div class="pr"><span>${c.basis}</span></div>
+      <div class="pr"><span>${c.review.type} ${c.review.due}</span>${dday(c.review.due)}</div>`;
+  const k = v.startsWith('R-') ? Number(v.slice(2)) : state.rogues.findIndex(r => r.host === v);
+  const r = state.rogues[k]; if (!r) return '';
+  return `<div class="ph"><b class="mono">${esc(r.host)}</b><span class="badge bad">미등록</span></div>
+      <div class="pr"><span>${esc(r.cls.kind)}</span><span>${r.info.count}회, 단말 ${r.info.srcs.size}대</span></div>
+      <div class="pt">${esc(r.cls.risk)}</div>`;
+}
+function bindMapHover(){
+  const wrap = document.querySelector('.mapwrap'); if (!wrap) return;
+  let pop = wrap.querySelector('.mappop');
+  if (!pop) { pop = document.createElement('div'); pop.className = 'mappop'; wrap.appendChild(pop); }
+  wrap.querySelectorAll('g.node').forEach(g => {
+    g.addEventListener('mouseenter', () => {
+      const html = popContent(g.dataset.sel); if (!html) return;
+      pop.innerHTML = html;
+      const wr = wrap.getBoundingClientRect(), nr = g.getBoundingClientRect();
+      pop.classList.add('on');
+      const pw = pop.offsetWidth, ph = pop.offsetHeight;
+      let left = nr.left - wr.left, top = nr.bottom - wr.top + 8;
+      if (left + pw > wr.width - 12) left = wr.width - pw - 12;
+      if (top + ph > wr.height - 12) top = nr.top - wr.top - ph - 8;
+      pop.style.left = left + 'px'; pop.style.top = top + 'px';
+    });
+    g.addEventListener('mouseleave', () => pop.classList.remove('on'));
+  });
 }
 function showDetail(sel){
   state.sel = sel;
@@ -1474,9 +1523,35 @@ function showDetail(sel){
         <dt>승인</dt><dd>${c.approved}</dd>
         <dt>적용 통제</dt><dd>${c.controls}${c.pendingRisks?` <b style="color:var(--warn-fg)">미해소 ${c.pendingRisks}건</b>`:''}</dd>
         <dt>다음 의무</dt><dd>${c.review.type} ${c.review.due}</dd></div>
-      ${c.zone==='saas' ? `<div class="content-log">내용검사 기록 <b>${n}건</b></div>` : ''}
-      ${c.zone==='tele' ? teleTable() : ''}</div>`;
+      ${c.zone==='saas' ? `<div class="content-log">내용검사 기록 <b>${n}건</b></div>` : ''}</div>`;
   }
+}
+function renderTelePage(){
+  const c = LEDGER.find(x => x.zone === 'tele'), ts = teleStat();
+  const depts = new Set(state.tele.sessions.map(x => x.dept)).size;
+  $('#main').innerHTML = `<section class="view">
+    <div class="pagehead"><div class="tx"><h2 class="q">재택근무</h2></div>
+      <div class="actions">${state.feed.on ? `<button class="act ghost2" onclick="pauseFeed()">일시정지</button>` : `<button class="act" onclick="startFeed()">${state.feed.started ? '관측 재개' : '데모 실행'}</button>`}</div></div>
+    <div class="stats panel" style="margin-bottom:16px">
+      <div class="stat"><span class="tx"><span class="l">접속 중</span><b>${ts.n}</b></span></div>
+      <div class="stat ${ts.fail?'bad':''}"><span class="tx"><span class="l">단말 점검 미통과</span><b>${ts.fail}</b></span></div>
+      <div class="stat"><span class="tx"><span class="l">다중인증 통과</span><b>${ts.n ? Math.round(state.tele.sessions.filter(x=>x.mfa).length/ts.n*100) : 0}%</b></span></div>
+      <div class="stat"><span class="tx"><span class="l">접속 부서</span><b>${depts}</b></span></div>
+    </div>
+    <div class="panel detail" style="display:block;margin:0 0 16px">
+      <div class="panel-hd"><span class="t">${c.id} ${esc(c.name)}</span><span class="badge gray">${c.type}</span><span class="r">${dday(c.review.due)}</span></div>
+      <div class="panel-bd" style="padding-top:4px"><div class="grid">
+        <dt>근거 조문</dt><dd>${c.basis}</dd>
+        <dt>연결</dt><dd><span class="badge-id" style="margin-top:0">${c.domains.join(', ')} :${c.ports}</span> ${c.dir}</dd>
+        <dt>승인</dt><dd>${c.approved}</dd>
+        <dt>적용 통제</dt><dd>${c.controls}</dd>
+        <dt>다음 의무</dt><dd>${c.review.type} ${c.review.due}</dd></div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-hd"><span class="t">세션</span><span class="count">${ts.n}</span></div>
+      ${teleTable()}
+    </div>
+  </section>`;
 }
 function teleTable(){
   const t = state.tele, ts = teleStat();
@@ -1484,8 +1559,7 @@ function teleTable(){
     <td>${esc(x.user)}</td><td>${esc(x.dept)}</td><td>${esc(x.region)}</td><td class="mono">${x.since}</td>
     <td>${x.mfa ? '<span class="badge ok">통과</span>' : '<span class="badge bad">실패</span>'}</td>
     <td>${x.check==='ok' ? '<span class="badge ok">통과</span>' : `<span class="badge bad">미통과</span> <span class="note">${esc(x.checkNote)}</span>`}</td></tr>`).join('');
-  return `<div class="tele-hd"><span>접속 중 <b>${ts.n}</b>명</span><span>${ts.fail ? `단말 점검 미통과 <b class="bad">${ts.fail}</b>명` : '단말 점검 전원 통과'}</span></div>
-    <table class="res tele"><thead><tr><th>사용자</th><th>부서</th><th>위치</th><th>접속</th><th>다중인증</th><th>단말 점검 (규정 제12조)</th></tr></thead><tbody>${rows}</tbody></table>`;
+  return `<table class="res tele"><thead><tr><th>사용자</th><th>부서</th><th>위치</th><th>접속</th><th>다중인증</th><th>단말 점검 (규정 제12조)</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 function quickBlock(host){
   const r = state.rogues.find(x => x.host === host); if (!r) return;
@@ -1752,7 +1826,7 @@ function render(){
   if (home) { const tb = $('#toasts'); if (tb) tb.innerHTML = ''; }
   $('#strip').style.display = home ? 'none' : '';
   $('#crumb').style.display = home ? 'none' : '';
-  ({ map:renderMap, ledger:renderLedger, logs:renderLogs, content:renderContent, report:renderReport, activity:renderActivityPage })[state.tab]();
+  ({ map:renderMap, ledger:renderLedger, logs:renderLogs, content:renderContent, report:renderReport, activity:renderActivityPage, tele:renderTelePage })[state.tab]();
 }
 
 /* ── 상단바 검색 ── */
