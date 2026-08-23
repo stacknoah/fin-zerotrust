@@ -535,6 +535,12 @@
   .node.rogue rect.tint { fill: rgba(197,48,48,.05); }
   .node.rogue:hover rect.bg { stroke: var(--m-over); }
   .node .chev { fill: none; stroke: var(--m-text-3); stroke-width: 1.25; stroke-linecap: round; stroke-linejoin: round; }
+  .node .aux { font-size: 12px; font-weight: 500; fill: var(--m-text-2); }
+  .tele-hd { display: flex; gap: 20px; font-size: 13px; color: var(--body); margin: 14px 0 8px; }
+  .tele-hd b { font-weight: 600; color: var(--ink); } .tele-hd b.bad { color: var(--bad-fg); }
+  table.tele { font-size: 13px; }
+  table.tele tr.bad td { background: #fff7f7; }
+  table.tele .note { font-size: 12px; color: var(--body); margin-left: 6px; }
   .ndot.ok { fill: var(--m-ok); } .ndot.soon { fill: var(--m-soon); } .ndot.over, .ndot.rogue { fill: var(--m-over); }
 
   .core-box { fill: #ffffff; stroke: #0a2540; stroke-width: 1.25; }
@@ -719,6 +725,10 @@ const LEDGER = [
     domains:['vpn.paymon.co.kr'], ports:'443', dir:'인바운드',
     approved:'2025-02-14 의결 제2025-02호', controls:'별표7 원격접속: 유휴차단, 서약서, 기록, 다중인증',
     review:{ type:'위원회 재승인', due:'2027-02' } },
+  { id:'C-09', name:'재택근무 VPN', type:'원격접속', basis:'제2조의3 ①항 2호', zone:'tele',
+    domains:['ra.paymon.co.kr'], ports:'443', dir:'인바운드',
+    approved:'2025-09-30 의결 제2025-07호', controls:'규정 제12조 단말 보안대책, 별표7 원격접속: 다중인증, 단말 보안 점검, 화면 캡처와 클립보드 차단, 세션 기록',
+    review:{ type:'위원회 재승인', due:'2027-09' } },
   { id:'C-05', name:'NHN 두레이', type:'SaaS', basis:'제2조의3 ①항 3호', zone:'saas', saasKey:'dooray',
     domains:['dooray.com'], ports:'443', dir:'아웃바운드',
     approved:'2026-05-30 의결 제2026-07호, 금보원 충족 확인', controls:'별표7 SaaS 10개 통제 + 살피 내용검사(보완통제)',
@@ -771,11 +781,12 @@ const state = {
   rogues: [],            // 미처리 미등록 연결
   blocked: [],           // 차단 확정 {host, kind, reason}
   contentLog: {},        // conduitId → [{t, tag, masked}]
-  nextId: 9,
+  nextId: 10,
   wiz: null,             // 등재 위저드 상태
   detMode: 'heuristic', detReady: false,
   feed: { on:false, started:false, lines:[], received:0, tick:0, timer:null, last:null, aiCount:0 },   // 합성 프록시 피드
   events: [],            // 활동 기록 {t, kind, text}
+  tele: null,            // 재택근무 세션 (boot 시 생성)
 };
 
 /* ═══════════════ 유틸 ═══════════════ */
@@ -845,6 +856,38 @@ function reconcile(text){
   return { rows, rogues };
 }
 
+/* ═══════════════ 재택근무 세션 (합성) ═══════════════
+   세션마다 규정 제12조 단말 보안대책 충족 여부를 따진다. 점검은 규칙이고 AI는 쓰지 않는다 */
+const TELE_NAMES = ['김서연','박준호','이지우','최민재','정하윤','강도현','윤서아','임태양','한예린','오승민','신유진','조현우','배소율','권지훈','송나래','황민서','문채원','류시우','전다은','홍재민','노아인','서지안','백현준','안소현','장우진','구하은','남도윤','심예나','유건우','곽지민','마서진','표준서','엄채은','탁시현','변하람','원지호','길다인','방수아','석준영','피서윤'];
+const TELE_DEPTS = ['영업2팀','여신심사팀','IT운영팀','준법감시팀','고객지원팀','리스크관리팀','상품개발팀'];
+const TELE_REGIONS = ['서울','경기','인천','부산','대전'];
+function teleInit(){
+  const t0 = new Date(); const sessions = [];
+  for (let i = 0; i < 23; i++) {
+    const since = new Date(t0.getTime() - (20 + Math.floor(Math.random()*180))*60000);
+    sessions.push({ id: 's'+i, user: TELE_NAMES[i], dept: TELE_DEPTS[i % TELE_DEPTS.length], region: TELE_REGIONS[i % 5],
+      since: since.toTimeString().slice(0,5), mfa: true, check: 'ok', checkNote: '' });
+  }
+  return { sessions, next: 23, issues: 0 };
+}
+const TELE_FAIL = [['av','백신 정의 갱신 3일 경과'],['patch','OS 보안 패치 미적용'],['screen','화면 캡처 차단 에이전트 미실행']];
+function teleTick(){
+  const t = state.tele, f = state.feed;
+  const r = Math.random(), forceFail = f.tick === 7 || f.tick === 19;
+  if ((forceFail || r < 0.18) && t.sessions.length < 34) {   // 접속
+    const name = TELE_NAMES[t.next % TELE_NAMES.length] + (t.next >= TELE_NAMES.length ? ' ' + (Math.floor(t.next/TELE_NAMES.length)+1) : '');
+    const sess = { id: 's'+t.next, user: name, dept: TELE_DEPTS[t.next % TELE_DEPTS.length], region: TELE_REGIONS[t.next % 5], since: now().slice(0,5), mfa: true, check: 'ok', checkNote: '' };
+    t.next++;
+    if (forceFail || (f.tick > 30 && Math.random() < 0.12)) { const [k, note] = TELE_FAIL[Math.floor(Math.random()*TELE_FAIL.length)]; sess.check = 'fail'; sess.checkNote = note; t.issues++;
+      logEvent('tele', `재택 세션 단말 점검 미통과 ${sess.user}(${sess.dept}), ${note}`); }
+    t.sessions.push(sess);
+  } else if (r > 0.84 && t.sessions.length > 12) {   // 종료
+    const i = Math.floor(Math.random()*t.sessions.length); t.sessions.splice(i, 1);
+  }
+  f.lines.push(`${new Date().toISOString().slice(0,10)} ${now()} SRC=ext HOST=ra.paymon.co.kr DPT=443 ACTION=ALLOW`);
+}
+const teleStat = () => ({ n: state.tele.sessions.length, fail: state.tele.sessions.filter(x => x.check === 'fail').length });
+
 /* ═══════════════ 활동 기록과 합성 피드 ═══════════════
    수집만 합성이다. 대조는 reconcile 그대로, 미확인 목적지 분류는 Kanana가 연결돼 있으면 실제 호출 */
 const now = () => new Date().toTimeString().slice(0,8);
@@ -869,9 +912,10 @@ function feedTick(){
   const f = state.feed; f.tick++;
   const n = 1 + Math.floor(Math.random()*2);
   for (let i=0;i<n;i++) f.lines.push(feedLine());
+  teleTick();
   if (f.lines.length > 400) f.lines.splice(0, f.lines.length-400);
   f.received += n; f.last = now();
-  const hitHosts = f.lines.slice(-n).map(l => ((l.match(/HOST=(\S+)/)||[])[1]||'').toLowerCase());
+  const hitHosts = f.lines.slice(-(n+1)).map(l => ((l.match(/HOST=(\S+)/)||[])[1]||'').toLowerCase());
   const rec = reconcile(f.lines.join('\n'));
   const known = new Set(state.rogues.map(r => r.host));
   const fresh = rec.rogues.filter(r => !known.has(r.host));
@@ -909,7 +953,7 @@ function packets(hosts){
   hosts.forEach((h, i) => {
     const delay = i * 260;
     const c = matchLedger(h);
-    if (c) { const p = svg.querySelector(`#e-${c.id}`); if (p) runPacket(p, 1, 0, 1100, '', delay); return; }   // 승인 통로는 노드 → 허브 순으로 그려져 있어 거꾸로 간다
+    if (c) { const p = svg.querySelector(`#e-${c.id}`); if (p) { if (c.zone === 'tele') runPacket(p, 0, 1, 1100, '', delay); else runPacket(p, 1, 0, 1100, '', delay); } return; }   // 승인 통로는 노드 → 허브 순으로 그려져 있다. 아웃바운드는 거꾸로, 재택(인바운드)은 정방향
     const k = state.rogues.findIndex(r => r.host === h); if (k < 0) return;
     const n = state.rogues.length, trunk = svg.querySelector(`#e-R-${n-1}`); if (!trunk) return;
     if (k === n-1) { runPacket(trunk, 0, 1, 1300, 'rogue', delay); return; }
@@ -949,7 +993,7 @@ async function startFeed(){
   f.timer = setInterval(feedTick, 2500); feedTick();
 }
 function pauseFeed(){ const f = state.feed; f.on = false; clearInterval(f.timer); f.timer = null; logEvent('sys', '관측 일시정지'); render(); }
-const EV_KO = { rogue:'발견', ai:'AI', block:'차단', register:'등재', content:'검사', scan:'대조', sys:'상태' };
+const EV_KO = { rogue:'발견', ai:'AI', block:'차단', register:'등재', content:'검사', scan:'대조', sys:'상태', tele:'재택' };
 function renderActivity(){
   const feed = $('#act-feed'), act = $('#act-ai'); if (!feed || !act) return;
   const lines = state.feed.lines.slice(-5);
@@ -1183,7 +1227,7 @@ function renderMap(){
   const W=1400, ROGUES=state.rogues;
   const RZ = W-36-252, RN = RZ+16;   // 오른쪽 구역 x, 오른쪽 노드 x
   const zoneOf = z => LEDGER.filter(c => c.zone === z);
-  const fin=zoneOf('fin'), saas=zoneOf('saas'), remote=zoneOf('remote'), dmz=zoneOf('dmz');
+  const fin=zoneOf('fin'), saas=zoneOf('saas'), remote=zoneOf('remote'), dmz=zoneOf('dmz'), tele=zoneOf('tele');
   const h_n = 44;
   const H = Math.max(420 + 36 + dmz.length*52 + 32, 372 + 36 + ROGUES.length*52 + 32, 560);
   const core = { x:W/2-130, y:292, w:260, h:128 };
@@ -1199,7 +1243,7 @@ function renderMap(){
   };
 
   // 카드: 어두운 표면, 상태점, 이름. 통로 번호는 경계 통과 지점의 알약에만
-  const nodeBox=(x,y,w,id,name,sel,rogue,st)=>`
+  const nodeBox=(x,y,w,id,name,sel,rogue,st,aux)=>`
     <g class="node ${sel?'sel':''} ${rogue?'rogue':''} ${rogue && state.freshHosts && state.freshHosts.has(name) ? 'enter' : ''}" data-sel="${id==='?'?name:id}">
       <rect class="ring" x="${x-3}" y="${y-3}" width="${w+6}" height="${h_n+6}" rx="9"></rect>
       <rect class="bg" x="${x}" y="${y}" width="${w}" height="${h_n}" rx="6"></rect>
@@ -1207,6 +1251,7 @@ function renderMap(){
       <line class="hi" x1="${x+8}" y1="${y+1.5}" x2="${x+w-8}" y2="${y+1.5}"></line>
       <circle class="ndot ${rogue?'rogue':st}" cx="${x+16}" cy="${y+22}" r="3"></circle>
       <text class="nm" x="${x+28}" y="${y+26.5}">${esc(name)}</text>
+      ${aux?`<text class="aux mono" x="${x+w-14}" y="${y+26.5}" text-anchor="end">${esc(aux)}</text>`:''}
       ${rogue?`<path class="chev" d="M${x+w-18} ${y+17} l5 5 -5 5"></path>`:''}
     </g>`;
   // 직각 배선, 모서리 반경 8. 선은 경계를 수직으로 뚫고, 뚫는 자리에 알약이 앉는다
@@ -1278,11 +1323,20 @@ function renderMap(){
     edge(edgeV(xc, 36+ZT+h_n, xe, core.y, bz.y-26), c.id, state.sel===c.id, stOf(c), {x: xe, y: bz.y});
   });
   // 원격접속 (우상)
+  // 재택근무 (우상): 세션 수가 카드에 실시간으로
+  const ts = teleStat();
+  out += zoneFrame(RZ, 116, 252, ZT+tele.length*PITCH+ZB, '재택근무', ts.n + '명 접속', ts.fail ? {cls:'bad', t:'단말 점검 미통과 ' + ts.fail} : {cls:'ok', t:'정상'});
+  const rightAll = [...tele, ...remote];
+  tele.forEach((c,k)=>{ const y=116+ZT+k*PITCH, y2 = core.y + 20 + k*FP;
+    out += nodeBox(RN, y, 220, c.id, c.name, state.sel===c.id, false, ts.fail ? 'over' : stOf(c), `${ts.n}`);
+    edge(edgeH(RN, y+22, core.x+core.w, y2, k, rightAll.length), c.id, state.sel===c.id, ts.fail ? 'over' : stOf(c), {x: bz.x+bz.w, y: y2});
+  });
+  // 원격접속 (우중)
   const RMY = 228;
   out += zoneFrame(RZ, RMY, 252, ZT+remote.length*PITCH+ZB, '원격접속', remote.length, zoneSt(remote));
-  remote.forEach((c,k)=>{ const y=RMY+ZT+k*PITCH, y2 = core.y + 20 + k*FP;
+  remote.forEach((c,k)=>{ const y=RMY+ZT+k*PITCH, kk = k + tele.length, y2 = core.y + 20 + kk*FP;
     out += nodeBox(RN, y, 220, c.id, c.name, state.sel===c.id, false, stOf(c));
-    edge(edgeH(RN, y+22, core.x+core.w, y2, k, remote.length), c.id, state.sel===c.id, stOf(c), {x: bz.x+bz.w, y: y2});
+    edge(edgeH(RN, y+22, core.x+core.w, y2, kk, rightAll.length), c.id, state.sel===c.id, stOf(c), {x: bz.x+bz.w, y: y2});
   });
   // 미등록 (우하): 허브에서 줄기 하나로 나가 경계를 한 번 뚫고, 버스에서 갈라진다
   const RY = 372;
@@ -1420,8 +1474,18 @@ function showDetail(sel){
         <dt>승인</dt><dd>${c.approved}</dd>
         <dt>적용 통제</dt><dd>${c.controls}${c.pendingRisks?` <b style="color:var(--warn-fg)">미해소 ${c.pendingRisks}건</b>`:''}</dd>
         <dt>다음 의무</dt><dd>${c.review.type} ${c.review.due}</dd></div>
-      ${c.zone==='saas' ? `<div class="content-log">내용검사 기록 <b>${n}건</b></div>` : ''}</div>`;
+      ${c.zone==='saas' ? `<div class="content-log">내용검사 기록 <b>${n}건</b></div>` : ''}
+      ${c.zone==='tele' ? teleTable() : ''}</div>`;
   }
+}
+function teleTable(){
+  const t = state.tele, ts = teleStat();
+  const rows = t.sessions.slice().sort((a,b) => (a.check==='fail'?-1:1) - (b.check==='fail'?-1:1)).map(x => `<tr class="${x.check==='fail'?'bad':''}">
+    <td>${esc(x.user)}</td><td>${esc(x.dept)}</td><td>${esc(x.region)}</td><td class="mono">${x.since}</td>
+    <td>${x.mfa ? '<span class="badge ok">통과</span>' : '<span class="badge bad">실패</span>'}</td>
+    <td>${x.check==='ok' ? '<span class="badge ok">통과</span>' : `<span class="badge bad">미통과</span> <span class="note">${esc(x.checkNote)}</span>`}</td></tr>`).join('');
+  return `<div class="tele-hd"><span>접속 중 <b>${ts.n}</b>명</span><span>${ts.fail ? `단말 점검 미통과 <b class="bad">${ts.fail}</b>명` : '단말 점검 전원 통과'}</span></div>
+    <table class="res tele"><thead><tr><th>사용자</th><th>부서</th><th>위치</th><th>접속</th><th>다중인증</th><th>단말 점검 (규정 제12조)</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 function quickBlock(host){
   const r = state.rogues.find(x => x.host === host); if (!r) return;
@@ -1744,6 +1808,7 @@ async function initAIStatus(){
 function doLogin(e){ e.preventDefault(); sessionStorage.setItem('salpi_auth','1'); boot(); }
 function logout(){ sessionStorage.removeItem('salpi_auth'); location.reload(); }
 function boot(){
+  if (!state.tele) state.tele = teleInit();
   const authed = sessionStorage.getItem('salpi_auth');
   $('#login').style.display = authed ? 'none' : 'flex';
   $('#appshell').style.display = authed ? '' : 'none';
