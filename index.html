@@ -31,7 +31,7 @@
     --ease: cubic-bezier(.3,0,0,1); --t: 150ms var(--ease);
     /* 14. 스페이싱 */
     --sp-4: 4px; --sp-8: 8px; --sp-12: 12px; --sp-16: 16px; --sp-24: 24px; --sp-32: 32px;
-    --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+    --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
     --sans: "Pretendard Variable", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
   }
   * { box-sizing: border-box; margin: 0; }
@@ -183,95 +183,6 @@
   .status-dot.off::before { background: #8792a2; }
 
   /* ── 지도: 18. 파랑은 선택 전용 ── */
-  /* 홈: 판정 한 줄 + 어두운 무대 */
-  .hero { display: flex; align-items: center; gap: 28px; padding: 2px 2px 14px; }
-  .verdict { display: flex; align-items: center; gap: 14px; min-width: 0; }
-  .verdict .vd { width: 14px; height: 14px; border-radius: 50%; background: var(--disabled); box-shadow: 0 0 0 4px rgba(135,146,162,.18); flex: none; }
-  .verdict.bad .vd { background: #e5484d; box-shadow: 0 0 0 4px rgba(229,72,77,.22); animation: vpulse 1.6s ease-in-out infinite; }
-  .verdict.ok .vd { background: #2da44e; box-shadow: 0 0 0 4px rgba(45,164,78,.22); }
-  @keyframes vpulse { 50% { box-shadow: 0 0 0 8px rgba(229,72,77,.08); } }
-  .verdict .vk { font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing: .02em; }
-  .verdict .vt { font: 700 28px/34px var(--sans); letter-spacing: -0.02em; color: var(--ink); white-space: nowrap; }
-  .verdict.bad .vt { color: var(--bad-fg); } .verdict.ok .vt { color: var(--ok-fg); }
-  .verdict .vs { font-size: 13px; color: var(--body); margin-top: 1px; }
-  .hstats { display: flex; margin-left: auto; }
-  .hstats div { padding: 0 20px; border-left: 1px solid var(--line); }
-  .hstats div:first-child { border-left: 0; }
-  .hstats b { display: block; font: 600 24px/28px var(--sans); letter-spacing: -0.02em; color: var(--ink); font-variant-numeric: tabular-nums; }
-  .hstats span { font-size: 12px; color: var(--muted); white-space: nowrap; }
-  .hstats .warn b { color: var(--warn-fg); } .hstats .bad b { color: var(--bad-fg); }
-  .hero button.act { height: 40px; padding: 0 18px; font-weight: 600; flex: none; }
-  .mapwrap { position: relative; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-card);
-    background: radial-gradient(ellipse 70% 60% at 50% 0%, #15396b 0%, #0c2447 55%, #081b36 100%); animation: rise 420ms var(--ease) both; }
-  .mapwrap::before { content: ""; position: absolute; inset: 0; pointer-events: none;
-    background-image: radial-gradient(rgba(255,255,255,.10) 1px, transparent 1.3px); background-size: 26px 26px; }
-  @keyframes rise { from { opacity: 0; transform: translateY(10px); } }
-  .mapwrap .maplegend { border-top: 1px solid rgba(255,255,255,.08); color: #9fb3cb; position: relative; }
-  .mapwrap .maplegend i { border-top-color: rgba(170,193,224,.7); }
-  .mapwrap .maplegend .s i { border-top-color: #ffb547; } .mapwrap .maplegend .r i { border-top-color: #ff5a5f; }
-  .mapwrap .maplegend .d em.ok { background: #3ddc84; } .mapwrap .maplegend .d em.soon { background: #ffb547; } .mapwrap .maplegend .d em.over { background: #ff5a5f; }
-  .mapwrap .maplegend .live { margin-left: auto; display: flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 11.5px; color: #7fa6d8; }
-  .mapwrap .maplegend .live i { width: 7px; height: 7px; border-radius: 50%; border: 0; background: #3ddc84; box-shadow: 0 0 8px #3ddc84; animation: blink 1.4s ease-in-out infinite; }
-  svg.map { display: block; width: 100%; position: relative; padding: 6px 10px 0; }
-  svg.map text { font-family: var(--sans); }
-  .zone-frame { fill: none; stroke: #cdd5df; stroke-width: 1; stroke-dasharray: 4 4; }
-  .zone-frame.ghost { stroke: #dbe3ec; }
-  .zone-title.ghost { fill: var(--disabled); }
-  .ghost-t { font-size: 12px; fill: var(--disabled); }
-  .ghost-t.ok { fill: var(--ok-fg); }
-  .svgbtn { cursor: pointer; }
-  .svgbtn rect { fill: var(--blue); transition: fill var(--t); }
-  .svgbtn:hover rect { fill: var(--blue-hover); }
-  .svgbtn text { fill: #fff; font-size: 12.5px; font-weight: 600; pointer-events: none; }
-  .bzone { fill: #edf3fa; stroke: #b5c8df; stroke-width: 1.5; }
-  .bzone-t { font-size: 10.5px; font-weight: 700; fill: #5a7393; letter-spacing: .08em; }
-  .zpill.ok { fill: var(--ok-bg); } .zpill.soon { fill: var(--warn-bg); } .zpill.bad { fill: var(--bad-bg); }
-  .core-hd { fill: #0a2540; }
-  .core-hdsub { font-size: 11.5px; fill: #adbdcc; }
-  .zone-title { font-size: 13px; font-weight: 600; fill: var(--muted); }
-  .node { fill: #ffffff; stroke: #cdd5df; stroke-width: 1; cursor: pointer; filter: drop-shadow(0 1px 1px rgba(50,50,93,.10)); transition: stroke var(--t); }
-  .node:hover { stroke: #8792a2; }
-  .node.sel { stroke: var(--blue); stroke-width: 2; }
-  .node.rogue { fill: #fff7f7; stroke: #e5484d; }
-  .node-id { font-family: var(--mono); font-size: 9.5px; fill: var(--disabled); pointer-events: none; }
-  .node-name { font-size: 12.5px; font-weight: 600; fill: var(--ink); pointer-events: none; }
-  .node-name.rogue { fill: var(--bad-fg); }
-  .core-box { fill: #ffffff; stroke: #0a2540; stroke-width: 1.5; filter: drop-shadow(0 4px 10px rgba(10,37,64,.18)); }
-  .core-title { font-size: 15px; font-weight: 700; fill: #fff; }
-  .core-sub { font-size: 12px; fill: var(--muted); }
-  .edge { fill: none; stroke: #aab7c8; stroke-width: 2; cursor: pointer; transition: stroke var(--t), stroke-width var(--t); }
-  .edge.soon { stroke: var(--st-soon); stroke-width: 2.3; }
-  .edge.over { stroke: var(--st-over); stroke-width: 2.3; }
-  .edge:hover { stroke: #5b6b80; }
-  .edge.sel { stroke: var(--blue); stroke-width: 3; }
-  .edge.rogue { stroke: var(--st-over); stroke-width: 2.3; stroke-dasharray: 7 5; }
-  .chip { fill: #ffffff; stroke: #c2cdda; stroke-width: 1.3; cursor: pointer; }
-  .chip.soon { stroke: var(--st-soon); } .chip.over, .chip.rogue { stroke: var(--st-over); }
-  .chip-t { font-family: var(--mono); font-size: 9.5px; fill: var(--body); font-weight: 600; cursor: pointer; }
-  .chip-t.soon { fill: #8a5200; } .chip-t.over, .chip-t.rogue { fill: var(--bad-fg); }
-  @media (prefers-reduced-motion: no-preference) {
-    .edge.rogue { animation: crawl 1.6s linear infinite; }
-    @keyframes crawl { to { stroke-dashoffset: -22; } }
-  }
-  .maplegend { display: flex; gap: var(--sp-24); font-size: 13px; color: var(--muted); padding: 12px 20px; border-top: 1px solid var(--line); }
-  .maplegend i { display: inline-block; width: 22px; height: 0; border-top: 2px solid #aab7c8; vertical-align: 4px; margin-right: 8px; }
-  .maplegend .r i { border-top: 2px dashed #e5484d; }
-  .maplegend .s i { border-top: 2.3px solid #e8a23d; }
-  .maplegend .d em { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; }
-  .maplegend .d em.ok { background: #2da44e; } .maplegend .d em.soon { background: #e8a23d; } .maplegend .d em.over { background: #e5484d; }
-  .mapstatus { display: flex; align-items: center; gap: 10px; margin: 14px 20px 0; padding: 10px 16px; border-radius: 8px; font-size: 13px; }
-  .mapstatus b { font-weight: 600; margin-right: 2px; }
-  .mapstatus svg { flex: none; }
-  .mapstatus.ok { background: #f2fbf3; color: #116329; border: 1px solid #cdeed6; }
-  .mapstatus.bad { background: #fff5f5; color: #a41c1c; border: 1px solid #ffd9d9; }
-  .mapstatus.idle { background: var(--bg); color: var(--body); border: 1px solid var(--line); }
-  .ndot.ok { fill: #2da44e; } .ndot.soon { fill: #e8a23d; } .ndot.over { fill: #e5484d; }
-  .zone-st { font-size: 10.5px; font-weight: 700; }
-  .zone-st.ok { fill: var(--ok-fg); } .zone-st.soon { fill: var(--warn-fg); } .zone-st.bad { fill: var(--bad-fg); }
-  .core-k { font-size: 11.5px; fill: var(--muted); }
-  .core-v { font-family: var(--mono); font-size: 12px; font-weight: 600; fill: var(--ink); }
-  .core-v.bad { fill: #c62a2f; } .core-v.ok { fill: #116329; } .core-v.dim { fill: var(--disabled); font-weight: 400; }
-  .core-div { stroke: #d3e5f8; stroke-width: 1; }
 
   .subgrid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-16); margin-top: var(--sp-16); }
   .rowitem { display: flex; gap: var(--sp-12); align-items: center; font-size: 14px; color: var(--body); padding: 10px 20px; border-top: 1px solid var(--line); }
@@ -472,8 +383,6 @@
   .cell-org { display: flex; align-items: center; gap: 10px; }
 
   /* ── 노드 아이콘 ── */
-  .node-ic { stroke: #aab6c4; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
-  .node-ic.rogue { stroke: #e5484d; }
 
   /* ── 빈 상태 ── */
   .empty { padding: 24px 20px 26px; text-align: center; }
@@ -510,7 +419,7 @@
   }
 
   /* ── 토스트 ── */
-  #toasts { position: fixed; right: 20px; bottom: 20px; z-index: 90; display: flex; flex-direction: column; gap: 8px; }
+  #toasts { position: fixed; right: 32px; top: 140px; z-index: 90; display: flex; flex-direction: column; gap: 8px; }
   .toast {
     display: flex; align-items: center; gap: 10px; min-width: 260px; max-width: 380px;
     background: var(--panel); border-radius: var(--r-pop); box-shadow: var(--shadow-overlay);
@@ -580,28 +489,121 @@
     .view, .modal, .ai-row { animation: none; }
     * { transition: none !important; }
   }
-  /* ── 홈 무대: 어두운 캔버스 위 밝은 요소 ── */
-  .flow { fill: #d6e6ff; filter: drop-shadow(0 0 3px #8fb8ff); }
-  .mapwrap .zone-frame { stroke: rgba(255,255,255,.24); }
-  .mapwrap .zone-title { fill: rgba(255,255,255,.74); }
-  .mapwrap .zone-frame.ghost { stroke: rgba(255,255,255,.18); }
-  .mapwrap .zone-title.ghost { fill: rgba(255,255,255,.48); }
-  .mapwrap .ghost-t { fill: rgba(255,255,255,.5); } .mapwrap .ghost-t.ok { fill: #7ee3a9; }
-  .mapwrap .svgbtn rect { fill: #ffffff; } .mapwrap .svgbtn:hover rect { fill: #e6eefb; } .mapwrap .svgbtn text { fill: #0a2540; }
-  .mapwrap .bzone { fill: #edf3fa; stroke: rgba(143,184,255,.9); }
-  .mapwrap .node { stroke: none; filter: drop-shadow(0 2px 6px rgba(0,0,0,.35)); transition: filter var(--t), fill var(--t); }
-  .mapwrap .node:hover { filter: drop-shadow(0 4px 12px rgba(0,0,0,.45)); }
-  .mapwrap .node.sel { stroke: #8fb8ff; stroke-width: 2.5; }
-  .mapwrap .node.rogue { fill: #fff3f3; stroke: #ff5a5f; stroke-width: 1.2; animation: rpulse 2.2s ease-in-out infinite; }
-  @keyframes rpulse { 50% { fill: #ffe0e1; } }
-  .mapwrap .ndot.ok { fill: #2da44e; } .mapwrap .ndot.soon { fill: #f0a63a; } .mapwrap .ndot.over { fill: #e5484d; }
-  .mapwrap .core-box { stroke: none; filter: drop-shadow(0 12px 30px rgba(0,0,0,.45)); }
-  .mapwrap .edge { stroke: rgba(190,208,232,.55); }
-  .mapwrap .edge.soon { stroke: #ffb547; filter: drop-shadow(0 0 5px rgba(255,181,71,.6)); }
-  .mapwrap .edge.over, .mapwrap .edge.rogue { stroke: #ff5a5f; filter: drop-shadow(0 0 5px rgba(255,90,95,.6)); }
-  .mapwrap .edge:hover { stroke: #e3edfb; }
-  .mapwrap .edge.sel { stroke: #8fb8ff; filter: drop-shadow(0 0 6px rgba(143,184,255,.75)); }
-  .mapwrap .chip.soon { stroke: #f0a63a; } .mapwrap .chip.over, .mapwrap .chip.rogue { stroke: #ff5a5f; }
+  /* ── 홈: 판정 한 줄 ── */
+  .hero { display: flex; align-items: center; gap: 28px; padding: 4px 2px 16px; }
+  .verdict { display: flex; align-items: center; gap: 14px; min-width: 0; }
+  .verdict .vd { width: 10px; height: 10px; border-radius: 50%; background: var(--disabled); box-shadow: 0 0 0 3px rgba(135,146,162,.16); flex: none; }
+  .verdict.ok .vd { background: var(--st-ok); box-shadow: 0 0 0 3px rgba(45,164,78,.18); }
+  .verdict.bad .vd { background: var(--st-over); box-shadow: 0 0 0 3px rgba(229,72,77,.18); }
+  .verdict .vk { font: 500 12px/16px var(--sans); color: var(--muted); letter-spacing: .02em; }
+  .verdict .vt { font: 600 26px/32px var(--sans); letter-spacing: -0.02em; color: var(--ink); white-space: nowrap; }
+  .verdict .vt .n { color: var(--bad-fg); }
+  .verdict .vs { font: 400 13px/18px var(--sans); color: var(--body); margin-top: 1px; }
+  .hstats { display: flex; margin-left: auto; }
+  .hstats div { padding: 0 20px; border-left: 1px solid var(--line); }
+  .hstats div:first-child { border-left: 0; }
+  .hstats b { display: block; font: 600 22px/28px var(--sans); letter-spacing: -0.02em; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .hstats span { font: 400 12px/16px var(--sans); color: var(--muted); white-space: nowrap; }
+  .hstats .warn span::before, .hstats .bad span::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 6px; vertical-align: 1px; }
+  .hstats .warn span::before { background: var(--st-soon); } .hstats .bad span::before { background: var(--st-over); }
+  .hero button.act { height: 36px; padding: 0 16px; font-weight: 500; flex: none; }
+
+  /* ── 홈: 무대. 상단바 네이비(색상각 210)에서 파생한 어두운 층 ── */
+  .mapwrap {
+    --m-bg: #071a30; --m-lv1: #0d2239; --m-lv1-end: #0a1e34; --m-lv2: #132a42; --m-lv3: #183350;
+    --m-line-1: rgba(255,255,255,.08); --m-line-2: rgba(255,255,255,.14); --m-line-3: rgba(255,255,255,.22);
+    --m-edge: rgba(255,255,255,.30); --m-edge-hover: rgba(255,255,255,.65);
+    --m-text-1: rgba(255,255,255,.92); --m-text-2: rgba(255,255,255,.62); --m-text-3: rgba(255,255,255,.48);
+    --m-ok: #3dcf72; --m-soon: #f5b14a; --m-over: #ff6166; --m-over-text: #ff8a8e;
+    --m-over-20: rgba(255,97,102,.22); --m-over-10: rgba(255,97,102,.10);
+    --m-sel: #8fb8ff; --m-sel-35: rgba(143,184,255,.35); --m-sel-14: rgba(143,184,255,.14);
+    --m-hub: #eef1f6; --m-hub-sub: #5b6577; --m-hub-line: rgba(10,37,64,.10);
+    position: relative; isolation: isolate; border-radius: var(--r-modal); overflow: hidden;
+    background: radial-gradient(ellipse 60% 45% at 50% 0%, rgba(255,255,255,.045) 0%, transparent 70%), var(--m-bg);
+    box-shadow: 0 0 0 1px rgba(10,37,64,.10);
+    animation: rise 400ms var(--ease) both;
+  }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } }
+  .mapwrap::before { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+    background-image: radial-gradient(rgba(255,255,255,.06) 1px, transparent 1px); background-size: 24px 24px; background-position: 12px 12px;
+    -webkit-mask-image: radial-gradient(ellipse 75% 70% at 50% 45%, #000 35%, transparent 100%); mask-image: radial-gradient(ellipse 75% 70% at 50% 45%, #000 35%, transparent 100%); }
+  @media (min-resolution: 2dppx) { .mapwrap::before { background-image: radial-gradient(rgba(255,255,255,.07) .5px, transparent .5px); } }
+  svg.map { display: block; width: 100%; position: relative; z-index: 1; padding: 8px 12px 0; }
+  svg.map text { font-family: var(--sans); -webkit-font-smoothing: antialiased; pointer-events: none; }
+  svg.map .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  .edge, .edge-hit, .chip, .node, .bz, .halo { vector-effect: non-scaling-stroke; }
+
+  .zone { fill: url(#zoneFill); stroke: none; }
+  .zone-title { font-size: 12px; font-weight: 500; fill: var(--m-text-2); }
+  .zone-n { font-size: 11px; font-weight: 500; fill: var(--m-text-3); }
+  .zone-st { font-size: 11px; font-weight: 500; }
+  .zone-st.ok { fill: var(--m-text-3); } .zone-st.soon { fill: var(--m-soon); } .zone-st.bad { fill: var(--m-over-text); }
+  .zdot.ok { fill: var(--m-ok); } .zdot.soon { fill: var(--m-soon); } .zdot.bad { fill: var(--m-over); }
+  .zone.empty { fill: #0a1d33; stroke: var(--m-line-1); stroke-width: 1; }
+  .ghost-t { font-size: 12px; fill: rgba(255,255,255,.45); }
+  .ghost-t.ok { fill: var(--m-text-2); }
+  .svgbtn { cursor: pointer; }
+  .svgbtn rect { fill: var(--m-lv2); stroke: var(--m-line-2); stroke-width: 1; transition: fill var(--t); }
+  .svgbtn:hover rect { fill: var(--m-lv3); }
+  .svgbtn text { fill: var(--m-text-1); font-size: 12.5px; font-weight: 500; }
+
+  .bz { fill: var(--m-lv1); stroke: var(--m-line-3); stroke-width: 1; }
+  .bz-t { font-size: 11px; font-weight: 500; fill: var(--m-text-3); letter-spacing: .04em; }
+
+  .node { cursor: pointer; }
+  .node rect.bg { fill: var(--m-lv2); stroke: var(--m-line-2); stroke-width: 1; transition: fill var(--t), stroke var(--t); }
+  .node:hover rect.bg { fill: var(--m-lv3); stroke: var(--m-line-3); }
+  .node.sel rect.bg { stroke: var(--m-sel); }
+  .node .ring { fill: none; stroke: var(--m-sel-35); stroke-width: 1; opacity: 0; transition: opacity var(--t); }
+  .node.sel .ring { opacity: 1; }
+  .node .hi { stroke: rgba(255,255,255,.07); stroke-width: 1; }
+  .node .nm { font-size: 13px; font-weight: 500; fill: var(--m-text-1); letter-spacing: -.01em; }
+  .node.rogue .nm { font-family: var(--mono); font-size: 12.5px; }
+  .node.rogue rect.bg { stroke: var(--m-over-20); }
+  .node.rogue rect.tint { fill: var(--m-over-10); }
+  .node.rogue:hover rect.bg { stroke: rgba(255,97,102,.5); }
+  .ndot.ok { fill: var(--m-ok); } .ndot.soon { fill: var(--m-soon); } .ndot.over, .ndot.rogue { fill: var(--m-over); }
+  .nhalo { fill: var(--m-over-20); }
+
+  .core-box { fill: var(--m-hub); stroke: var(--m-line-3); stroke-width: 1; }
+  .core-title { font-size: 14px; font-weight: 600; fill: var(--ink); }
+  .core-sub { font-size: 11px; font-weight: 500; fill: var(--m-hub-sub); }
+  .core-div { stroke: var(--m-hub-line); stroke-width: 1; }
+  .core-k { font-size: 12px; fill: var(--m-hub-sub); }
+  .core-v { font-size: 12.5px; font-weight: 500; fill: var(--ink); }
+  .core-v.bad { fill: var(--bad-fg); } .core-v.ok { fill: var(--ok-fg); } .core-v.dim { fill: #9aa3b2; font-weight: 400; }
+
+  .edge { fill: none; stroke: var(--m-edge); stroke-width: 1; stroke-linecap: round; stroke-linejoin: round; transition: stroke var(--t); }
+  .edge.soon { stroke: var(--m-soon); stroke-width: 1.5; }
+  .edge.over { stroke: var(--m-over); stroke-width: 1.5; }
+  .edge.rogue { stroke: var(--m-over); stroke-width: 1.5; stroke-dasharray: 1 5; }
+  .edge.sel { stroke: var(--m-sel); stroke-width: 1.5; }
+  .edge-hit { fill: none; stroke: transparent; stroke-width: 12; cursor: pointer; }
+  .edge-hit:hover + .edge { stroke: var(--m-edge-hover); }
+  .edge-hit:hover + .edge.soon { stroke: var(--m-soon); } .edge-hit:hover + .edge.over, .edge-hit:hover + .edge.rogue { stroke: var(--m-over); }
+  .halo { fill: none; stroke: var(--m-sel-14); stroke-width: 8; stroke-linecap: round; stroke-linejoin: round; }
+  .flow { fill: #fff; opacity: .75; }
+  @media (prefers-reduced-motion: no-preference) {
+    .edge.rogue { animation: crawl 1.4s linear infinite; }
+    @keyframes crawl { to { stroke-dashoffset: -6; } }
+  }
+  @media (prefers-reduced-motion: reduce) { .flow { display: none; } .mapwrap { animation: none; } }
+
+  .chip { cursor: pointer; }
+  .chip .cut { fill: none; stroke: var(--m-lv1); stroke-width: 4; }
+  .chip .pill { fill: var(--m-lv2); stroke: var(--m-line-2); stroke-width: 1; transition: stroke var(--t); }
+  .chip:hover .pill { stroke: rgba(255,255,255,.4); }
+  .chip.soon .pill { stroke: rgba(245,177,74,.6); } .chip.over .pill { stroke: rgba(255,97,102,.6); } .chip.sel .pill { stroke: var(--m-sel); }
+  .chip .t { font-size: 10px; font-weight: 500; fill: rgba(255,255,255,.78); letter-spacing: .03em; }
+  .chip.soon .t { fill: var(--m-soon); } .chip.over .t { fill: var(--m-over-text); } .chip.sel .t { fill: #fff; }
+
+  .maplegend { position: relative; z-index: 1; display: flex; gap: 20px; align-items: center; padding: 10px 20px; border-top: 1px solid rgba(255,255,255,.06); font: 400 12px/16px var(--sans); color: rgba(255,255,255,.5); }
+  .maplegend i { display: inline-block; width: 16px; height: 0; border-top: 1px solid rgba(255,255,255,.30); margin-right: 8px; vertical-align: 3px; }
+  .maplegend .s i { border-top: 1.5px solid #f5b14a; }
+  .maplegend .r i { border-top: 1.5px dotted #ff6166; }
+  .maplegend .d em { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 6px; }
+  .maplegend .d em.ok { background: #3dcf72; } .maplegend .d em.soon { background: #f5b14a; } .maplegend .d em.over { background: #ff6166; }
+  .maplegend .live { margin-left: auto; font: 500 11px/16px var(--mono); color: rgba(255,255,255,.45); letter-spacing: .02em; }
 </style>
 </head>
 <body>
@@ -1051,11 +1053,12 @@ function renderMap(){
   const W=1250, ROGUES=state.rogues;
   const zoneOf = z => LEDGER.filter(c => c.zone === z);
   const fin=zoneOf('fin'), saas=zoneOf('saas'), remote=zoneOf('remote'), dmz=zoneOf('dmz');
-  const H = Math.max(640, 440 + ROGUES.length*56);
+  const h_n = 44;
+  const H = Math.max(640, 372 + 36 + ROGUES.length*52 + 32);
   const core = { x:495, y:292, w:260, h:128 };
-  // 내부 업무망 경계. 통로 선이 이 경계를 뚫고 지나가는 구도
-  const bz = { x: core.x-72, y: core.y-60, w: core.w+144, h: core.h+120 };
-  let out='', edges='', chips='', flows='', flowN=0;
+  // 내부 업무망 경계. 통로 선이 이 경계를 수직으로 뚫고, 뚫는 자리에 통로 알약이 앉는다
+  const bz = { x: core.x-48, y: core.y-40, w: core.w+96, h: core.h+80 };
+  let base='', out='', edges='', chips='', flows='', flowN=0;
 
   const daysTo = due => { const p=due.split('-').map(Number); return Math.ceil((new Date(p[0],p[1]-1,p[2]||28) - new Date())/86400000); };
   const stOf = c => { const n=daysTo(c.review.due); return n<0?'over':(c.review.soon||n<=45)?'soon':'ok'; };
@@ -1064,105 +1067,121 @@ function renderMap(){
     return over ? {cls:'bad',t:'기한 경과 '+over} : soon ? {cls:'soon',t:'점검 임박 '+soon} : {cls:'ok',t:'정상'};
   };
 
-  const NODE_IC = {
-    fin: 'M5 21V7l7-4 7 4v14M9 21v-4h6v4M9 10h.5M9 13.5h.5M14.5 10h.5M14.5 13.5h.5',
-    saas: 'M7 18a4.5 4.5 0 1 1 .6-8.96A6 6 0 0 1 19 11a3.5 3.5 0 0 1-1 6.9H7z',
-    remote: 'M4 5h16v11H4zM9 20h6M12 16v4',
-    dmz: 'M4 5h16v5H4zM4 14h16v5H4zM7 7.5h.5M7 16.5h.5',
-    rogue: 'M12 3 2.5 20h19zM12 9.5V14M12 17h.01',
+  // 카드: 어두운 표면, 상태점, 이름. 통로 번호는 경계 통과 지점의 알약에만
+  const nodeBox=(x,y,w,id,name,sel,rogue,st)=>`
+    <g class="node ${sel?'sel':''} ${rogue?'rogue':''}" data-sel="${id==='?'?name:id}">
+      <rect class="ring" x="${x-3}" y="${y-3}" width="${w+6}" height="${h_n+6}" rx="9"></rect>
+      <rect class="bg" x="${x}" y="${y}" width="${w}" height="${h_n}" rx="6"></rect>
+      ${rogue?`<rect class="tint" x="${x}" y="${y}" width="${w}" height="${h_n}" rx="6"></rect>`:''}
+      <line class="hi" x1="${x+8}" y1="${y+1.5}" x2="${x+w-8}" y2="${y+1.5}"></line>
+      ${rogue?`<circle class="nhalo" cx="${x+16}" cy="${y+22}" r="7"></circle>`:''}
+      <circle class="ndot ${rogue?'rogue':st}" cx="${x+16}" cy="${y+22}" r="3"></circle>
+      <text class="nm" x="${x+28}" y="${y+26.5}">${esc(name)}</text>
+    </g>`;
+  // 직각 배선, 모서리 반경 8. 선은 경계를 수직으로 뚫고, 뚫는 자리에 알약이 앉는다
+  const R = 8;
+  const textW = (str, size) => [...str].reduce((w,ch)=> w + size*(/[가-힣]/.test(ch)?1:/[A-Z]/.test(ch)?.68:/[a-z0-9]/.test(ch)?.56:.3), 0);
+  const edgeH = (x1,y1,x2,y2,k) => {
+    const dir = x2 > x1 ? 1 : -1;
+    if (y1 === y2) return `M${x1} ${y1} H${x2}`;
+    const sy = y2 > y1 ? 1 : -1, r = Math.min(R, Math.abs(y2-y1)/2);
+    const xm = x1 + dir*(44 + k*12);
+    const s1 = dir*sy > 0 ? 1 : 0;
+    return `M${x1} ${y1} H${xm-dir*r} a${r} ${r} 0 0 ${s1} ${dir*r} ${sy*r} V${y2-sy*r} a${r} ${r} 0 0 ${1-s1} ${dir*r} ${sy*r} H${x2}`;
   };
-  // 카드에는 이름과 상태점만. 통로 번호는 경계 통과 지점의 라벨 한 곳에만 둔다
-  const nodeBox=(x,y,w,id,name,sel,rogue,zone,st)=>`
-    <rect class="node ${sel?'sel':''} ${rogue?'rogue':''}" x="${x}" y="${y}" width="${w}" height="44" rx="9" data-sel="${id==='?'?name:id}"></rect>
-    <circle class="ndot ${rogue?'over':st}" cx="${x+17}" cy="${y+22}" r="4"></circle>
-    <text class="node-name ${rogue?'rogue':''}" x="${x+30}" y="${y+27}">${esc(name)}</text>
-    <g transform="translate(${x+w-30}, ${y+13}) scale(0.75)"><path class="node-ic ${rogue?'rogue':''}" d="${NODE_IC[rogue?'rogue':zone]||NODE_IC.saas}"/></g>`;
-  const bez = (a,b,c,d,t) => { const u=1-t; return { x: u*u*u*a.x+3*u*u*t*b.x+3*u*t*t*c.x+t*t*t*d.x, y: u*u*u*a.y+3*u*u*t*b.y+3*u*t*t*c.y+t*t*t*d.y }; };
-  const inBz = p => p.x>bz.x && p.x<bz.x+bz.w && p.y>bz.y && p.y<bz.y+bz.h;
-  const edge=(x1,y1,x2,y2,dir,key,sel,kind)=>{
-    const horiz = Math.abs(x2-x1) > Math.abs(y2-y1);
-    const p0={x:x1,y:y1}, p3={x:x2,y:y2};
-    const p1 = horiz ? {x:x1+(x2>x1?70:-70), y:y1} : {x:x1, y:y1+(y2>y1?60:-60)};
-    const p2 = horiz ? {x:x2+(x2>x1?-70:70), y:y2} : {x:x2, y:y2+(y2>y1?-60:60)};
-    const d = `M ${x1} ${y1} C ${p1.x} ${p1.y}, ${p2.x} ${p2.y}, ${x2} ${y2}`;
-    edges += `<path class="edge ${kind} ${sel?'sel':''}" d="${d}" data-sel="${key}"></path>`;
+  const edgeV = (x1,y1,x2,y2,yj) => {
+    const sy = y2 > y1 ? 1 : -1;
+    if (x1 === x2) return `M${x1} ${y1} V${y2}`;
+    const dir = x2 > x1 ? 1 : -1, r = Math.min(R, Math.abs(x2-x1)/2);
+    const s1 = dir*sy > 0 ? 0 : 1;
+    return `M${x1} ${y1} V${yj-sy*r} a${r} ${r} 0 0 ${s1} ${dir*r} ${sy*r} H${x2-dir*r} a${r} ${r} 0 0 ${1-s1} ${dir*r} ${sy*r} V${y2}`;
+  };
+  let eid = 0;
+  const edge = (d, key, sel, kind, cp) => {
+    const id = 'e' + (eid++);
+    edges += `${sel?`<path class="halo" d="${d}"></path>`:''}<path class="edge-hit" d="${d}" data-sel="${key}"></path><path id="${id}" class="edge ${kind} ${sel?'sel':''}" d="${d}" data-sel="${key}"></path>`;
     if (kind !== 'rogue') { const n = flowN++;
-      flows += `<circle class="flow" r="2.4"><animateMotion dur="${(3.4 + (n%4)*0.55).toFixed(2)}s" begin="-${(n*0.9).toFixed(1)}s" repeatCount="indefinite" path="${d}"/></circle>`; }
-    // 선이 경계를 통과하는 지점에 통로 라벨
-    let cp = null, tc = .5;
-    for (let i=0;i<=80;i++){ if (inBz(bez(p0,p1,p2,p3,i/80))) { tc=i/80; break; } }
-    const rogue = kind==='rogue', w = rogue ? 22 : 44;
-    // 미등록 선은 한 점으로 모이므로 라벨을 카드 쪽으로 하나씩 물려 겹침을 피한다
-    if (rogue) tc = Math.max(.08, tc - .09*Number(key.slice(2)));
-    cp = bez(p0,p1,p2,p3,tc);
-    chips += `<rect class="chip ${kind}" x="${cp.x-w/2}" y="${cp.y-10}" width="${w}" height="20" rx="10" data-sel="${key}"></rect>
-      <text class="chip-t ${kind}" x="${cp.x}" y="${cp.y+4}" text-anchor="middle" data-sel="${key}">${rogue?'!':key}</text>`;
+      flows += `<circle class="flow" r="1.4"><animateMotion dur="${8 + (n%3)}s" begin="-${(n*1.3).toFixed(1)}s" repeatCount="indefinite"><mpath href="#${id}"/></animateMotion></circle>`; }
+    if (cp) chips += `<g class="chip ${kind==='rogue'?'':kind} ${sel?'sel':''}" data-sel="${key}">
+      <rect class="cut" x="${cp.x-22}" y="${cp.y-9}" width="44" height="18" rx="9"></rect>
+      <rect class="pill" x="${cp.x-22}" y="${cp.y-9}" width="44" height="18" rx="9"></rect>
+      <text class="t mono" x="${cp.x}" y="${cp.y+3.5}" text-anchor="middle">${key}</text></g>`;
   };
   const zoneFrame=(x,y,w,h,title,n,st)=>{
-    let pill='';
-    if (st) { const pw = st.t.replace(/\s/g,'').length*10.5 + (st.t.split(' ').length-1)*4 + 18;
-      pill = `<rect class="zpill ${st.cls}" x="${x+w-16-pw}" y="${y+11}" width="${pw}" height="19" rx="9.5"></rect>
-        <text class="zone-st ${st.cls}" x="${x+w-16-pw/2}" y="${y+24}" text-anchor="middle">${st.t}</text>`; }
-    return `<rect class="zone-frame" x="${x}" y="${y}" width="${w}" height="${h}" rx="14"></rect>
-    <text class="zone-title" x="${x+16}" y="${y+24}">${title}${n!=null?` (${n})`:''}</text>${pill}`;
+    let right='';
+    if (st) { const tw = st.t.replace(/\s/g,'').length*9 + (st.t.split(' ').length-1)*4;
+      right = `<circle class="zdot ${st.cls}" cx="${x+w-16-tw-9}" cy="${y+18}" r="3"></circle>
+        <text class="zone-st ${st.cls}" x="${x+w-16}" y="${y+22}" text-anchor="end">${st.t}</text>`; }
+    base += `<rect class="zone" x="${x}" y="${y}" width="${w}" height="${h}" rx="12"></rect>`;
+    return `<text class="zone-title" x="${x+16}" y="${y+22}">${title}</text>
+      <text class="zone-n mono" x="${x+16+textW(title,12)+8}" y="${y+22}">${n}</text>${right}`;
   };
+  out += `<defs>
+    <linearGradient id="zoneFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0d2239"/><stop offset="1" stop-color="#0a1e34"/></linearGradient>
+    <radialGradient id="bzGlow" cx="50%" cy="50%" r="60%"><stop offset="0" stop-color="#fff" stop-opacity=".05"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <radialGradient id="hubShadow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#04101f" stop-opacity=".7"/><stop offset=".6" stop-color="#04101f" stop-opacity=".25"/><stop offset="1" stop-color="#04101f" stop-opacity="0"/></radialGradient>
+  </defs>`;
 
-  // 경계 존 (선보다 먼저 그려 선이 위를 지나게)
-  out += `<rect class="bzone" x="${bz.x}" y="${bz.y}" width="${bz.w}" height="${bz.h}" rx="22"></rect>
-    <text class="bzone-t" x="${bz.x+18}" y="${bz.y+22}">내부 업무망 경계</text>`;
+  // 경계 (선보다 먼저 그려 선이 위를 지나게)
+  base += `<rect class="bz" x="${bz.x}" y="${bz.y}" width="${bz.w}" height="${bz.h}" rx="14"></rect>
+    <rect x="${bz.x}" y="${bz.y}" width="${bz.w}" height="${bz.h}" rx="14" fill="url(#bzGlow)" pointer-events="none"></rect>`;
+  out += `<text class="bz-t" x="${bz.x+16}" y="${bz.y+20}">경계</text>`;
 
+  const PITCH = 52, ZT = 36, ZB = 16;
   // 외부기관 (좌)
-  out += zoneFrame(36, 116, 252, 52+fin.length*56, '외부기관', fin.length, zoneSt(fin));
-  fin.forEach((c,i)=>{ const y=152+i*56;
-    out += nodeBox(52, y, 220, c.id, c.name, state.sel===c.id, false, 'fin', stOf(c));
-    edge(272, y+22, core.x, core.y + 26 + i*32, 'out', c.id, state.sel===c.id, stOf(c));
+  out += zoneFrame(36, 116, 252, ZT+fin.length*PITCH+ZB, '외부기관', fin.length, zoneSt(fin));
+  fin.forEach((c,k)=>{ const y=116+ZT+k*PITCH, y2 = core.y + 20 + k*24;
+    out += nodeBox(52, y, 220, c.id, c.name, state.sel===c.id, false, stOf(c));
+    edge(edgeH(272, y+22, core.x, y2, k), c.id, state.sel===c.id, stOf(c), {x: bz.x, y: y2});
   });
   // SaaS (상)
-  const sw = Math.max(2,saas.length)*206;
-  const sx = (core.x+core.w/2) - sw/2;
-  out += zoneFrame(sx-18, 36, sw+36, 108, 'SaaS', saas.length, zoneSt(saas));
-  saas.forEach((c,i)=>{ const x=sx+i*206;
-    out += nodeBox(x, 72, 188, c.id, c.name, state.sel===c.id, false, 'saas', stOf(c));
-    edge(x+94, 116, Math.min(core.x+core.w-26, Math.max(core.x+26, x+94)), core.y, 'out', c.id, state.sel===c.id, stOf(c));
+  const sw = Math.max(2,saas.length)*206, sx = (core.x+core.w/2) - sw/2;
+  out += zoneFrame(sx-18, 36, sw+36, ZT+h_n+ZB, 'SaaS', saas.length, zoneSt(saas));
+  saas.forEach((c,k)=>{ const x=sx+k*206, xc=x+94, xe=Math.min(core.x+core.w-30, Math.max(core.x+30, xc));
+    out += nodeBox(x, 36+ZT, 188, c.id, c.name, state.sel===c.id, false, stOf(c));
+    edge(edgeV(xc, 36+ZT+h_n, xe, core.y, bz.y-26), c.id, state.sel===c.id, stOf(c), {x: xe, y: bz.y});
   });
   // 원격접속 (우상)
-  out += zoneFrame(966, 116, 252, 52+remote.length*56, '원격접속', remote.length, zoneSt(remote));
-  remote.forEach((c,i)=>{ const y=152+i*56;
-    out += nodeBox(982, y, 220, c.id, c.name, state.sel===c.id, false, 'remote', stOf(c));
-    edge(982, y+22, core.x+core.w, core.y + 26 + i*32, 'in', c.id, state.sel===c.id, stOf(c));
+  out += zoneFrame(966, 116, 252, ZT+remote.length*PITCH+ZB, '원격접속', remote.length, zoneSt(remote));
+  remote.forEach((c,k)=>{ const y=116+ZT+k*PITCH, y2 = core.y + 20 + k*24;
+    out += nodeBox(982, y, 220, c.id, c.name, state.sel===c.id, false, stOf(c));
+    edge(edgeH(982, y+22, core.x+core.w, y2, k), c.id, state.sel===c.id, stOf(c), {x: bz.x+bz.w, y: y2});
   });
   // DMZ (하)
-  const dw = Math.max(2,dmz.length)*226;
-  const dx0 = (core.x+core.w/2) - dw/2;
-  out += zoneFrame(dx0-18, 500, dw+36, 108, 'DMZ / 계열사', dmz.length, zoneSt(dmz));
-  dmz.forEach((c,i)=>{ const x=dx0+i*226;
-    out += nodeBox(x, 536, 208, c.id, c.name, state.sel===c.id, false, 'dmz', stOf(c));
-    edge(x+104, 536, Math.min(core.x+core.w-26, Math.max(core.x+26, x+104)), core.y+core.h, 'both', c.id, state.sel===c.id, stOf(c));
+  const dw = Math.max(2,dmz.length)*226, dx0 = (core.x+core.w/2) - dw/2, DY = 500;
+  out += zoneFrame(dx0-18, DY, dw+36, ZT+h_n+ZB, 'DMZ / 계열사', dmz.length, zoneSt(dmz));
+  dmz.forEach((c,k)=>{ const x=dx0+k*226, xc=x+104, xe=Math.min(core.x+core.w-30, Math.max(core.x+30, xc));
+    out += nodeBox(x, DY+ZT, 208, c.id, c.name, state.sel===c.id, false, stOf(c));
+    edge(edgeV(xc, DY+ZT, xe, core.y+core.h, bz.y+bz.h+26), c.id, state.sel===c.id, stOf(c), {x: xe, y: bz.y+bz.h});
   });
-  // 미등록 (우하). 없으면 자리만 잡아두고 대조 실행 버튼을 캔버스 안에
+  // 미등록 (우하). 없으면 빈 자리와 대조 실행 버튼
+  const RY = 372;
   if (ROGUES.length) {
-    out += zoneFrame(966, 372, 252, 52+ROGUES.length*56, '미등록 목적지', ROGUES.length, {cls:'bad',t:'조치 필요'});
-    ROGUES.forEach((r,i)=>{ const y=408+i*56;
+    out += zoneFrame(966, RY, 252, ZT+ROGUES.length*PITCH+ZB, '미등록 목적지', ROGUES.length, {cls:'bad',t:'조치 필요'});
+    ROGUES.forEach((r,k)=>{ const y=RY+ZT+k*PITCH, y2 = core.y + core.h - 20 - k*24;
       out += nodeBox(982, y, 220, '?', r.host, false, true);
-      edge(982, y+22, core.x+core.w, core.y+core.h-16-i*15, 'out', 'R-'+i, false, 'rogue');
+      edge(edgeH(982, y+22, core.x+core.w, y2, k+1), 'R-'+k, false, 'rogue', null);
     });
   } else {
-    out += `<rect class="zone-frame ghost" x="966" y="372" width="252" height="${state.scanned?92:128}" rx="14"></rect>
-      <text class="zone-title ghost" x="982" y="396">미등록 목적지</text>
-      <text class="ghost-t ${state.scanned?'ok':''}" x="982" y="424">${state.scanned ? '대장에 없는 연결 없음' : '로그 대조 후 여기에 표시됩니다'}</text>
-      ${state.scanned ? '' : `<g class="svgbtn" data-act="scan"><rect x="982" y="444" width="128" height="32" rx="6"></rect><text x="1046" y="465" text-anchor="middle">로그 대조 실행</text></g>`}`;
+    base += `<rect class="zone empty" x="966" y="${RY}" width="252" height="${state.scanned?92:128}" rx="12"></rect>`;
+    out += `<text class="zone-title" style="fill:rgba(255,255,255,.45)" x="982" y="${RY+22}">미등록 목적지</text>
+      ${state.scanned
+        ? `<circle class="zdot ok" cx="986" cy="${RY+50}" r="3"></circle><text class="ghost-t ok" x="996" y="${RY+54}">대장에 없는 연결 없음</text>`
+        : `<text class="ghost-t" x="982" y="${RY+54}">로그 대조 후 여기에 표시됩니다</text>
+           <g class="svgbtn" data-act="scan"><rect x="982" y="${RY+72}" width="128" height="32" rx="6"></rect><text x="1046" y="${RY+92.5}" text-anchor="middle">로그 대조 실행</text></g>`}`;
   }
-  // 중심 허브: 네이비 머리띠 + 경계 요약 3줄
+  // 허브: 지도에서 유일한 밝은 면
   const coreRow = (dy, k, v, cls) =>
-    `<text class="core-k" x="${core.x+22}" y="${core.y+dy}">${k}</text>
-     <text class="core-v ${cls||''}" x="${core.x+core.w-22}" y="${core.y+dy}" text-anchor="end">${v}</text>`;
-  out += `<rect class="core-box" x="${core.x}" y="${core.y}" width="${core.w}" height="${core.h}" rx="14"></rect>
-    <path class="core-hd" d="M${core.x+14} ${core.y} h${core.w-28} a14 14 0 0 1 14 14 v26 h-${core.w} v-26 a14 14 0 0 1 14 -14 z"></path>
-    <text class="core-title" x="${core.x+22}" y="${core.y+26}">내부업무망</text>
-    <text class="core-hdsub" x="${core.x+core.w-22}" y="${core.y+26}" text-anchor="end">단말 152대</text>
-    ${coreRow(66, '승인 통로', LEDGER.length)}
-    ${coreRow(90, '미등록 연결', state.scanned ? ROGUES.length : '실측 전', state.scanned ? (ROGUES.length?'bad':'ok') : 'dim')}
-    ${coreRow(114, '마지막 대조', state.lastScan || '없음', state.lastScan?'':'dim')}`;
+    `<text class="core-k" x="${core.x+20}" y="${core.y+dy}">${k}</text>
+     <text class="core-v mono ${cls||''}" x="${core.x+core.w-20}" y="${core.y+dy}" text-anchor="end">${v}</text>`;
+  out += `<rect x="${core.x-24}" y="${core.y-12}" width="${core.w+48}" height="${core.h+48}" rx="36" fill="url(#hubShadow)" pointer-events="none"></rect>
+    <rect class="core-box" x="${core.x}" y="${core.y}" width="${core.w}" height="${core.h}" rx="10"></rect>
+    <text class="core-title" x="${core.x+20}" y="${core.y+26}">내부업무망</text>
+    <text class="core-sub mono" x="${core.x+core.w-20}" y="${core.y+26}" text-anchor="end">단말 152대</text>
+    <line class="core-div" x1="${core.x+16}" y1="${core.y+40.5}" x2="${core.x+core.w-16}" y2="${core.y+40.5}"></line>
+    ${coreRow(62, '승인 통로', LEDGER.length)}
+    ${coreRow(86, '미등록 연결', state.scanned ? ROGUES.length : '실측 전', state.scanned ? (ROGUES.length?'bad':'ok') : 'dim')}
+    ${coreRow(110, '마지막 대조', state.lastScan || '없음', state.lastScan?'':'dim')}`;
 
   const dueList = LEDGER.filter(c => c.review.soon);
   const saasDue = LEDGER.filter(c => c.review.soon && c.review.type.includes('반기')).length;
@@ -1171,7 +1190,7 @@ function renderMap(){
   const verdict = !state.scanned
     ? { cls:'', t:'경계 실측 전', s:'승인 장부 기준의 지도입니다. 로그 대조를 실행하면 실제 트래픽과 비교됩니다' }
     : ROGUES.length
-    ? { cls:'bad', t:`경계 불일치, 미등록 ${ROGUES.length}건`, s:'대장에 없는 연결이 관측되고 있습니다. 아래에서 판정 또는 차단으로 조치하세요' }
+    ? { cls:'bad', t:`경계 불일치, 미등록 <span class="n">${ROGUES.length}건</span>`, s:'대장에 없는 연결이 관측되고 있습니다. 아래에서 판정 또는 차단으로 조치하세요' }
     : { cls:'ok', t:'경계 일치', s:`관측된 모든 연결이 승인 통로입니다${state.lastScan ? '. 마지막 대조 ' + state.lastScan : ''}` };
   $('#main').innerHTML = `<section class="view home">
     <div class="hero">
@@ -1186,7 +1205,7 @@ function renderMap(){
       <button class="act ${state.scanned?'ghost2':''}" onclick="state.tab='logs'; render()">${state.scanned ? '다시 대조' : '로그 대조 실행'}</button>
     </div>
     <div class="mapwrap">
-      <svg class="map" viewBox="0 0 ${W} ${H}" width="100%">${edges}${flows}${out}${chips}</svg>
+      <svg class="map" viewBox="0 0 ${W} ${H}" width="100%">${base}${edges}${flows}${out}${chips}</svg>
       <div class="maplegend">
         <span><i></i>승인 통로</span>
         <span class="s"><i></i>점검 임박 통로</span>
@@ -1194,7 +1213,7 @@ function renderMap(){
         <span class="d"><em class="ok"></em>기한 정상</span>
         <span class="d"><em class="soon"></em>점검 임박</span>
         <span class="d"><em class="over"></em>기한 경과</span>
-        <span class="live"><i></i>${state.scanned ? '관측 중, 마지막 대조 ' + state.lastScan : '승인 통로 관측 중'}</span>
+        <span class="live">${state.scanned ? '관측 중, 마지막 대조 ' + state.lastScan : '승인 통로 관측 중'}</span>
       </div>
     </div>
     <div class="detail" id="detail"></div>
