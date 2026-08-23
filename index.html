@@ -325,7 +325,7 @@
   }
   .login-card input:focus { border-color: var(--blue); box-shadow: 0 1px 1px rgba(0,0,0,.07), 0 0 0 4px rgba(33,87,209,.25); }
   .login-card button { width: 100%; margin-top: 26px; height: 36px; justify-content: center; font-size: 14px; font-weight: 600; }
-  .login-card .demo-note { font-size: 12px; line-height: 18px; color: var(--disabled); margin-top: 18px; text-align: center; }
+  .login-card .demo-note { font-size: 12px; line-height: 18px; color: var(--disabled); margin-top: 16px; text-align: center; }
 
   /* ── 상단바 검색 ── */
   .tsearch { position: relative; margin-left: 8px; width: 340px; }
@@ -381,13 +381,13 @@
 
   /* ── 로그인 분할 ── */
   .login-split {
-    display: grid; grid-template-columns: 1fr 400px; width: 880px; max-width: 100%;
+    display: grid; grid-template-columns: 300px 400px; width: 700px; max-width: 100%;
     border-radius: var(--r-modal); overflow: hidden; box-shadow: var(--shadow-overlay);
   }
-  .login-brand { background: #0a2540; padding: 44px 40px 36px; display: flex; flex-direction: column; }
+  .login-brand { background: #0a2540; padding: 40px 36px; display: flex; flex-direction: column; justify-content: center; }
   .lb-logo { font: 700 30px/38px var(--sans); color: #fff; letter-spacing: -0.4px; display: flex; align-items: center; }
   .lb-logo small { font-family: var(--mono); font-size: 10px; color: #adbdcc; letter-spacing: .26em; margin-left: 10px; }
-  .lb-tag { font-size: 15px; color: #adbdcc; margin: 4px 0 22px; }
+  .lb-tag { font-size: 14px; color: #adbdcc; margin: 6px 0 0; }
   .lb-desc { font-size: 14px; line-height: 22px; color: #d6e3ef; max-width: 40ch; margin-bottom: 20px; }
   .lb-points { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 10px; }
   .lb-points li { position: relative; padding-left: 22px; font-size: 13.5px; line-height: 19px; color: #adbdcc; }
@@ -401,10 +401,10 @@
     border-left: 1.6px solid #4ba1f0; border-bottom: 1.6px solid #4ba1f0; transform: rotate(-45deg);
   }
   .lb-foot { margin-top: auto; padding-top: 28px; font-size: 12px; color: #6b8299; }
-  .login-card { background: var(--panel); border-radius: 0; box-shadow: none; width: auto; padding: 44px 38px 30px; }
+  .login-card { background: var(--panel); border-radius: 0; box-shadow: none; width: auto; padding: 40px 38px 28px; }
   .lf-title { font: 600 20px/28px var(--sans); color: var(--ink); letter-spacing: -0.4px; }
   @media (max-width: 900px) {
-    .login-split { grid-template-columns: 1fr; width: 420px; }
+    .login-split { grid-template-columns: 1fr; width: 400px; }
     .login-brand { display: none; }
   }
 
@@ -588,25 +588,16 @@
   <div class="login-split">
     <div class="login-brand">
       <div class="lb-logo"><svg class="mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="10.5" cy="12" r="7"/><path d="M10.5 12H22"/><circle cx="17.5" cy="12" r="2" fill="currentColor" stroke="none"/></svg>살피<small>SALPI</small></div>
-      <p class="lb-tag">금융권 망분리 경계 관제</p>
-      <p class="lb-desc">내부업무망에 뚫린 모든 인터넷 통로를 한 장부로 관리하고, 실제 트래픽과 대조해 장부에 없는 연결을 찾아냅니다.</p>
-      <ul class="lb-points">
-        <li>승인 통로의 근거, 통제, 다음 의무를 한눈에</li>
-        <li>프록시 로그 대조로 미등록 연결 발견</li>
-        <li>로컬 AI가 문서 속 고객정보 결합을 탐지</li>
-        <li>반기 자체평가 보고서 자동 조립</li>
-      </ul>
-      <div class="lb-foot">전자금융감독규정 시행세칙 제2조의3</div>
+      <p class="lb-tag">망분리 경계 관제</p>
     </div>
     <form class="login-card" onsubmit="doLogin(event)">
       <div class="lf-title">로그인</div>
-      <p class="ld">페이몬 정보보호팀 콘솔</p>
       <label for="lg-id">아이디</label>
       <input id="lg-id" type="text" value="paymon.sec" autocomplete="off">
       <label for="lg-pw">비밀번호</label>
       <input id="lg-pw" type="password" value="demo-pass" autocomplete="off">
       <button class="act" type="submit">로그인</button>
-      <p class="demo-note">데모 환경입니다. 입력값과 관계없이<br>데모 계정으로 입장합니다.</p>
+      <p class="demo-note">데모 계정이 입력되어 있습니다</p>
     </form>
   </div>
 </div>
@@ -631,7 +622,7 @@
   <div class="subnav-in">
     <nav id="tabs"></nav>
     <a class="nav-it tool" href="workbench.html"><svg viewBox="0 0 24 24"><path d="M9.615 20h-2.615a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v8"/><path d="M14 19l2 2l4 -4"/><path d="M9 8h4"/><path d="M9 12h2"/></svg><span>판정 워크벤치</span></a>
-    <span class="ai-state"><span class="status-dot off" id="ai-side-status">AI 모델 확인 중</span><span class="side-status-sub" id="ai-side-sub">Kanana-2-3B</span></span>
+    <span class="ai-state"><span class="status-dot off" id="ai-side-status">AI 확인 중</span><span class="side-status-sub" id="ai-side-sub">Kanana-2-3B</span></span>
   </div>
 </div>
 <div class="layout">
@@ -639,11 +630,7 @@
     <div class="crumb" id="crumb"></div>
     <div class="stats panel" id="strip"></div>
     <main id="main"></main>
-    <footer class="legal">
-      가상 전자금융업자의 합성 데이터로 구성된 데모다. 판정과 대조는 결정적 로직으로 수행되고,
-      로그 목적지 분류와 위반 사유 문장, 결합 판단은 실서비스에서 로컬 소형 LLM(Kanana)이 담당한다.
-      데모 일부는 내장 근사다. 본 도구는 법적 판단을 대행하지 않는다. 근거: 전자금융감독규정 시행세칙 제2조의3.
-    </footer>
+    <footer class="legal">합성 데이터 기반 데모. 법적 판단을 대행하지 않습니다.</footer>
   </div>
 </div>
 </div>
@@ -884,15 +871,15 @@ function renderWizard(){
 
   if (w.step === 0) {
     body = `<p style="font-size:12.5px">등재 대상: <b>${esc(w.name)}</b> ${w.host?`<span class="mono" style="color:var(--faint)">(${esc(w.host)})</span>`:''}</p>
-      ${w.cls ? `<p style="font-size:12px;color:var(--sub)">로그 대조에서 발견된 연결입니다. 분류: ${w.cls.kind}. 등재하려면 적격 판정을 통과해야 합니다.</p>` : ''}
-      <p style="font-size:12px;color:var(--sub)">${w.entries.length ? `통제 근거 ${w.entries.length}건이 준비되어 있습니다.` : '통제 근거가 아직 없습니다. 벤더 문서에서 근거를 수집한 뒤 재판정하는 것을 권장합니다.'}</p>` + nav(true);
+      ${w.cls ? `<p style="font-size:12px;color:var(--sub)">로그 대조에서 발견. 분류: ${w.cls.kind}</p>` : ''}
+      <p style="font-size:12px;color:var(--sub)">${w.entries.length ? `통제 근거 ${w.entries.length}건` : '통제 근거 없음'}</p>` + nav(true);
   }
   if (w.step === 1) body = USAGES.map(u=>`<div class="opt ${w.usage===u.key?'sel':''}" data-w="usage:${u.key}"><span class="mark"></span><span class="t">${u.t}</span></div>`).join('') + nav(!!w.usage);
   if (w.step === 2) body = NATURES.map(n=>`<div class="opt ${w.nature===n.key?'sel':''}" data-w="nature:${n.key}"><span class="mark"></span><span><span class="t">${n.t}</span><div class="d">${n.d}</div></span></div>`).join('') + nav(!!w.nature);
   if (w.step === 3) body = `
-    <p style="font-size:12.5px">고객 정보를 필드 단위로 다루는 기능(연락처 DB, CRM, 외부 폼)을 사용할 계획인가요?</p>
-    <div class="opt ${w.l1==='no'?'sel':''}" data-w="l1:no"><span class="mark"></span><span class="t">사용하지 않는다</span></div>
-    <div class="opt ${w.l1==='yes'?'sel':''}" data-w="l1:yes"><span class="mark"></span><span><span class="t">사용한다</span><div class="d">명백한 처리. 즉시 불가</div></span></div>` + nav(!!w.l1);
+    <p style="font-size:12.5px">고객 정보를 필드 단위로 다루는 기능(연락처 DB, CRM, 외부 폼) 사용 여부</p>
+    <div class="opt ${w.l1==='no'?'sel':''}" data-w="l1:no"><span class="mark"></span><span class="t">사용하지 않음</span></div>
+    <div class="opt ${w.l1==='yes'?'sel':''}" data-w="l1:yes"><span class="mark"></span><span><span class="t">사용함</span><div class="d">명백한 처리. 즉시 불가</div></span></div>` + nav(!!w.l1);
   if (w.step === 4) {
     const ctrl = w.entries.filter(e => (e.layer==='L2'||e.layer==='L3') && e.exists!=='no');
     body = ctrl.length ? ctrl.map(e => {
@@ -901,9 +888,9 @@ function renderWizard(){
       return `<div class="evi"><div class="head"><span class="feat">${esc(e.feature)}</span><span class="avtag ${e.control_availability}">${AV[e.control_availability]}</span></div>
         <div class="ctrl">${esc(e.control.slice(0,140))}${e.control.length>140?'…':''}</div>
         <label class="applychk"><input type="checkbox" data-wc="${has?'applied':'comp'}:${e._i}" ${(has?w.applied:w.comp)[e._i]?'checked':''}>
-        <span>${has?'이 통제를 적용한다':'벤더 미제공. <b>살피 내용검사를 보완통제로 지정</b>한다'}</span></label></div>`;
+        <span>${has?'도입 시 적용':'벤더 미제공. <b>살피 내용검사를 보완통제로 지정</b>'}</span></label></div>`;
     }).join('') + nav(true, '판정')
-    : `<p style="font-size:12.5px;color:var(--sub)">이 SaaS의 통제 근거가 아직 없습니다. 미수집 상태로 판정을 진행합니다.</p>` + nav(true, '판정');
+    : `<p style="font-size:12.5px;color:var(--sub)">통제 근거 없음. 미수집 상태로 판정</p>` + nav(true, '판정');
   }
   if (w.step === 5) {
     const v = wizJudge(w);
@@ -1161,13 +1148,13 @@ function renderMap(){
   const reviewDue = LEDGER.filter(c => c.review.soon && !c.review.type.includes('반기')).length;
   const detects = Object.values(state.contentLog).reduce((n,a)=>n+a.length,0);
   const verdict = !state.scanned
-    ? { cls:'', t:'경계 실측 전', s:'승인 장부 기준의 지도입니다. 로그 대조를 실행하면 실제 트래픽과 비교됩니다' }
+    ? { cls:'', t:'경계 실측 전', s:'' }
     : ROGUES.length
-    ? { cls:'bad', t:`경계 불일치, 미등록 <span class="n">${ROGUES.length}건</span>`, s:'대장에 없는 연결이 관측되고 있습니다. 아래에서 판정 또는 차단으로 조치하세요' }
-    : { cls:'ok', t:'경계 일치', s:`관측된 모든 연결이 승인 통로입니다${state.lastScan ? '. 마지막 대조 ' + state.lastScan : ''}` };
+    ? { cls:'bad', t:`경계 불일치, 미등록 <span class="n">${ROGUES.length}건</span>`, s:`마지막 대조 ${state.lastScan}` }
+    : { cls:'ok', t:'경계 일치', s:`마지막 대조 ${state.lastScan}` };
   $('#main').innerHTML = `<section class="view home">
     <div class="hero">
-      <div class="verdict ${verdict.cls}"><div><div class="vk">망분리 경계 상태</div><div class="vt"><span class="vd"></span>${verdict.t}</div><div class="vs">${verdict.s}</div></div></div>
+      <div class="verdict ${verdict.cls}"><div><div class="vk">망분리 경계 상태</div><div class="vt"><span class="vd"></span>${verdict.t}</div>${verdict.s?`<div class="vs">${verdict.s}</div>`:''}</div></div>
       <div class="hstats">
         <div><b>${LEDGER.length}</b><span>승인 통로</span></div>
         <div class="${saasDue?'warn':''}"><b>${saasDue}</b><span>반기 평가 예정</span></div>
@@ -1182,7 +1169,7 @@ function renderMap(){
       <div class="maplegend">
         <span class="grp"><span class="hd">통로</span><span><i></i>승인</span><span class="s"><i></i>기한 임박</span><span class="r"><i></i>미등록</span></span>
         <span class="grp"><span class="hd">기한</span><span class="d"><em class="ok"></em>정상</span><span class="d"><em class="soon"></em>임박</span><span class="d"><em class="over"></em>경과</span></span>
-        <span class="live">${state.scanned ? '관측 중, 마지막 대조 ' + state.lastScan : '승인 통로 관측 중'}</span>
+        ${state.scanned ? `<span class="live">마지막 대조 ${state.lastScan}</span>` : ''}
       </div>
     </div>
     <div class="detail" id="detail"></div>
@@ -1198,8 +1185,8 @@ function renderMap(){
           <button class="act danger small" onclick='quickBlock(${JSON.stringify(r.host)})'>차단</button></span></div>`).join('')
         : `<div class="empty">
             <svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="m9 12 2 2 4-4.5"/></svg>
-            <p>${state.scanned?'발견된 미등록 연결이 전부 조치되었습니다':'아직 로그를 대조하지 않았습니다.<br>실제 트래픽과 대장을 비교해 보세요.'}</p>
-            ${state.scanned?'':'<button class="act ghost2 small" onclick="state.tab=\'logs\'; render()">로그 대조로 이동</button>'}
+            <p>${state.scanned?'조치할 미등록 연결 없음':'대조 결과 없음'}</p>
+            ${state.scanned?'':'<button class="act ghost2 small" onclick="state.tab=\'logs\'; render()">로그 대조</button>'}
           </div>`}
       </div>
     </div>
@@ -1241,7 +1228,7 @@ function showDetail(sel){
         <dt>승인</dt><dd>${c.approved}</dd>
         <dt>적용 통제</dt><dd>${c.controls}${c.pendingRisks?` <b style="color:var(--warn-fg)">미해소 ${c.pendingRisks}건</b>`:''}</dd>
         <dt>다음 의무</dt><dd>${c.review.type} ${c.review.due}</dd></div>
-      ${c.zone==='saas' ? `<div class="content-log">내용검사 기록 <b>${n}건</b>${n?`. 반기 보고에 자동 반영됩니다`:`. 내용 검사 탭에서 이 통로를 점검할 수 있습니다`}</div>` : ''}</div>`;
+      ${c.zone==='saas' ? `<div class="content-log">내용검사 기록 <b>${n}건</b></div>` : ''}</div>`;
   }
 }
 function quickBlock(host){
@@ -1267,7 +1254,6 @@ function renderLedger(){
     <div class="pagehead">
       <div class="tx">
         <h2 class="q">통로 대장</h2>
-        <p class="qsub">망분리 예외 통로의 근거, 승인, 통제, 다음 의무를 관리합니다.</p>
       </div>
     </div>
     <div class="panel" style="overflow:hidden">
@@ -1296,7 +1282,6 @@ function renderLogs(){
     <div class="pagehead">
       <div class="tx">
         <h2 class="q">로그 대조</h2>
-        <p class="qsub">방화벽 또는 프록시 로그를 붙여넣으면 외부 목적지를 추출해 승인 대장과 대조합니다.</p>
       </div>
       <div class="actions">
         <button class="act ghost2" id="sample">샘플 로그 넣기</button>
@@ -1338,7 +1323,7 @@ function renderLogResult(rec){
         <td><span class="badge bad">미등록</span></td><td><b>${r.rogue.cls.kind}</b><div class="aiwhy">${r.rogue.cls.risk}</div></td>
         <td style="white-space:nowrap">${r.rogue.cls.saasLike?`<button class="act small" onclick='openWizard({host:${JSON.stringify(r.host)}, name:${JSON.stringify(r.host)}, fromRogue:true, cls:${JSON.stringify(r.rogue.cls)}})'>판정</button> `:''}<button class="act danger small" onclick='quickBlock(${JSON.stringify(r.host)})'>차단</button></td></tr>`;
     }).join('')}</table></div>
-    <div class="hint">미등록 연결이 경계 지도와 대장에 반영되었습니다. SaaS형 연결은 판정을 눌러 등재 절차를 시작할 수 있습니다.</div>`;
+`;
 }
 
 /* ── 내용 검사 (살피 탐지 엔진) ── */
@@ -1349,8 +1334,6 @@ function renderContent(){
     <div class="pagehead">
       <div class="tx">
         <h2 class="q">내용 검사</h2>
-        <p class="qsub">SaaS에 올리기 전 문서에서 고객 정보와 신용정보의 결합을 검사합니다.
-        탐지 기록은 마스킹되어 해당 통로의 반기 자체평가 증적으로 저장됩니다.</p>
       </div>
     </div>
     <div class="panel"><div class="panel-hd">
@@ -1383,7 +1366,7 @@ async function detProbe(){
   el.innerHTML = state.detReady
     ? `<label><input type="radio" name="dm" value="heuristic" ${state.detMode==='heuristic'?'checked':''}> 빠른 검사</label>
        <label><input type="radio" name="dm" value="hybrid" ${state.detMode==='hybrid'?'checked':''}> 정밀 검사 (로컬 AI)</label><span class="status-dot">모델 연결됨</span>`
-    : `<span class="status-dot off">로컬 모델 미연결, 빠른 검사로 동작</span>`;
+    : `<span class="status-dot off">AI 미연결, 빠른 검사</span>`;
   el.querySelectorAll('input[name="dm"]').forEach(r => r.onchange = () => { state.detMode = r.value; detRun(); });
   applyAIStatus(av);
 }
@@ -1400,7 +1383,7 @@ function aiEvent(ev){
   const live = $('#ai-live'), rows = $('#ai-rows'); if (!live || !rows) return;
   if (ev.type === 'start') {
     live.style.display = 'block'; rows.innerHTML = '';
-    $('#ai-model').textContent = 'Kanana-2-3B, ' + (window.SALPI_LLM_ENDPOINT ? '원격 추론' : '로컬 추론');
+    $('#ai-model').textContent = 'Kanana-2-3B ' + (window.SALPI_LLM_ENDPOINT ? '원격' : '로컬');
     $('#ai-stat').textContent = '문서를 창 ' + ev.windows + '개로 분할';
     $('#ai-prog').style.width = '0%';
   }
@@ -1450,7 +1433,7 @@ async function detRun(){
       const lv = h.severity==='violation'?'viol':(h.label==='identifier_only'?'info':'warn');
       return `<div class="det-hit ${lv}"><span class="tag">[${esc(h.tag)}]</span><span class="span">${esc(h.span.slice(0,64))}</span><span class="note">${esc(h.note)}</span></div>`;
     }).join('') : '<div class="det-empty">탐지된 항목 없음</div>');
-  note.innerHTML = viols.length ? `<div class="hint">위반 ${viols.length}건이 ${target} 내용검사 기록으로 저장되었습니다(마스킹). 대장과 반기 보고에 반영됩니다.</div>` : '';
+  note.innerHTML = viols.length ? `<div class="hint">위반 ${viols.length}건 기록됨, ${target}. 마스킹 저장</div>` : '';
 }
 
 /* ── 반기 보고 ── */
@@ -1463,7 +1446,6 @@ function renderReport(){
     <div class="pagehead">
       <div class="tx">
         <h2 class="q">반기 보고</h2>
-        <p class="qsub">정보보호위원회 제출용 초안입니다. 운영 현황, 자체평가, 내용검사 증적이 자동으로 채워집니다.</p>
       </div>
       <div class="actions"><button class="act" onclick="window.print()">인쇄 / PDF 저장</button></div>
     </div>
@@ -1494,10 +1476,10 @@ function renderReport(){
       ${state.rogues.length || state.blocked.length ? `<table><tr><th>목적지</th><th>분류</th><th>상태</th></tr>
         ${state.rogues.map(r=>`<tr><td>${esc(r.host)}</td><td>${r.cls.kind}</td><td>조치 대기 (등재 판정 또는 차단)</td></tr>`).join('')}
         ${state.blocked.map(b=>`<tr><td>${esc(b.host)}</td><td>${b.kind}</td><td>차단 확정</td></tr>`).join('')}</table>`
-        : '<p>로그 대조를 먼저 실행하면 이 절이 채워진다.</p>'}
+        : '<p>대조 결과 없음</p>'}
       <table style="margin-top:16px"><tr><th style="width:70%">확인</th><th>서명</th></tr>
         <tr><td>작성: 정보보호 담당</td><td></td></tr><tr><td>정보보호최고책임자(CISO)</td><td></td></tr></table>
-      <p style="font-size:10.5px;color:#777;margin-top:12px">본 문서는 살피가 생성한 초안이며 위원회 심의와 확정 전 검토용이다.</p>
+      <p style="font-size:10.5px;color:#777;margin-top:12px">초안. 정보보호위원회 심의 전 검토용.</p>
     </div></section>`;
 }
 
@@ -1553,8 +1535,8 @@ function applyAIStatus(av){
   if (!el) return;
   const on = !!(av.ok && av.hasModel);
   el.className = 'status-dot' + (on ? '' : ' off');
-  el.textContent = on ? 'AI 모델 연결됨' : 'AI 모델 미연결';
-  if (sub) sub.textContent = 'Kanana-2-3B, ' + (window.SALPI_LLM_ENDPOINT ? '원격 추론' : '로컬 추론');
+  el.textContent = on ? 'AI 연결됨' : 'AI 미연결';
+  if (sub) sub.textContent = 'Kanana-2-3B ' + (window.SALPI_LLM_ENDPOINT ? '원격' : '로컬');
 }
 async function initAIStatus(){
   applyAIStatus(await SalpiEngine.llmAvailable());
