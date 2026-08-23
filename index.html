@@ -419,7 +419,7 @@
   }
 
   /* ── 토스트 ── */
-  #toasts { position: fixed; right: 44px; top: 176px; z-index: 90; display: flex; flex-direction: column; gap: 8px; }
+  #toasts { position: fixed; right: 24px; bottom: 24px; z-index: 90; display: flex; flex-direction: column; gap: 8px; }
   .toast {
     display: flex; align-items: center; gap: 10px; min-width: 260px; max-width: 380px;
     background: #132a42; border-radius: var(--r-pop); box-shadow: 0 8px 24px rgba(6,10,20,.45);
@@ -574,9 +574,9 @@
   .core-v.bad { fill: var(--bad-fg); } .core-v.ok { fill: var(--ok-fg); } .core-v.dim { fill: #9aa3b2; font-weight: 400; }
 
   .edge { fill: none; stroke: var(--m-edge); stroke-width: 1; stroke-linecap: round; stroke-linejoin: round; transition: stroke var(--t); }
-  .edge.soon { stroke: var(--m-soon); opacity: .85; }
+  .edge.soon { stroke: var(--m-soon); opacity: .75; }
   .edge.over { stroke: var(--m-over); opacity: .85; }
-  .edge.rogue { stroke: var(--m-over); opacity: .8; stroke-dasharray: 3 4; }
+  .edge.rogue { stroke: var(--m-over); stroke-width: 1.5; opacity: .9; stroke-dasharray: 3 4; }
   .edge.sel { stroke: var(--m-sel); stroke-width: 1.5; }
   .edge-hit { fill: none; stroke: transparent; stroke-width: 12; cursor: pointer; }
   .edge-hit:hover + .edge { stroke: var(--m-edge-hover); }
@@ -596,7 +596,7 @@
   .chip .t { font-size: 10px; font-weight: 500; fill: rgba(255,255,255,.78); letter-spacing: .03em; }
   .chip.soon .t { fill: var(--m-soon); } .chip.over .t { fill: var(--m-over-text); } .chip.sel .t { fill: #fff; }
 
-  .maplegend { position: relative; z-index: 1; display: flex; gap: 20px; align-items: center; padding: 10px 20px; border-top: 1px solid rgba(255,255,255,.06); font: 400 11.5px/16px var(--sans); color: rgba(255,255,255,.5); }
+  .maplegend { position: relative; z-index: 1; display: flex; gap: 20px; align-items: center; padding: 10px 20px; border-top: 1px solid rgba(255,255,255,.06); font: 400 11.5px/16px var(--sans); color: rgba(255,255,255,.62); }
   .maplegend .grp { display: flex; gap: 16px; align-items: center; }
   .maplegend .grp + .grp { margin-left: 16px; padding-left: 20px; border-left: 1px solid rgba(255,255,255,.08); }
   .maplegend .hd { font: 500 10.5px/16px var(--mono); color: rgba(255,255,255,.32); letter-spacing: .06em; margin-right: 2px; }
@@ -605,7 +605,7 @@
   .maplegend .r i { border-top: 1px dashed #ff6166; }
   .maplegend .d em { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 6px; }
   .maplegend .d em.ok { background: #3dcf72; } .maplegend .d em.soon { background: #e2a94c; } .maplegend .d em.over { background: #ff6166; }
-  .maplegend .live { margin-left: auto; font: 500 11px/16px var(--mono); color: rgba(255,255,255,.45); letter-spacing: .02em; }
+  .maplegend .live { margin-left: auto; font: 500 11px/16px var(--mono); color: rgba(255,255,255,.55); letter-spacing: .02em; }
 </style>
 </head>
 <body>
@@ -1056,7 +1056,7 @@ function renderMap(){
   const zoneOf = z => LEDGER.filter(c => c.zone === z);
   const fin=zoneOf('fin'), saas=zoneOf('saas'), remote=zoneOf('remote'), dmz=zoneOf('dmz');
   const h_n = 44;
-  const H = Math.max(372 + 36 + Math.max(dmz.length, ROGUES.length)*52 + 32, 520);
+  const H = Math.max(420 + 36 + dmz.length*52 + 32, 372 + 36 + ROGUES.length*52 + 32, 560);
   const core = { x:495, y:292, w:260, h:128 };
   // 내부 업무망 경계. 통로 선이 이 경계를 수직으로 뚫고, 뚫는 자리에 통로 알약이 앉는다
   const bz = { x: core.x-48, y: core.y-40, w: core.w+96, h: core.h+80 };
@@ -1124,7 +1124,7 @@ function renderMap(){
   // 경계 (선보다 먼저 그려 선이 위를 지나게)
   base += `<rect class="bz" x="${bz.x}" y="${bz.y}" width="${bz.w}" height="${bz.h}" rx="14"></rect>
     <rect x="${bz.x}" y="${bz.y}" width="${bz.w}" height="${bz.h}" rx="14" fill="url(#bzGlow)" pointer-events="none"></rect>`;
-  out += `<text class="bz-t" x="${bz.x+16}" y="${bz.y+bz.h-12}">내부 업무망 경계</text>`;
+  out += `<text class="bz-t" x="${bz.x+16}" y="${bz.y+22}">내부 업무망 경계</text>`;
 
   const PITCH = 52, ZT = 36, ZB = 16, FP = 22;
   // 외부기관 (좌상): 허브 왼쪽 위에서 진입
@@ -1134,11 +1134,11 @@ function renderMap(){
     edge(edgeH(272, y+22, core.x, y2, k, fin.length), c.id, state.sel===c.id, stOf(c), {x: bz.x, y: y2});
   });
   // DMZ, 계열사 (좌하): 허브 왼쪽 아래에서 진입
-  const DY = 372;
+  const DY = 420;
   out += zoneFrame(36, DY, 252, ZT+dmz.length*PITCH+ZB, 'DMZ / 계열사', dmz.length, zoneSt(dmz));
-  dmz.forEach((c,k)=>{ const y=DY+ZT+k*PITCH, y2 = core.y + core.h - 20 - (dmz.length-1-k)*FP;
-    out += nodeBox(52, y, 220, c.id, c.name, state.sel===c.id, false, stOf(c));
-    edge(edgeH(272, y+22, core.x, y2, k, dmz.length, false), c.id, state.sel===c.id, stOf(c), {x: bz.x, y: y2});
+  dmz.forEach((c,k)=>{ const y=DY+ZT+k*PITCH+22, xe = core.x + 36 + k*56;
+    out += nodeBox(52, y-22, 220, c.id, c.name, state.sel===c.id, false, stOf(c));
+    edge(`M272 ${y} H${xe-R} a${R} ${R} 0 0 0 ${R} ${-R} V${core.y+core.h}`, c.id, state.sel===c.id, stOf(c), {x: xe, y: bz.y+bz.h});
   });
   // SaaS (상): 허브 위에서 수직 진입
   const sw = Math.max(2,saas.length)*206, sx = (core.x+core.w/2) - sw/2;
@@ -1170,13 +1170,8 @@ function renderMap(){
       <rect class="cut" x="${bz.x+bz.w-22}" y="${yt-9}" width="44" height="18" rx="9"></rect>
       <rect class="pill" x="${bz.x+bz.w-22}" y="${yt-9}" width="44" height="18" rx="9"></rect>
       <text class="t mono" x="${bz.x+bz.w}" y="${yt+3.5}" text-anchor="middle">미등록</text></g>`;
-  } else {
-    base += `<rect class="zone empty" x="966" y="${RY}" width="252" height="${state.scanned?92:120}" rx="12"></rect>`;
-    out += `<text class="zone-title" style="fill:rgba(255,255,255,.45)" x="982" y="${RY+22}">미등록 목적지</text>
-      ${state.scanned
-        ? `<circle class="zdot ok" cx="986" cy="${RY+50}" r="3"></circle><text class="ghost-t ok" x="996" y="${RY+54}">대장에 없는 연결 없음</text>`
-        : `<text class="ghost-t" x="982" y="${RY+54}">로그 대조 후 여기에 표시됩니다</text>
-           <g class="svgbtn" data-act="scan"><rect x="982" y="${RY+70}" width="128" height="32" rx="6"></rect><text x="1046" y="${RY+90.5}" text-anchor="middle">로그 대조 실행</text></g>`}`;
+  } else if (state.scanned) {
+    out += `<circle class="zdot ok" cx="986" cy="${RY+18}" r="3"></circle><text class="ghost-t ok" x="996" y="${RY+22}">대장에 없는 연결 없음</text>`;
   }
   // 허브: 지도에서 유일한 밝은 면
   const coreRow = (dy, k, v, cls) =>
@@ -1539,6 +1534,8 @@ function renderReport(){
 function render(){
   renderStrip(); renderTabs();
   const home = state.tab === 'map';
+  // 지도에서는 판정 줄이 같은 내용을 말하므로 다른 탭에서 남은 토스트를 걷는다
+  if (home) { const tb = $('#toasts'); if (tb) tb.innerHTML = ''; }
   $('#strip').style.display = home ? 'none' : '';
   $('#crumb').style.display = home ? 'none' : '';
   ({ map:renderMap, ledger:renderLedger, logs:renderLogs, content:renderContent, report:renderReport })[state.tab]();
