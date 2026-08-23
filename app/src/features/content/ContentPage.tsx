@@ -5,7 +5,6 @@ import { Engine } from '@/lib/engineLoad'
 import type { LlmEvent, ScanResult } from '@/lib/engine'
 import { DET_SAMPLE } from '@/data/ledger'
 import { mask } from '@/lib/format'
-import { StatStrip } from '@/components/StatStrip'
 import { PageHeader, Panel, Pill } from '@/components/salpi'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -18,6 +17,28 @@ const DROP_KO: Record<string, string> = {
   bad_label: '형식 벗어난 판정, 폐기', empty_span: '근거 없음, 폐기', invalid_json: '형식 오류, 폐기', call_failed: '호출 실패',
 }
 const LABEL_KO = (l: string) => (l === 'combined' ? '결합 위반' : l === 'unique_id' ? '고유식별정보' : '식별정보')
+
+/* 원문 위에 판정 구간 밑칠. 각 근거 문자열의 첫 등장 위치를 칠한다 */
+function Marked({ text, hits }: { text: string; hits: ScanResult['hits'] }) {
+  const marks: { a: number; b: number; sev: string }[] = []
+  for (const h of hits) {
+    const span = h.span?.trim(); if (!span) continue
+    const i = text.indexOf(span); if (i < 0) continue
+    if (marks.some(m => i < m.b && i + span.length > m.a)) continue
+    marks.push({ a: i, b: i + span.length, sev: h.severity === 'violation' ? 'bad' : h.label === 'identifier_only' ? 'gray' : 'warn' })
+  }
+  marks.sort((x, y) => x.a - y.a)
+  const out: React.ReactNode[] = []
+  let cur = 0
+  marks.forEach((m, i) => {
+    if (m.a > cur) out.push(text.slice(cur, m.a))
+    const bg = m.sev === 'bad' ? 'linear-gradient(transparent 45%, #ffd9d6 45%)' : m.sev === 'warn' ? 'linear-gradient(transparent 45%, #f8e3b9 45%)' : 'linear-gradient(transparent 45%, #e4e7ec 45%)'
+    out.push(<mark key={i} style={{ background: bg, color: 'inherit' }} className="rounded-[2px]">{text.slice(m.a, m.b)}</mark>)
+    cur = m.b
+  })
+  out.push(text.slice(cur))
+  return <div className="max-w-[880px] px-5 pb-5 text-[13.5px] leading-[26px] whitespace-pre-wrap text-ink">{out}</div>
+}
 
 interface LiveRow { i: number; total: number; chunk: string; accepted?: { label: string }[]; dropped?: { reason: string }[]; ms?: number }
 interface Live { windows: number; rows: LiveRow[]; done?: { accepted: number; dropped: number } }
@@ -71,26 +92,39 @@ export function ContentPage() {
 
   return (
     <div className="view-in">
-      <StatStrip />
       <PageHeader title="내용 검사" crumb="내용 검사" />
-      <Panel>
-        <div className="flex flex-wrap items-center gap-3 px-5 pt-4 pb-3">
-          <span className="text-[12.5px] text-body">대상 SaaS</span>
-          <Select value={target} onValueChange={v => v && setTarget(v)}>
-            <SelectTrigger className="h-8 w-[240px] bg-card"><SelectValue>{(() => { const c = saas.find(x => x.id === target); return c ? `${c.id} ${c.name}` : target })()}</SelectValue></SelectTrigger>
-            <SelectContent>{saas.map(c => <SelectItem key={c.id} value={c.id}>{c.id} {c.name}</SelectItem>)}</SelectContent>
-          </Select>
-          {detReady ? (
-            <span className="flex items-center gap-3 text-[13px]">
-              <label className="flex cursor-pointer items-center gap-1.5"><input type="radio" checked={detMode === 'heuristic'} onChange={() => setDetMode('heuristic')} className="accent-primary" />빠른 검사</label>
-              <label className="flex cursor-pointer items-center gap-1.5"><input type="radio" checked={detMode === 'hybrid'} onChange={() => setDetMode('hybrid')} className="accent-primary" />정밀 검사 (로컬 AI)</label>
-              <span className="inline-flex items-center gap-1.5 text-xs text-ok-fg"><i className="size-1.5 rounded-full bg-ok" />모델 연결됨</span>
-            </span>
-          ) : <span className="inline-flex items-center gap-1.5 text-xs text-faint"><i className="size-1.5 rounded-full bg-dim" />AI 미연결, 빠른 검사</span>}
-          <Button size="sm" variant="outline" className="ml-auto" onClick={() => setText(DET_SAMPLE)}>예시 회의록 넣기</Button>
-        </div>
-        <div className="px-5 pb-5"><Textarea value={text} onChange={e => setText(e.target.value)} placeholder="검사할 문서나 회의록을 붙여넣으세요" className="min-h-[130px] bg-card text-[13.5px] leading-7" /></div>
-      </Panel>
+      <div className="grid grid-cols-[1fr_320px] gap-4">
+        <Panel title="검사 대상" right={detReady ? <span className="inline-flex items-center gap-1.5 text-xs text-ok-fg"><i className="size-1.5 rounded-full bg-ok" />모델 연결됨</span> : <span className="inline-flex items-center gap-1.5 text-xs text-faint"><i className="size-1.5 rounded-full bg-dim" />AI 미연결, 빠른 검사만</span>}>
+          <div className="flex flex-wrap items-center gap-3 px-5 pb-3">
+            <Select value={target} onValueChange={v => v && setTarget(v)}>
+              <SelectTrigger className="h-8 w-[220px] bg-card"><SelectValue>{(() => { const c = saas.find(x => x.id === target); return c ? `${c.id} ${c.name}` : target })()}</SelectValue></SelectTrigger>
+              <SelectContent>{saas.map(c => <SelectItem key={c.id} value={c.id}>{c.id} {c.name}</SelectItem>)}</SelectContent>
+            </Select>
+            {detReady && (
+              <span className="flex items-center gap-3 text-[13px]">
+                <label className="flex cursor-pointer items-center gap-1.5"><input type="radio" checked={detMode === 'hybrid'} onChange={() => setDetMode('hybrid')} className="accent-ink" />정밀 검사 (로컬 AI)</label>
+                <label className="flex cursor-pointer items-center gap-1.5"><input type="radio" checked={detMode === 'heuristic'} onChange={() => setDetMode('heuristic')} className="accent-ink" />빠른 검사</label>
+              </span>
+            )}
+            <Button size="sm" variant="outline" className="ml-auto" onClick={() => setText(DET_SAMPLE)}>예시 회의록 넣기</Button>
+          </div>
+          <div className="px-5 pb-5"><Textarea value={text} onChange={e => setText(e.target.value)} placeholder="검사할 문서나 회의록을 붙여넣으세요" className="min-h-[168px] bg-card text-[13.5px] leading-7" /></div>
+        </Panel>
+        <Panel title="3층 탐지">
+          <ol className="px-5 pb-5">
+            {[
+              ['규칙', '주민번호 체크섬, 카드번호 검증 등 결정적 규칙. 브라우저에서 즉시'],
+              ['식별정보', '이름 등 사람을 가리키는 후보를 문맥에서 탐지'],
+              ['결합', '식별정보와 신용정보가 한 문맥에 묶였는지 AI가 후보를 내고 코드가 검증'],
+            ].map(([t, d], i) => (
+              <li key={t} className="flex gap-3 py-2.5 not-last:border-b not-last:border-[rgba(19,23,34,.06)]">
+                <span className="mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-[rgba(19,23,34,.06)] font-mono text-[10.5px] font-semibold text-body">{i + 1}</span>
+                <span className="text-[13px] leading-5 text-body"><b className="mr-1.5 font-semibold text-ink">{t}</b>{d}</span>
+              </li>
+            ))}
+          </ol>
+        </Panel>
+      </div>
 
       {live && detMode === 'hybrid' && (
         <Panel className="mt-3.5" title="AI 판정 실황" count={<Pill>Kanana-2-3B {window.SALPI_LLM_ENDPOINT ? '원격' : '로컬'}</Pill>} right={live.done ? `창 ${live.windows}개 판정 완료, 채택 ${live.done.accepted}건, 검증 폐기 ${live.done.dropped}건` : `문서를 창 ${live.windows}개로 분할`}>
@@ -129,7 +163,12 @@ export function ContentPage() {
           </div>
         </Panel>
       )}
-      {note && <div className="mt-3 rounded-md border border-[rgba(74,194,107,.4)] bg-[#dafbe1] px-4 py-2.5 text-sm text-ink">{note}</div>}
+      {res && res.hits.length > 0 && text.trim() && (
+        <Panel className="mt-3.5" title="원문 판정" right="위반 구간 밑칠">
+          <Marked text={text} hits={res.hits} />
+        </Panel>
+      )}
+      {note && <div className="mt-3 flex items-center gap-2.5 surface px-4 py-2.5 text-sm text-ink"><Pill tone="ok">기록됨</Pill>{note}</div>}
     </div>
   )
 }

@@ -1,6 +1,5 @@
 import { useStore, contentCount, detectCount } from '@/store'
 import { today } from '@/lib/format'
-import { StatStrip } from '@/components/StatStrip'
 import { PageHeader, Panel } from '@/components/salpi'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -24,15 +23,16 @@ export function ReportPage() {
   const Td = ({ children, cls }: { children?: React.ReactNode; cls?: string }) => <td className={cn('border border-[#bbb] px-2 py-1.5 align-top text-[9.5pt]', cls)}>{children}</td>
   return (
     <div className="view-in">
-      <StatStrip />
       <PageHeader title="반기 보고" crumb="반기 보고" actions={<Button onClick={() => window.print()}>인쇄 / PDF 저장</Button>} />
-      <Panel title="제출 전 점검" className="mb-4 max-w-[880px]">
+      <div className="grid grid-cols-[340px_1fr] items-start gap-6">
+      <Panel title="제출 전 점검" className="sticky top-[76px]">
         <Check ok n={ledger.length}>예외 운영 현황 집계 완료</Check>
         <Check ok n={saas.length}>SaaS 반기 자체평가 대상 정리</Check>
         <Check ok={detects > 0} n={detects}>내용검사 증적{detects ? '' : ', 아직 없음'}</Check>
         <Check ok={!rogues.length} n={rogues.length}>{rogues.length ? '미등록 연결 조치 대기' : '미등록 연결 전부 조치됨'}</Check>
+        <p className="border-t border-[rgba(19,23,34,.06)] px-5 py-3.5 text-[12.5px] leading-5 text-faint">보고서는 장부와 검사 기록에서 그대로 생성됩니다. 오른쪽 미리보기가 인쇄 결과와 같습니다.</p>
       </Panel>
-      <div className="print-area rounded-lg border bg-card p-8 font-[Apple_SD_Gothic_Neo,Pretendard,sans-serif] text-[10.5pt] leading-[1.65] text-[#111]" style={{ maxWidth: 880 }}>
+      <div className="print-area surface-float p-10 font-[Apple_SD_Gothic_Neo,Pretendard,sans-serif] text-[10.5pt] leading-[1.7] text-[#111]">
         <h3 className="border-b-2 border-[#111] pb-2 text-[16pt] font-bold tracking-tight">망분리 적용 예외 운영 현황 및 반기 자체평가 보고 (초안)</h3>
         <p className="mt-2 text-[#555]">기준일 {today()}, 근거: 시행세칙 제2조의3 제3항과 제4항</p>
         <h4 className="mt-5 mb-1.5 text-[12pt] font-bold">1. 예외 운영 현황</h4>
@@ -56,6 +56,7 @@ export function ReportPage() {
           <tr><Td>작성: 정보보호 담당</Td><Td /></tr><tr><Td>정보보호최고책임자(CISO)</Td><Td /></tr>
         </tbody></table>
         <p className="mt-3 text-[8.5pt] text-[#777]">초안. 정보보호위원회 심의 전 검토용.</p>
+      </div>
       </div>
     </div>
   )

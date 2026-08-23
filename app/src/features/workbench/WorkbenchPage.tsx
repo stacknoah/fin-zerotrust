@@ -4,7 +4,6 @@ import { Engine } from '@/lib/engineLoad'
 import type { ScanResult } from '@/lib/engine'
 import { SAAS_LIST, USAGES, NATURES, AV_LABEL, DET_SAMPLE } from '@/data/ledger'
 import { entriesFor, judge, HAS_CONTROL, type Entry, type Verdict } from '@/lib/judge'
-import { StatStrip } from '@/components/StatStrip'
 import { PageHeader, Panel, Pill } from '@/components/salpi'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -80,7 +79,6 @@ export function WorkbenchPage() {
 
   return (
     <div className="view-in">
-      <StatStrip />
       <PageHeader title="판정 워크벤치" crumb="판정 워크벤치" />
       <div className="grid grid-cols-[180px_1fr] items-start gap-6 max-md:grid-cols-1">
         <nav className="sticky top-[120px] rounded-lg border bg-card p-2.5">
@@ -100,9 +98,9 @@ export function WorkbenchPage() {
             <h2 className="mb-5 text-[21px] font-bold tracking-tight text-ink">어떤 SaaS를, 어떤 업무에 도입하려 하는가</h2>
             <div className="mb-6 grid grid-cols-[repeat(auto-fill,minmax(170px,1fr))] gap-2.5">
               {SAAS_LIST.map(s => (
-                <button key={s.key} type="button" onClick={() => setSaas(s.key)} className={cn('flex items-center gap-3 rounded-lg border px-4 py-3.5 text-left transition', saas === s.key ? 'border-primary bg-accent ring-1 ring-primary' : 'hover:border-[#c5cfdb] hover:bg-muted/60')}>
-                  <span className="flex size-[34px] shrink-0 items-center justify-center rounded-lg text-[15px] font-extrabold text-white" style={{ background: s.color }}>{s.mono}</span>
-                  <span><div className={cn('text-sm font-bold', saas === s.key && 'text-primary')}>{s.name}</div><div className="font-mono text-[10px] tracking-wide text-faint">{s.cat}</div></span>
+                <button key={s.key} type="button" onClick={() => setSaas(s.key)} className={cn('flex items-center gap-3 rounded-xl border px-4 py-3.5 text-left transition', saas === s.key ? 'border-ink ring-1 ring-ink' : 'border-[rgba(19,23,34,.1)] hover:border-[rgba(19,23,34,.25)]')}>
+                  <span className={cn('flex size-[34px] shrink-0 items-center justify-center rounded-lg text-[15px] font-bold transition', saas === s.key ? 'text-white' : 'bg-[rgba(19,23,34,.06)] text-body')} style={saas === s.key ? { background: s.color } : undefined}>{s.mono}</span>
+                  <span><div className="text-sm font-semibold text-ink">{s.name}</div><div className="font-mono text-[10px] tracking-wide text-faint">{s.cat}</div></span>
                 </button>
               ))}
             </div>

@@ -90,7 +90,8 @@ export const useStore = create<State>((set, get) => ({
   probeAI: async () => {
     const av = await Engine.llmAvailable()
     const ok = !!(av.ok && av.hasModel)
-    set({ detReady: ok })
+    // AI가 처음 연결되면 정밀 검사를 기본값으로
+    set(st => ({ detReady: ok, detMode: ok && !st.detReady && st.detMode === 'heuristic' ? 'hybrid' : st.detMode }))
     return ok
   },
 

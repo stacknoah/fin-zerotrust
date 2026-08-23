@@ -42,21 +42,21 @@
   --color-sidebar-ring: var(--sidebar-ring);
 
   /* 살피 도메인 토큰 */
-  --color-ink: #0a2540;
-  --color-body: #425466;
-  --color-faint: #697386;
-  --color-dim: #8792a2;
-  --color-line: #e3e8ee;
-  --color-navy: #0a2540;
-  --color-ok: #1f8a4c;
-  --color-ok-bg: #d7f7c2;
-  --color-ok-fg: #05690d;
-  --color-warn: #b7791f;
-  --color-warn-bg: #f8e5b9;
-  --color-warn-fg: #983705;
-  --color-bad: #c53030;
-  --color-bad-bg: #ffe0e0;
-  --color-bad-fg: #a41c1c;
+  --color-ink: #131722;
+  --color-body: #3f4655;
+  --color-faint: #6b7280;
+  --color-dim: #9aa1ad;
+  --color-line: #e6e8ec;
+  --color-navy: #131722;
+  --color-ok: #1a7f37;
+  --color-ok-bg: #e6f6ea;
+  --color-ok-fg: #116329;
+  --color-warn: #b26a00;
+  --color-warn-bg: #fff4e0;
+  --color-warn-fg: #8a5200;
+  --color-bad: #c4302b;
+  --color-bad-bg: #fdecec;
+  --color-bad-fg: #a3261f;
 
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
@@ -66,81 +66,92 @@
 }
 
 :root {
-  --background: #f6f9fc;
-  --foreground: #0a2540;
+  --background: #f7f8fa;
+  --foreground: #131722;
   --card: #ffffff;
-  --card-foreground: #0a2540;
+  --card-foreground: #131722;
   --popover: #ffffff;
-  --popover-foreground: #0a2540;
+  --popover-foreground: #131722;
   --primary: #2157d1;
   --primary-foreground: #ffffff;
-  --secondary: #eef2f7;
-  --secondary-foreground: #0a2540;
-  --muted: #f1f4f8;
-  --muted-foreground: #697386;
-  --accent: #eef3fd;
-  --accent-foreground: #0a2540;
-  --destructive: #c53030;
-  --border: #e3e8ee;
-  --input: #d5dde7;
+  --secondary: #f0f1f4;
+  --secondary-foreground: #131722;
+  --muted: #f3f4f6;
+  --muted-foreground: #6b7280;
+  --accent: #eaf0fd;
+  --accent-foreground: #131722;
+  --destructive: #c4302b;
+  --border: #e6e8ec;
+  --input: #d9dce2;
   --ring: #2157d1;
   --chart-1: #2157d1;
   --chart-2: #7fa6ef;
   --chart-3: #bcd0f5;
   --chart-4: #84d59b;
   --chart-5: #f3d27f;
-  --radius: 0.5rem;
+  --radius: 0.625rem;
   --sidebar: #ffffff;
-  --sidebar-foreground: #0a2540;
+  --sidebar-foreground: #131722;
   --sidebar-primary: #2157d1;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #eef3fd;
-  --sidebar-accent-foreground: #0a2540;
-  --sidebar-border: #e3e8ee;
+  --sidebar-accent: #eaf0fd;
+  --sidebar-accent-foreground: #131722;
+  --sidebar-border: #e6e8ec;
   --sidebar-ring: #2157d1;
+  --shadow-ring: 0 0 0 1px rgba(19,23,34,.07);
+  --shadow-card: 0 0 0 1px rgba(19,23,34,.07), 0 1px 2px rgba(19,23,34,.04);
+  --shadow-float: 0 0 0 1px rgba(11,13,24,.06), 0 1px 2px rgba(11,13,24,.024), 0 3px 6px rgba(11,13,24,.03), 0 8px 14px rgba(11,13,24,.035), 0 16px 28px rgba(11,13,24,.04);
 }
 
 @layer base {
   * { @apply border-border outline-ring/50; }
   html { @apply font-sans; }
-  body { @apply bg-background text-foreground antialiased; font-size: 14px; line-height: 20px; word-break: keep-all; }
+  body { @apply bg-background text-foreground antialiased; font-size: 14px; line-height: 20px; word-break: keep-all; font-feature-settings: "ss01", "cv11"; }
   button { font: inherit; }
 }
 
+@utility surface { background: var(--card); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); }
+@utility surface-float { background: var(--card); border-radius: calc(var(--radius) * 1.4); box-shadow: var(--shadow-float); }
+@utility dotgrid { background-image: radial-gradient(rgba(19,23,34,.10) 1px, transparent 1.2px); background-size: 22px 22px; }
+@utility nums { font-variant-numeric: tabular-nums; }
+
 /* 지도 */
-.map-zone { fill: #f4f6f9; }
-.map-bz { fill: #eef3fa; stroke: #9fb3cc; stroke-width: 1; }
-.map-node rect.bg { fill: #fff; stroke: #d5dde7; stroke-width: 1; transition: stroke 150ms; }
-.map-node:hover rect.bg { stroke: #b9c7d8; }
+.map-zone { fill: rgba(19,23,34,.035); stroke: rgba(19,23,34,.06); stroke-width: 1; }
+.map-zone.bad { fill: rgba(196,48,43,.045); stroke: rgba(196,48,43,.14); }
+.map-bz { fill: rgba(33,87,209,.045); stroke: rgba(33,87,209,.28); stroke-width: 1; }
+.map-node rect.bg { fill: #fff; stroke: rgba(19,23,34,.12); stroke-width: 1; transition: stroke 150ms, filter 150ms; }
+.map-node:hover rect.bg { stroke: rgba(19,23,34,.28); }
 .map-node.sel rect.bg { stroke: #2157d1; stroke-width: 1.5; }
-.map-node.rogue rect.bg { stroke: rgba(197,48,48,.45); }
-.map-node.rogue:hover rect.bg { stroke: #c53030; }
+.map-node.rogue rect.bg { stroke: rgba(196,48,43,.5); }
+.map-node.rogue:hover rect.bg { stroke: #c4302b; }
 .map-node.enter { animation: nodeIn 600ms cubic-bezier(.3,0,0,1) both; transform-box: fill-box; transform-origin: center; }
 @keyframes nodeIn { from { opacity: 0; transform: translateY(6px); } }
-.map-edge { fill: none; stroke: #5d85df; stroke-width: 1.25; stroke-linecap: round; stroke-linejoin: round; transition: stroke 150ms; vector-effect: non-scaling-stroke; }
-.map-edge.soon { stroke: #b7791f; }
-.map-edge.over { stroke: #c53030; }
-.map-edge.rogue { stroke: #c53030; stroke-width: 1.5; stroke-dasharray: 3 4; }
-.map-edge.sel { stroke: #2157d1; stroke-width: 1.5; }
+.map-edge { fill: none; stroke: #8fa9e6; stroke-width: 1.25; stroke-linecap: round; stroke-linejoin: round; transition: stroke 150ms; vector-effect: non-scaling-stroke; }
+.map-edge.soon { stroke: #8fa9e6; }
+.map-edge.over { stroke: #c4302b; }
+.map-edge.rogue { stroke: #c4302b; stroke-width: 1.5; stroke-dasharray: 3 4; }
+.map-edge.sel { stroke: #2157d1; stroke-width: 1.75; }
 .map-edge.enter { animation: edgeIn 700ms cubic-bezier(.3,0,0,1) both; }
 @keyframes edgeIn { from { opacity: 0; } }
 .map-live .map-edge.rogue { animation: crawl 1.8s linear infinite; }
 @keyframes crawl { to { stroke-dashoffset: -7; } }
 .map-hit { fill: none; stroke: transparent; stroke-width: 12; cursor: pointer; vector-effect: non-scaling-stroke; }
 .map-hit:hover + .map-edge { stroke: #2157d1; }
-.map-halo { fill: none; stroke: rgba(33,87,209,.12); stroke-width: 8; stroke-linecap: round; stroke-linejoin: round; }
+.map-halo { fill: none; stroke: rgba(33,87,209,.14); stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; }
 .map-chip { cursor: pointer; }
-.map-chip .cut { fill: none; stroke: #eef3fa; stroke-width: 4; }
-.map-chip .pill { fill: #fff; stroke: #9fb5e6; stroke-width: 1; transition: stroke 150ms; }
+.map-chip .cut { fill: none; stroke: #f3f6fc; stroke-width: 4; }
+.map-chip .pill { fill: #fff; stroke: rgba(19,23,34,.18); stroke-width: 1; transition: stroke 150ms; }
 .map-chip:hover .pill { stroke: #2157d1; }
-.map-chip.soon .pill { stroke: #b7791f; } .map-chip.over .pill { stroke: #c53030; } .map-chip.sel .pill { stroke: #2157d1; }
-.map-chip .t { font-size: 10px; font-weight: 500; fill: #2f56b3; letter-spacing: .03em; font-family: var(--font-mono); }
-.map-chip.soon .t { fill: #8a5a10; } .map-chip.over .t { fill: #c53030; }
+.map-chip.soon .pill { stroke: rgba(178,106,0,.6); } .map-chip.over .pill { stroke: rgba(196,48,43,.6); } .map-chip.sel .pill { stroke: #2157d1; }
+.map-chip .t { font-size: 10px; font-weight: 500; fill: #3f4655; letter-spacing: .02em; font-family: var(--font-mono); }
+.map-chip.soon .t { fill: #8a5200; } .map-chip.over .t { fill: #a3261f; }
 .pkt { fill: #2157d1; opacity: .8; pointer-events: none; offset-rotate: 0deg; animation: pkOut var(--pk-dur, 1100ms) linear forwards; }
 .pkt.in { animation-name: pkIn; }
-.pkt.rogue { fill: #c53030; }
+.pkt.rogue { fill: #c4302b; }
 @keyframes pkOut { from { offset-distance: 100%; } to { offset-distance: 0%; } }
 @keyframes pkIn { from { offset-distance: 0%; } to { offset-distance: 100%; } }
+.detail-in { animation: detailIn 260ms cubic-bezier(.3,0,0,1) both; }
+@keyframes detailIn { from { opacity: 0; transform: translateY(8px); } }
 .breathe { animation: breathe 1.8s ease-in-out infinite; }
 @keyframes breathe { 50% { opacity: .35; } }
 .view-in { animation: viewIn 150ms cubic-bezier(.3,0,0,1) both; }
