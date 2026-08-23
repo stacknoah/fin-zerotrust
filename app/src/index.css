@@ -1,0 +1,160 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: "Pretendard Variable", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --font-heading: var(--font-sans);
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* 살피 도메인 토큰 */
+  --color-ink: #0a2540;
+  --color-body: #425466;
+  --color-faint: #697386;
+  --color-dim: #8792a2;
+  --color-line: #e3e8ee;
+  --color-navy: #0a2540;
+  --color-ok: #1f8a4c;
+  --color-ok-bg: #d7f7c2;
+  --color-ok-fg: #05690d;
+  --color-warn: #b7791f;
+  --color-warn-bg: #f8e5b9;
+  --color-warn-fg: #983705;
+  --color-bad: #c53030;
+  --color-bad-bg: #ffe0e0;
+  --color-bad-fg: #a41c1c;
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+}
+
+:root {
+  --background: #f6f9fc;
+  --foreground: #0a2540;
+  --card: #ffffff;
+  --card-foreground: #0a2540;
+  --popover: #ffffff;
+  --popover-foreground: #0a2540;
+  --primary: #2157d1;
+  --primary-foreground: #ffffff;
+  --secondary: #eef2f7;
+  --secondary-foreground: #0a2540;
+  --muted: #f1f4f8;
+  --muted-foreground: #697386;
+  --accent: #eef3fd;
+  --accent-foreground: #0a2540;
+  --destructive: #c53030;
+  --border: #e3e8ee;
+  --input: #d5dde7;
+  --ring: #2157d1;
+  --chart-1: #2157d1;
+  --chart-2: #7fa6ef;
+  --chart-3: #bcd0f5;
+  --chart-4: #84d59b;
+  --chart-5: #f3d27f;
+  --radius: 0.5rem;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0a2540;
+  --sidebar-primary: #2157d1;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #eef3fd;
+  --sidebar-accent-foreground: #0a2540;
+  --sidebar-border: #e3e8ee;
+  --sidebar-ring: #2157d1;
+}
+
+@layer base {
+  * { @apply border-border outline-ring/50; }
+  html { @apply font-sans; }
+  body { @apply bg-background text-foreground antialiased; font-size: 14px; line-height: 20px; word-break: keep-all; }
+  button { font: inherit; }
+}
+
+/* 지도 */
+.map-zone { fill: #f4f6f9; }
+.map-bz { fill: #eef3fa; stroke: #9fb3cc; stroke-width: 1; }
+.map-node rect.bg { fill: #fff; stroke: #d5dde7; stroke-width: 1; transition: stroke 150ms; }
+.map-node:hover rect.bg { stroke: #b9c7d8; }
+.map-node.sel rect.bg { stroke: #2157d1; stroke-width: 1.5; }
+.map-node.rogue rect.bg { stroke: rgba(197,48,48,.45); }
+.map-node.rogue:hover rect.bg { stroke: #c53030; }
+.map-node.enter { animation: nodeIn 600ms cubic-bezier(.3,0,0,1) both; transform-box: fill-box; transform-origin: center; }
+@keyframes nodeIn { from { opacity: 0; transform: translateY(6px); } }
+.map-edge { fill: none; stroke: #5d85df; stroke-width: 1.25; stroke-linecap: round; stroke-linejoin: round; transition: stroke 150ms; vector-effect: non-scaling-stroke; }
+.map-edge.soon { stroke: #b7791f; }
+.map-edge.over { stroke: #c53030; }
+.map-edge.rogue { stroke: #c53030; stroke-width: 1.5; stroke-dasharray: 3 4; }
+.map-edge.sel { stroke: #2157d1; stroke-width: 1.5; }
+.map-edge.enter { animation: edgeIn 700ms cubic-bezier(.3,0,0,1) both; }
+@keyframes edgeIn { from { opacity: 0; } }
+.map-live .map-edge.rogue { animation: crawl 1.8s linear infinite; }
+@keyframes crawl { to { stroke-dashoffset: -7; } }
+.map-hit { fill: none; stroke: transparent; stroke-width: 12; cursor: pointer; vector-effect: non-scaling-stroke; }
+.map-hit:hover + .map-edge { stroke: #2157d1; }
+.map-halo { fill: none; stroke: rgba(33,87,209,.12); stroke-width: 8; stroke-linecap: round; stroke-linejoin: round; }
+.map-chip { cursor: pointer; }
+.map-chip .cut { fill: none; stroke: #eef3fa; stroke-width: 4; }
+.map-chip .pill { fill: #fff; stroke: #9fb5e6; stroke-width: 1; transition: stroke 150ms; }
+.map-chip:hover .pill { stroke: #2157d1; }
+.map-chip.soon .pill { stroke: #b7791f; } .map-chip.over .pill { stroke: #c53030; } .map-chip.sel .pill { stroke: #2157d1; }
+.map-chip .t { font-size: 10px; font-weight: 500; fill: #2f56b3; letter-spacing: .03em; font-family: var(--font-mono); }
+.map-chip.soon .t { fill: #8a5a10; } .map-chip.over .t { fill: #c53030; }
+.pkt { fill: #2157d1; opacity: .8; pointer-events: none; offset-rotate: 0deg; animation: pkOut var(--pk-dur, 1100ms) linear forwards; }
+.pkt.in { animation-name: pkIn; }
+.pkt.rogue { fill: #c53030; }
+@keyframes pkOut { from { offset-distance: 100%; } to { offset-distance: 0%; } }
+@keyframes pkIn { from { offset-distance: 0%; } to { offset-distance: 100%; } }
+.breathe { animation: breathe 1.8s ease-in-out infinite; }
+@keyframes breathe { 50% { opacity: .35; } }
+.view-in { animation: viewIn 150ms cubic-bezier(.3,0,0,1) both; }
+@keyframes viewIn { from { opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .map-live .map-edge.rogue, .map-node.enter, .map-edge.enter, .breathe, .view-in { animation: none; }
+  .pkt { display: none; }
+}
+
+/* 인쇄: 보고서만 */
+@media print {
+  body * { visibility: hidden; }
+  .print-area, .print-area * { visibility: visible; }
+  .print-area { position: absolute; left: 0; top: 0; width: 100%; background: #fff; box-shadow: none; border: 0; }
+  @page { size: A4; margin: 18mm 16mm; }
+}
