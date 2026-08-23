@@ -591,6 +591,18 @@
   .actbox .ev.rogue .k { color: var(--bad-fg); } .actbox .ev.ai .k, .actbox .ev.content .k { color: var(--blue); } .actbox .ev.block .k { color: var(--bad-fg); } .actbox .ev.register .k { color: var(--ok-fg); }
   .actbox .ev .x { color: var(--ink); }
   .home .subgrid + .subgrid { margin-top: var(--sp-16); }
+  .panel-hd.link { cursor: pointer; text-decoration: none; color: inherit; transition: background-color var(--t); }
+  .panel-hd.link:hover { background: var(--hover); }
+  .panel-hd.link .r { color: var(--blue); }
+  .feedbox { min-height: 116px; }
+  .actbox { min-height: 116px; }
+  .actbox .ev .x { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .actbox.full .ev .x { white-space: normal; }
+  .feedbox.full { max-height: 520px; overflow: auto; }
+  .edge.hit { stroke: var(--m-sel); stroke-width: 2; transition: none; }
+  .chip .pill.hit { stroke: var(--m-sel); transition: none; }
+  .obsbar .st.on i { animation: breathe 1.8s ease-in-out infinite; }
+  @keyframes breathe { 50% { opacity: .35; } }
 
   /* ── 홈: 지도 아래 두 패널은 한 면 안에서 세로선으로 ── */
   .home .subgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin-top: var(--sp-16); background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-pop); overflow: hidden; }
@@ -830,7 +842,7 @@ function reconcile(text){
 const now = () => new Date().toTimeString().slice(0,8);
 function logEvent(kind, text){
   state.events.push({ t: now(), kind, text });
-  if (state.events.length > 120) state.events.shift();
+  if (state.events.length > 200) state.events.shift();
   renderActivity();
 }
 const FEED_ROGUE_AT = { 4:'chatgpt.com', 10:'notion.so', 17:'anydesk.com', 26:'dropbox.com' };
@@ -851,6 +863,7 @@ function feedTick(){
   for (let i=0;i<n;i++) f.lines.push(feedLine());
   if (f.lines.length > 400) f.lines.splice(0, f.lines.length-400);
   f.received += n; f.last = now();
+  const hitHosts = f.lines.slice(-n).map(l => ((l.match(/HOST=(\S+)/)||[])[1]||'').toLowerCase());
   const rec = reconcile(f.lines.join('\n'));
   const known = new Set(state.rogues.map(r => r.host));
   const fresh = rec.rogues.filter(r => !known.has(r.host));
@@ -858,8 +871,21 @@ function feedTick(){
   state.scanned = true; state.lastScan = f.last.slice(0,5);
   fresh.forEach(r => { logEvent('rogue', `미등록 발견 ${r.host}, 단말 ${r.info.srcs.size}대, 포트 ${[...r.info.ports].join(',')}`); classifyRogue(r); });
   // 지도는 미등록이 새로 생겼을 때만 다시 그리고, 평소엔 숫자만 갱신
-  if (state.tab === 'map' && fresh.length) render();
+  if ((state.tab === 'map' && fresh.length) || state.tab === 'activity') render();
   else { renderStrip(); renderTabs(); renderObs(); renderActivity(); }
+  if (state.tab === 'map') pulseEdges(hitHosts);
+}
+// 방금 관측된 줄의 통로를 900ms 동안 밝힌다. 승인 통로는 통로 번호, 미등록은 줄기
+function pulseEdges(hosts){
+  hosts.forEach((h, i) => {
+    const c = matchLedger(h);
+    let key = c ? c.id : null;
+    if (!key) { const k = state.rogues.findIndex(r => r.host === h); if (k >= 0) key = 'R-' + k; }
+    if (!key) return;
+    document.querySelectorAll(`.edge[data-sel="${key}"], .chip[data-sel="${key}"] .pill`).forEach(el => {
+      el.classList.add('hit'); setTimeout(() => el.classList.remove('hit'), 900 + i*120);
+    });
+  });
 }
 function renderObs(){
   const el = $('#obs-nums'); if (!el) return;
@@ -893,10 +919,28 @@ function pauseFeed(){ const f = state.feed; f.on = false; clearInterval(f.timer)
 const EV_KO = { rogue:'발견', ai:'AI', block:'차단', register:'등재', content:'검사', scan:'대조', sys:'상태' };
 function renderActivity(){
   const feed = $('#act-feed'), act = $('#act-ai'); if (!feed || !act) return;
-  const lines = state.feed.lines.slice(-9);
+  const lines = state.feed.lines.slice(-5);
   feed.innerHTML = lines.length ? lines.map(l => `<div class="fl">${esc(l)}</div>`).join('') : '<div class="none">수신 없음</div>';
-  const evs = state.events.slice(-9).reverse();
-  act.innerHTML = evs.length ? evs.map(e => `<div class="ev ${e.kind}"><span class="t mono">${e.t}</span><span class="k">${EV_KO[e.kind]||e.kind}</span><span class="x">${esc(e.text)}</span></div>`).join('') : '<div class="none">기록 없음</div>';
+  const evs = state.events.slice(-6).reverse();
+  act.innerHTML = evs.length ? evs.map(evRow).join('') : '<div class="none">기록 없음</div>';
+}
+const evRow = e => `<div class="ev ${e.kind}"><span class="t mono">${e.t}</span><span class="k">${EV_KO[e.kind]||e.kind}</span><span class="x">${esc(e.text)}</span></div>`;
+function renderActivityPage(){
+  const f = state.feed;
+  const lines = f.lines.slice().reverse();
+  const evs = state.events.slice().reverse();
+  $('#main').innerHTML = `<section class="view">
+    <div class="pagehead"><div class="tx"><h2 class="q">활동 기록</h2></div>
+      <div class="actions">${f.on ? `<button class="act ghost2" onclick="pauseFeed()">일시정지</button>` : `<button class="act" onclick="startFeed()">${f.started ? '관측 재개' : '데모 실행'}</button>`}</div></div>
+    <div class="panel" style="margin-bottom:16px">
+      <div class="panel-hd"><span class="t">AI 활동</span><span class="count">${evs.length}건</span><span class="r">${state.detReady ? 'Kanana-2-3B' : 'AI 미연결'}</span></div>
+      <div class="actbox full">${evs.length ? evs.map(evRow).join('') : '<div class="none">기록 없음</div>'}</div>
+    </div>
+    <div class="panel">
+      <div class="panel-hd"><span class="t">관측 피드</span><span class="count">${lines.length}줄</span><span class="r">데모 피드(합성)${f.last ? ', 마지막 수신 ' + f.last : ''}</span></div>
+      <div class="feedbox full">${lines.length ? lines.map(l => `<div class="fl">${esc(l)}</div>`).join('') : '<div class="none">수신 없음</div>'}</div>
+    </div>
+  </section>`;
 }
 
 /* ═══════════════ 등재 위저드 (살피 판정의 이식) ═══════════════ */
@@ -1042,7 +1086,7 @@ function wizBlock(){
 /* ═══════════════ 화면 ═══════════════ */
 const TABS = [
   { k:'map', t:'경계 지도' }, { k:'ledger', t:'통로 대장' }, { k:'logs', t:'로그 대조' },
-  { k:'content', t:'내용 검사' }, { k:'report', t:'반기 보고' },
+  { k:'content', t:'내용 검사' }, { k:'report', t:'반기 보고' }, { k:'activity', t:'활동 기록' },
 ];
 /* 통로 유형 분포 도넛 (SVG stroke-dasharray) */
 function donutSVG(){
@@ -1088,6 +1132,7 @@ const ICONS = {
   logs: '<svg viewBox="0 0 24 24"><path d="M6 6m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M18 18m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M11 6h5a2 2 0 0 1 2 2v8"/><path d="M14 9l-3 -3l3 -3"/><path d="M13 18h-5a2 2 0 0 1 -2 -2v-8"/><path d="M10 15l3 3l-3 3"/></svg>',
   content: '<svg viewBox="0 0 24 24"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M12 21h-5a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v4.5"/><path d="M16.5 17.5m-2.5 0a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0 -5 0"/><path d="M18.5 19.5l2.5 2.5"/></svg>',
   report: '<svg viewBox="0 0 24 24"><path d="M8 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h5.697"/><path d="M18 14v4h4"/><path d="M18 11v-4a2 2 0 0 0 -2 -2h-2"/><path d="M8 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z"/><path d="M18 18m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"/><path d="M8 11h4"/><path d="M8 15h3"/></svg>',
+  activity: '<svg viewBox="0 0 24 24"><path d="M3 12h4l3 8l4 -16l3 8h4"/></svg>',
   bench: '<svg viewBox="0 0 24 24"><path d="M9.615 20h-2.615a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v8"/><path d="M14 19l2 2l4 -4"/><path d="M9 8h4"/><path d="M9 12h2"/></svg>',
 };
 function renderTabs(){
@@ -1277,11 +1322,11 @@ function renderMap(){
     <div class="detail" id="detail"></div>
     <div class="subgrid">
       <div class="panel">
-        <div class="panel-hd"><span class="t">관측 피드</span><span class="r">최근 9줄</span></div>
+        <a class="panel-hd link" onclick="state.tab='activity'; render(); window.scrollTo(0,0)"><span class="t">관측 피드</span><span class="r">전체 보기 ›</span></a>
         <div class="feedbox" id="act-feed"></div>
       </div>
       <div class="panel">
-        <div class="panel-hd"><span class="t">AI 활동</span><span class="r">${state.detReady ? 'Kanana-2-3B' : 'AI 미연결'}</span></div>
+        <a class="panel-hd link" onclick="state.tab='activity'; render(); window.scrollTo(0,0)"><span class="t">AI 활동</span><span class="r">전체 보기 ›</span></a>
         <div class="actbox" id="act-ai"></div>
       </div>
     </div>
@@ -1609,7 +1654,7 @@ function render(){
   if (home) { const tb = $('#toasts'); if (tb) tb.innerHTML = ''; }
   $('#strip').style.display = home ? 'none' : '';
   $('#crumb').style.display = home ? 'none' : '';
-  ({ map:renderMap, ledger:renderLedger, logs:renderLogs, content:renderContent, report:renderReport })[state.tab]();
+  ({ map:renderMap, ledger:renderLedger, logs:renderLogs, content:renderContent, report:renderReport, activity:renderActivityPage })[state.tab]();
 }
 
 /* ── 상단바 검색 ── */
