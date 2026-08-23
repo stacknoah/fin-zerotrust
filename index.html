@@ -599,8 +599,16 @@
   .actbox .ev .x { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .actbox.full .ev .x { white-space: normal; }
   .feedbox.full { max-height: 520px; overflow: auto; }
-  .edge.hit { stroke: var(--m-sel); stroke-width: 2; transition: none; }
-  .chip .pill.hit { stroke: var(--m-sel); transition: none; }
+  .view.still { animation: none; }
+  .pkt { fill: var(--ink); opacity: .5; pointer-events: none; }
+  .pkt.rogue { fill: var(--m-over); opacity: .7; }
+  .node.enter { animation: nodeIn 600ms var(--ease) both; transform-box: fill-box; transform-origin: center; }
+  .edge.enter { animation: edgeIn 700ms var(--ease) both; }
+  @keyframes nodeIn { from { opacity: 0; transform: translateY(6px); } }
+  @keyframes edgeIn { from { opacity: 0; } }
+  .mapwrap.live .edge.rogue { animation: crawl 1.8s linear infinite; }
+  @keyframes crawl { to { stroke-dashoffset: -7; } }
+  @media (prefers-reduced-motion: reduce) { .mapwrap.live .edge.rogue, .node.enter, .edge.enter { animation: none; } .pkt { display: none; } }
   .obsbar .st.on i { animation: breathe 1.8s ease-in-out infinite; }
   @keyframes breathe { 50% { opacity: .35; } }
 
@@ -871,20 +879,45 @@ function feedTick(){
   state.scanned = true; state.lastScan = f.last.slice(0,5);
   fresh.forEach(r => { logEvent('rogue', `미등록 발견 ${r.host}, 단말 ${r.info.srcs.size}대, 포트 ${[...r.info.ports].join(',')}`); classifyRogue(r); });
   // 지도는 미등록이 새로 생겼을 때만 다시 그리고, 평소엔 숫자만 갱신
+  state.freshHosts = new Set(fresh.map(r => r.host));
+  state.quiet = true;
   if ((state.tab === 'map' && fresh.length) || state.tab === 'activity') render();
   else { renderStrip(); renderTabs(); renderObs(); renderActivity(); }
-  if (state.tab === 'map') pulseEdges(hitHosts);
+  state.quiet = false; state.freshHosts = null;
+  if (state.tab === 'map') packets(hitHosts);
 }
-// 방금 관측된 줄의 통로를 900ms 동안 밝힌다. 승인 통로는 통로 번호, 미등록은 줄기
-function pulseEdges(hosts){
+// 방금 관측된 줄마다 작은 점 하나가 허브에서 목적지까지 선을 따라 간다 (실데이터 기반 움직임)
+const SVGNS = 'http://www.w3.org/2000/svg';
+function fractionAt(path, x, y){
+  const L = path.getTotalLength(); let best = 0, bd = 1e9;
+  for (let i = 0; i <= 80; i++) { const pt = path.getPointAtLength(L*i/80); const d = (pt.x-x)**2 + (pt.y-y)**2; if (d < bd) { bd = d; best = i/80; } }
+  return best;
+}
+function runPacket(path, from, to, dur, cls, delay){
+  const svg = path.ownerSVGElement; if (!svg) return;
+  const c = document.createElementNS(SVGNS, 'circle');
+  c.setAttribute('r', '2.2'); c.setAttribute('class', 'pkt ' + (cls||''));
+  const am = document.createElementNS(SVGNS, 'animateMotion');
+  am.setAttribute('dur', dur + 'ms'); am.setAttribute('begin', 'indefinite'); am.setAttribute('fill', 'freeze');
+  am.setAttribute('calcMode', 'linear'); am.setAttribute('keyPoints', `${from};${to}`); am.setAttribute('keyTimes', '0;1');
+  const mp = document.createElementNS(SVGNS, 'mpath'); mp.setAttributeNS('http://www.w3.org/1999/xlink', 'href', '#' + path.id);
+  am.appendChild(mp); c.appendChild(am); svg.appendChild(c);
+  setTimeout(() => { am.beginElement(); setTimeout(() => c.remove(), dur + 80); }, delay || 0);
+}
+function packets(hosts){
+  const svg = document.querySelector('svg.map'); if (!svg) return;
   hosts.forEach((h, i) => {
+    const delay = i * 260;
     const c = matchLedger(h);
-    let key = c ? c.id : null;
-    if (!key) { const k = state.rogues.findIndex(r => r.host === h); if (k >= 0) key = 'R-' + k; }
-    if (!key) return;
-    document.querySelectorAll(`.edge[data-sel="${key}"], .chip[data-sel="${key}"] .pill`).forEach(el => {
-      el.classList.add('hit'); setTimeout(() => el.classList.remove('hit'), 900 + i*120);
-    });
+    if (c) { const p = svg.querySelector(`#e-${c.id}`); if (p) runPacket(p, 1, 0, 1100, '', delay); return; }   // 승인 통로는 노드 → 허브 순으로 그려져 있어 거꾸로 간다
+    const k = state.rogues.findIndex(r => r.host === h); if (k < 0) return;
+    const n = state.rogues.length, trunk = svg.querySelector(`#e-R-${n-1}`); if (!trunk) return;
+    if (k === n-1) { runPacket(trunk, 0, 1, 1300, 'rogue', delay); return; }
+    const stub = svg.querySelector(`#e-R-${k}`); if (!stub) return;
+    const sp = stub.getPointAtLength(0);
+    const f = fractionAt(trunk, sp.x, sp.y);
+    runPacket(trunk, 0, f, 900*f + 300, 'rogue', delay);
+    runPacket(stub, 0, 1, 350, 'rogue', delay + 900*f + 300);
   });
 }
 function renderObs(){
@@ -1167,7 +1200,7 @@ function renderMap(){
 
   // 카드: 어두운 표면, 상태점, 이름. 통로 번호는 경계 통과 지점의 알약에만
   const nodeBox=(x,y,w,id,name,sel,rogue,st)=>`
-    <g class="node ${sel?'sel':''} ${rogue?'rogue':''}" data-sel="${id==='?'?name:id}">
+    <g class="node ${sel?'sel':''} ${rogue?'rogue':''} ${rogue && state.freshHosts && state.freshHosts.has(name) ? 'enter' : ''}" data-sel="${id==='?'?name:id}">
       <rect class="ring" x="${x-3}" y="${y-3}" width="${w+6}" height="${h_n+6}" rx="9"></rect>
       <rect class="bg" x="${x}" y="${y}" width="${w}" height="${h_n}" rx="6"></rect>
       ${rogue?`<rect class="tint" x="${x}" y="${y}" width="${w}" height="${h_n}" rx="6"></rect>`:''}
@@ -1196,7 +1229,8 @@ function renderMap(){
     return `M${x1} ${y1} V${yj-sy*r} a${r} ${r} 0 0 ${s1} ${dir*r} ${sy*r} H${x2-dir*r} a${r} ${r} 0 0 ${1-s1} ${dir*r} ${sy*r} V${y2}`;
   };
   const edge = (d, key, sel, kind, cp) => {
-    edges += `${sel?`<path class="halo" d="${d}"></path>`:''}<path class="edge-hit" d="${d}" data-sel="${key}"></path><path class="edge ${kind} ${sel?'sel':''}" d="${d}" data-sel="${key}"></path>`;
+    const enter = kind==='rogue' && state.freshHosts && [...state.freshHosts].some(h => state.rogues.findIndex(r => r.host===h) === Number(key.slice(2)));
+    edges += `${sel?`<path class="halo" d="${d}"></path>`:''}<path class="edge-hit" d="${d}" data-sel="${key}"></path><path id="e-${key}" class="edge ${kind} ${sel?'sel':''} ${enter?'enter':''}" d="${d}" data-sel="${key}"></path>`;
     if (cp) chips += `<g class="chip ${kind==='rogue'?'':kind} ${sel?'sel':''}" data-sel="${key}">
       <rect class="cut" x="${cp.x-22}" y="${cp.y-9}" width="44" height="18" rx="9"></rect>
       <rect class="pill" x="${cp.x-22}" y="${cp.y-9}" width="44" height="18" rx="9"></rect>
@@ -1292,7 +1326,7 @@ function renderMap(){
     : ROGUES.length
     ? { cls:'bad', t:`경계 불일치, 미등록 <span class="n">${ROGUES.length}건</span>`, s:`마지막 대조 ${state.lastScan}` }
     : { cls:'ok', t:'경계 일치', s:`마지막 대조 ${state.lastScan}` };
-  $('#main').innerHTML = `<section class="view home">
+  $('#main').innerHTML = `<section class="view home ${state.quiet?'still':''}">
     <div class="hero">
       <div class="verdict ${verdict.cls}"><div><div class="vk">망분리 경계 상태</div><div class="vt"><span class="vd"></span>${verdict.t}</div>${verdict.s?`<div class="vs">${verdict.s}</div>`:''}</div></div>
       <div class="hstats">
@@ -1311,7 +1345,7 @@ function renderMap(){
       <span id="obs-nums" class="nums"></span>
       <span class="src" id="obs-src"></span>
     </div>` : ''}
-    <div class="mapwrap">
+    <div class="mapwrap ${state.feed.on?'live':''}">
       <svg class="map" viewBox="0 0 ${W} ${H}" width="100%">${base}${edges}${flows}${out}${chips}</svg>
       <div class="maplegend">
         <span class="grp"><span class="hd">통로</span><span><i></i>승인</span><span class="s"><i></i>기한 임박</span><span class="r"><i></i>미등록</span></span>
