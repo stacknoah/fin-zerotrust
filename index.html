@@ -574,6 +574,24 @@
   .maplegend .d em.ok { background: #1f8a4c; } .maplegend .d em.soon { background: #b7791f; } .maplegend .d em.over { background: #c53030; }
   .maplegend .live { margin-left: auto; font: 500 11px/16px var(--mono); color: var(--disabled); letter-spacing: .02em; }
 
+  /* ── 홈: 관측 띠와 활동 패널 ── */
+  .obsbar { display: flex; align-items: center; gap: 20px; padding: 8px 14px; margin-bottom: 10px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-pop); font-size: 12.5px; color: var(--body); }
+  .obsbar b { font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .obsbar .st { display: inline-flex; align-items: center; gap: 7px; font-weight: 500; color: var(--muted); padding-right: 16px; border-right: 1px solid var(--line); }
+  .obsbar .st i { width: 7px; height: 7px; border-radius: 50%; background: var(--disabled); }
+  .obsbar .st.on { color: var(--ink); } .obsbar .st.on i { background: var(--st-ok); }
+  .obsbar .nums { display: inline-flex; gap: 20px; }
+  .obsbar .src { margin-left: auto; color: var(--disabled); font-size: 12px; }
+  .feedbox { padding: 6px 20px 12px; font-family: var(--mono); font-size: 11.5px; line-height: 20px; color: var(--body); }
+  .feedbox .fl { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .actbox { padding: 4px 0 8px; }
+  .actbox .ev { display: grid; grid-template-columns: 64px 36px 1fr; gap: 10px; align-items: baseline; padding: 5px 20px; font-size: 12.5px; line-height: 18px; color: var(--body); }
+  .actbox .ev .t { font-size: 11px; color: var(--disabled); }
+  .actbox .ev .k { font-size: 11px; font-weight: 600; color: var(--muted); }
+  .actbox .ev.rogue .k { color: var(--bad-fg); } .actbox .ev.ai .k, .actbox .ev.content .k { color: var(--blue); } .actbox .ev.block .k { color: var(--bad-fg); } .actbox .ev.register .k { color: var(--ok-fg); }
+  .actbox .ev .x { color: var(--ink); }
+  .home .subgrid + .subgrid { margin-top: var(--sp-16); }
+
   /* ── 홈: 지도 아래 두 패널은 한 면 안에서 세로선으로 ── */
   .home .subgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin-top: var(--sp-16); background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-pop); overflow: hidden; }
   .home .subgrid > .panel { box-shadow: none; border-radius: 0; background: none; }
@@ -736,6 +754,8 @@ const state = {
   nextId: 9,
   wiz: null,             // 등재 위저드 상태
   detMode: 'heuristic', detReady: false,
+  feed: { on:false, started:false, lines:[], received:0, tick:0, timer:null, last:null, aiCount:0 },   // 합성 프록시 피드
+  events: [],            // 활동 기록 {t, kind, text}
 };
 
 /* ═══════════════ 유틸 ═══════════════ */
@@ -803,6 +823,80 @@ function reconcile(text){
   }
   rows.sort((a,b) => (a.status==='rogue'?-1:1) - (b.status==='rogue'?-1:1) || b.info.count - a.info.count);
   return { rows, rogues };
+}
+
+/* ═══════════════ 활동 기록과 합성 피드 ═══════════════
+   수집만 합성이다. 대조는 reconcile 그대로, 미확인 목적지 분류는 Kanana가 연결돼 있으면 실제 호출 */
+const now = () => new Date().toTimeString().slice(0,8);
+function logEvent(kind, text){
+  state.events.push({ t: now(), kind, text });
+  if (state.events.length > 120) state.events.shift();
+  renderActivity();
+}
+const FEED_ROGUE_AT = { 4:'chatgpt.com', 10:'notion.so', 17:'anydesk.com', 26:'dropbox.com' };
+function feedLine(){
+  const f = state.feed, seen = Object.values(FEED_ROGUE_AT).filter((h,i) => Object.keys(FEED_ROGUE_AT)[i] <= f.tick);
+  const approved = LEDGER.map(c => ({ host: c.domains[0], port: (c.ports||'443').split(',')[0].trim() }));
+  const pick = Math.random();
+  let host, port;
+  if (FEED_ROGUE_AT[f.tick]) { host = FEED_ROGUE_AT[f.tick]; port = host === 'anydesk.com' ? '7070' : '443'; }
+  else if (seen.length && pick < 0.22) { host = seen[Math.floor(Math.random()*seen.length)]; port = host === 'anydesk.com' ? '7070' : '443'; }
+  else { const a = approved[Math.floor(Math.random()*approved.length)]; host = a.host; port = a.port; }
+  const src = `10.20.${1+Math.floor(Math.random()*3)}.${2+Math.floor(Math.random()*60)}`;
+  return `${new Date().toISOString().slice(0,10)} ${now()} SRC=${src} HOST=${host} DPT=${port} ACTION=ALLOW`;
+}
+function feedTick(){
+  const f = state.feed; f.tick++;
+  const n = 1 + Math.floor(Math.random()*2);
+  for (let i=0;i<n;i++) f.lines.push(feedLine());
+  if (f.lines.length > 400) f.lines.splice(0, f.lines.length-400);
+  f.received += n; f.last = now();
+  const rec = reconcile(f.lines.join('\n'));
+  const known = new Set(state.rogues.map(r => r.host));
+  const fresh = rec.rogues.filter(r => !known.has(r.host));
+  state.rogues = rec.rogues.map(r => state.rogues.find(x => x.host === r.host) ? Object.assign(state.rogues.find(x => x.host === r.host), { info: r.info }) : r);
+  state.scanned = true; state.lastScan = f.last.slice(0,5);
+  fresh.forEach(r => { logEvent('rogue', `미등록 발견 ${r.host}, 단말 ${r.info.srcs.size}대, 포트 ${[...r.info.ports].join(',')}`); classifyRogue(r); });
+  // 지도는 미등록이 새로 생겼을 때만 다시 그리고, 평소엔 숫자만 갱신
+  if (state.tab === 'map' && fresh.length) render();
+  else { renderStrip(); renderTabs(); renderObs(); renderActivity(); }
+}
+function renderObs(){
+  const el = $('#obs-nums'); if (!el) return;
+  const f = state.feed;
+  el.innerHTML = `<span>수신 <b class="mono">${f.received}</b>줄</span>
+      <span>목적지 <b class="mono">${new Set(f.lines.map(l => (l.match(/HOST=(\S+)/)||[])[1])).size}</b>곳</span>
+      <span>미등록 <b class="mono">${state.rogues.length}</b></span>
+      <span>AI 분류 <b class="mono">${f.aiCount}</b>건</span>`;
+  const src = $('#obs-src'); if (src) src.textContent = '데모 피드(합성)' + (f.last ? ', 마지막 수신 ' + f.last : '');
+}
+async function classifyRogue(r){
+  if (!state.detReady) { logEvent('ai', `${r.host} 내장 분류: ${r.cls.kind} (AI 미연결)`); return; }
+  r.cls = Object.assign({}, r.cls, { kind: '분류 중', pending: true });
+  const t0 = performance.now();
+  let out = null;
+  try { out = await SalpiEngine.llmClassifyHost(r.host, { count: r.info.count, devices: r.info.srcs.size, ports: [...r.info.ports] }); } catch (e) { out = null; }
+  const live = state.rogues.find(x => x.host === r.host); if (!live) return;
+  if (out) { live.cls = Object.assign({}, CLASSIFY[r.host] || {}, out); state.feed.aiCount++;
+    logEvent('ai', `${r.host} AI 분류 ${out.kind}${out.saasLike?' (SaaS형)':''}, ${out.risk} (${((performance.now()-t0)/1000).toFixed(1)}s)`); }
+  else { live.cls = Object.assign({}, CLASSIFY[r.host] || { kind:'미분류', saasLike:false, risk:'승인 대장의 어느 통로에도 해당하지 않는 외부 연결' }); logEvent('ai', `${r.host} AI 판단 보류(미분류), 내장 분류 ${live.cls.kind}`); }
+  if (state.tab === 'map') render();
+}
+async function startFeed(){
+  const f = state.feed;
+  if (!f.started) { f.started = true; const av = await SalpiEngine.llmAvailable(); state.detReady = !!(av.ok && av.hasModel);
+    logEvent('sys', state.detReady ? 'AI 연결 확인, 미확인 목적지를 Kanana가 분류' : 'AI 미연결, 내장 분류로 동작'); }
+  f.on = true; logEvent('sys', '관측 시작, 데모 피드(합성)');
+  f.timer = setInterval(feedTick, 2500); feedTick();
+}
+function pauseFeed(){ const f = state.feed; f.on = false; clearInterval(f.timer); f.timer = null; logEvent('sys', '관측 일시정지'); render(); }
+const EV_KO = { rogue:'발견', ai:'AI', block:'차단', register:'등재', content:'검사', scan:'대조', sys:'상태' };
+function renderActivity(){
+  const feed = $('#act-feed'), act = $('#act-ai'); if (!feed || !act) return;
+  const lines = state.feed.lines.slice(-9);
+  feed.innerHTML = lines.length ? lines.map(l => `<div class="fl">${esc(l)}</div>`).join('') : '<div class="none">수신 없음</div>';
+  const evs = state.events.slice(-9).reverse();
+  act.innerHTML = evs.length ? evs.map(e => `<div class="ev ${e.kind}"><span class="t mono">${e.t}</span><span class="k">${EV_KO[e.kind]||e.kind}</span><span class="x">${esc(e.text)}</span></div>`).join('') : '<div class="none">기록 없음</div>';
 }
 
 /* ═══════════════ 등재 위저드 (살피 판정의 이식) ═══════════════ */
@@ -933,6 +1027,7 @@ function wizRegister(){
     pendingRisks: v.risks.length,
   });
   if (w.fromRogue != null) state.rogues = state.rogues.filter(r => r.host !== w.host);
+  logEvent('register', `${id} ${w.name} 등재, 판정 ${v.grade==='ok'?'적합':'조건부'}`);
   closeWizard(); render();
   toast(`${id} ${w.name} 등재됨, 위원회 상정 대기`, 'ok');
 }
@@ -1162,8 +1257,15 @@ function renderMap(){
         <div class="${ROGUES.length?'bad':''}"><b>${state.scanned ? ROGUES.length : '-'}</b><span>미등록 연결</span></div>
         <div><b>${detects}</b><span>위반 탐지</span></div>
       </div>
-      <button class="act ${state.scanned?'ghost2':''}" onclick="state.tab='logs'; render()">${state.scanned ? '다시 대조' : '로그 대조 실행'}</button>
+      ${state.feed.on
+        ? `<button class="act ghost2" onclick="pauseFeed()">일시정지</button>`
+        : `<button class="act" onclick="startFeed()">${state.feed.started ? '관측 재개' : '데모 실행'}</button>`}
     </div>
+    ${state.feed.started ? `<div class="obsbar">
+      <span class="st ${state.feed.on?'on':''}"><i></i>${state.feed.on ? '관측 중' : '일시정지'}</span>
+      <span id="obs-nums" class="nums"></span>
+      <span class="src" id="obs-src"></span>
+    </div>` : ''}
     <div class="mapwrap">
       <svg class="map" viewBox="0 0 ${W} ${H}" width="100%">${base}${edges}${flows}${out}${chips}</svg>
       <div class="maplegend">
@@ -1173,6 +1275,16 @@ function renderMap(){
       </div>
     </div>
     <div class="detail" id="detail"></div>
+    <div class="subgrid">
+      <div class="panel">
+        <div class="panel-hd"><span class="t">관측 피드</span><span class="r">최근 9줄</span></div>
+        <div class="feedbox" id="act-feed"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-hd"><span class="t">AI 활동</span><span class="r">${state.detReady ? 'Kanana-2-3B' : 'AI 미연결'}</span></div>
+        <div class="actbox" id="act-ai"></div>
+      </div>
+    </div>
     <div class="subgrid">
       <div class="panel">
         <div class="panel-hd"><span class="t">다가오는 의무</span></div>
@@ -1196,6 +1308,7 @@ function renderMap(){
     showDetail(v.startsWith('R-') ? v : (LEDGER.find(c=>c.id===v) ? v : 'R-'+state.rogues.findIndex(r=>r.host===v)));
   }));
   document.querySelectorAll('[data-act="scan"]').forEach(el => el.addEventListener('click', () => { state.tab='logs'; render(); }));
+  renderActivity(); renderObs();
   if (state.sel) showDetail(state.sel);
 }
 function showDetail(sel){
@@ -1235,7 +1348,7 @@ function quickBlock(host){
   const r = state.rogues.find(x => x.host === host); if (!r) return;
   state.blocked.push({ host, kind: r.cls.kind, reason: r.cls.risk });
   state.rogues = state.rogues.filter(x => x.host !== host);
-  state.sel = null; render();
+  state.sel = null; logEvent('block', `${host} 차단 확정`); render();
   toast(`${host} 차단 확정`, 'bad');
 }
 
@@ -1296,6 +1409,7 @@ function renderLogs(){
     const rec = reconcile($('#logbox').value);
     state.rogues = rec.rogues; state.scanned = true;
     state.lastScan = new Date().toTimeString().slice(0,5);
+    logEvent('scan', `수동 대조: 목적지 ${rec.rows.length}곳, 미등록 ${rec.rogues.length}건`);
     renderStrip(); renderTabs();
     $('#result').innerHTML = renderLogResult(rec);
     toast(`대조 완료: 목적지 ${rec.rows.length}곳, 미등록 ${rec.rogues.length}건`, rec.rogues.length ? 'bad' : 'ok');
@@ -1406,7 +1520,12 @@ function aiEvent(ev){
     row.querySelector('.ms').textContent = (ev.ms/1000).toFixed(1) + 's';
     $('#ai-prog').style.width = Math.round(ev.i/ev.total*100) + '%';
   }
+  if (ev.type === 'result') {
+    ev.accepted.forEach(a => logEvent('content', `AI 판정 창 ${ev.i}/${ev.total} 채택: ${a.label==='combined'?'결합 위반':a.label==='unique_id'?'고유식별정보':'식별정보'}`));
+    ev.dropped.forEach(d => logEvent('content', `AI 판정 창 ${ev.i}/${ev.total} 폐기: ${DROP_KO[d.reason]||d.reason}`));
+  }
   if (ev.type === 'done') {
+    logEvent('content', `AI 판정 완료, 창 ${ev.windows}개, 채택 ${ev.accepted}건, 폐기 ${ev.dropped}건`);
     $('#ai-stat').textContent = `창 ${ev.windows}개 판정 완료, 채택 ${ev.accepted}건, 검증 폐기 ${ev.dropped}건`;
     $('#ai-prog').style.width = '100%';
   }

@@ -412,8 +412,37 @@
     return { hits: confirm(ruleHits.concat(heuristicCombine(text))), mode: 'heuristic' };
   }
 
+  // 미확인 목적지 분류. 관측 사실만 주고 종류와 위험을 JSON으로 받는다. 출력은 길이와 문자만 검증
+  const CLASSIFY_PROMPT = `너는 금융회사 망분리 경계 관제 담당자다. 내부 업무망에서 승인 대장에 없는 외부 목적지로 연결이 관측됐다.
+도메인 이름으로 서비스 종류를 판단하고 위험을 한 문장으로 쓴다.
+종류는 다음 중 하나만 고른다: 생성형 AI 서비스, 협업 SaaS, 메신저, 원격제어 도구, 개인 클라우드 저장소, 파일 전송, 소셜 미디어, 광고 추적, 미분류
+saas_like는 업무용 SaaS로 등재 검토가 가능한 종류(협업 SaaS, 메신저, 생성형 AI 서비스, 개인 클라우드 저장소)면 true, 아니면 false.
+
+예시
+도메인: slack.com → {"kind": "협업 SaaS", "saas_like": true, "risk": "승인 없이 쓰는 협업 도구. 대화와 파일로 고객 정보가 나갈 수 있음"}
+도메인: teamviewer.com → {"kind": "원격제어 도구", "saas_like": false, "risk": "외부에서 내부 단말을 조작할 수 있는 원격제어. 원격접속 요건 미충족"}
+도메인: gemini.google.com → {"kind": "생성형 AI 서비스", "saas_like": true, "risk": "입력한 업무 문서가 외부 AI 학습에 쓰일 수 있음"}
+도메인: drive.google.com → {"kind": "개인 클라우드 저장소", "saas_like": true, "risk": "승인되지 않은 파일 반출 통로"}
+도메인: box.com → {"kind": "개인 클라우드 저장소", "saas_like": true, "risk": "개인 계정으로 업무 파일이 외부 저장소에 쌓일 수 있음"}
+도메인: wetransfer.com → {"kind": "파일 전송", "saas_like": false, "risk": "대용량 파일을 외부로 보내는 통로"}
+
+반드시 JSON 한 개만 출력한다. 형식: {"kind": "...", "saas_like": true 또는 false, "risk": "60자 이내 한 문장"}`;
+  async function llmClassifyHost(host, obs, opts) {
+    const o = Object.assign({}, DEFAULT_LLM, opts || {});
+    const input = `도메인: ${host}\n관측: 접속 ${obs.count}회, 단말 ${obs.devices}대, 포트 ${obs.ports.join(',')}`;
+    const out = await fetchJSON(llmBase(o) + '/api/generate', {
+      model: o.model, prompt: CLASSIFY_PROMPT + '\n\n' + input + '\n출력:', format: 'json', stream: false,
+      options: { temperature: 0, num_predict: 256 },
+    }, o.timeoutMs);
+    let j; try { j = JSON.parse(out.response); } catch (e) { return null; }
+    const clean = v => String(v || '').replace(/[<>]/g, '').trim();
+    const kind = clean(j.kind).slice(0, 20), risk = clean(j.risk).slice(0, 120);
+    if (!kind || !risk || kind === '미분류') return null;
+    return { kind, saasLike: !!j.saas_like, risk, ai: true };
+  }
+
   return {
-    scan, ruleScan, heuristicCombine, llmCombine, llmAvailable, confirm,
+    scan, ruleScan, heuristicCombine, llmCombine, llmClassifyHost, llmAvailable, confirm,
     rrnValid, luhnValid, verifyFinding, splitUnits,
     SYSTEM_PROMPT, DEFAULT_LLM, CREDIT_KW, NAME_PAT, findNames,
   };
