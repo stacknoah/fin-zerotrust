@@ -125,10 +125,11 @@
   .panel-bd { padding: 16px 20px; }
 
   /* ── 6. KPI 스탯 카드 (shadcn) ── */
-  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(168px, 1fr)); gap: var(--sp-16); margin-bottom: var(--sp-16); }
-  .stat { background: var(--panel); border-radius: var(--radius); box-shadow: var(--shadow-card); padding: 16px 20px 14px; }
-  .stat .l { display: block; font-size: 14px; line-height: 20px; color: var(--muted); margin-bottom: 4px; white-space: nowrap; }
-  .stat b { display: block; font: 600 30px/36px var(--sans); color: var(--ink); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0; margin-bottom: var(--sp-16); padding: 6px 8px; }
+  .stat { padding: 12px 18px 10px; border-left: 1px solid var(--line); }
+  .stat:first-child { border-left: 0; }
+  .stat .l { display: block; font-size: 12.5px; line-height: 18px; color: var(--muted); margin-bottom: 2px; white-space: nowrap; }
+  .stat b { display: block; font: 600 28px/34px var(--sans); color: var(--ink); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
   .stat.bad b { color: var(--bad-fg); } .stat.warn b { color: var(--warn-fg); } .stat.ok b { color: var(--ok-fg); }
 
   .view { animation: fade 150ms var(--ease) both; }
@@ -182,7 +183,36 @@
   .status-dot.off::before { background: #8792a2; }
 
   /* ── 지도: 18. 파랑은 선택 전용 ── */
-  svg.map { display: block; width: 100%; }
+  /* 홈: 판정 한 줄 + 어두운 무대 */
+  .hero { display: flex; align-items: center; gap: 28px; padding: 2px 2px 14px; }
+  .verdict { display: flex; align-items: center; gap: 14px; min-width: 0; }
+  .verdict .vd { width: 14px; height: 14px; border-radius: 50%; background: var(--disabled); box-shadow: 0 0 0 4px rgba(135,146,162,.18); flex: none; }
+  .verdict.bad .vd { background: #e5484d; box-shadow: 0 0 0 4px rgba(229,72,77,.22); animation: vpulse 1.6s ease-in-out infinite; }
+  .verdict.ok .vd { background: #2da44e; box-shadow: 0 0 0 4px rgba(45,164,78,.22); }
+  @keyframes vpulse { 50% { box-shadow: 0 0 0 8px rgba(229,72,77,.08); } }
+  .verdict .vk { font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing: .02em; }
+  .verdict .vt { font: 700 28px/34px var(--sans); letter-spacing: -0.02em; color: var(--ink); white-space: nowrap; }
+  .verdict.bad .vt { color: var(--bad-fg); } .verdict.ok .vt { color: var(--ok-fg); }
+  .verdict .vs { font-size: 13px; color: var(--body); margin-top: 1px; }
+  .hstats { display: flex; margin-left: auto; }
+  .hstats div { padding: 0 20px; border-left: 1px solid var(--line); }
+  .hstats div:first-child { border-left: 0; }
+  .hstats b { display: block; font: 600 24px/28px var(--sans); letter-spacing: -0.02em; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .hstats span { font-size: 12px; color: var(--muted); white-space: nowrap; }
+  .hstats .warn b { color: var(--warn-fg); } .hstats .bad b { color: var(--bad-fg); }
+  .hero button.act { height: 40px; padding: 0 18px; font-weight: 600; flex: none; }
+  .mapwrap { position: relative; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-card);
+    background: radial-gradient(ellipse 70% 60% at 50% 0%, #15396b 0%, #0c2447 55%, #081b36 100%); animation: rise 420ms var(--ease) both; }
+  .mapwrap::before { content: ""; position: absolute; inset: 0; pointer-events: none;
+    background-image: radial-gradient(rgba(255,255,255,.10) 1px, transparent 1.3px); background-size: 26px 26px; }
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } }
+  .mapwrap .maplegend { border-top: 1px solid rgba(255,255,255,.08); color: #9fb3cb; position: relative; }
+  .mapwrap .maplegend i { border-top-color: rgba(170,193,224,.7); }
+  .mapwrap .maplegend .s i { border-top-color: #ffb547; } .mapwrap .maplegend .r i { border-top-color: #ff5a5f; }
+  .mapwrap .maplegend .d em.ok { background: #3ddc84; } .mapwrap .maplegend .d em.soon { background: #ffb547; } .mapwrap .maplegend .d em.over { background: #ff5a5f; }
+  .mapwrap .maplegend .live { margin-left: auto; display: flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 11.5px; color: #7fa6d8; }
+  .mapwrap .maplegend .live i { width: 7px; height: 7px; border-radius: 50%; border: 0; background: #3ddc84; box-shadow: 0 0 8px #3ddc84; animation: blink 1.4s ease-in-out infinite; }
+  svg.map { display: block; width: 100%; position: relative; padding: 6px 10px 0; }
   svg.map text { font-family: var(--sans); }
   .zone-frame { fill: none; stroke: #cdd5df; stroke-width: 1; stroke-dasharray: 4 4; }
   .zone-frame.ghost { stroke: #dbe3ec; }
@@ -550,6 +580,28 @@
     .view, .modal, .ai-row { animation: none; }
     * { transition: none !important; }
   }
+  /* ── 홈 무대: 어두운 캔버스 위 밝은 요소 ── */
+  .flow { fill: #d6e6ff; filter: drop-shadow(0 0 3px #8fb8ff); }
+  .mapwrap .zone-frame { stroke: rgba(255,255,255,.24); }
+  .mapwrap .zone-title { fill: rgba(255,255,255,.74); }
+  .mapwrap .zone-frame.ghost { stroke: rgba(255,255,255,.18); }
+  .mapwrap .zone-title.ghost { fill: rgba(255,255,255,.48); }
+  .mapwrap .ghost-t { fill: rgba(255,255,255,.5); } .mapwrap .ghost-t.ok { fill: #7ee3a9; }
+  .mapwrap .svgbtn rect { fill: #ffffff; } .mapwrap .svgbtn:hover rect { fill: #e6eefb; } .mapwrap .svgbtn text { fill: #0a2540; }
+  .mapwrap .bzone { fill: #edf3fa; stroke: rgba(143,184,255,.9); }
+  .mapwrap .node { stroke: none; filter: drop-shadow(0 2px 6px rgba(0,0,0,.35)); transition: filter var(--t), fill var(--t); }
+  .mapwrap .node:hover { filter: drop-shadow(0 4px 12px rgba(0,0,0,.45)); }
+  .mapwrap .node.sel { stroke: #8fb8ff; stroke-width: 2.5; }
+  .mapwrap .node.rogue { fill: #fff3f3; stroke: #ff5a5f; stroke-width: 1.2; animation: rpulse 2.2s ease-in-out infinite; }
+  @keyframes rpulse { 50% { fill: #ffe0e1; } }
+  .mapwrap .ndot.ok { fill: #2da44e; } .mapwrap .ndot.soon { fill: #f0a63a; } .mapwrap .ndot.over { fill: #e5484d; }
+  .mapwrap .core-box { stroke: none; filter: drop-shadow(0 12px 30px rgba(0,0,0,.45)); }
+  .mapwrap .edge { stroke: rgba(190,208,232,.55); }
+  .mapwrap .edge.soon { stroke: #ffb547; filter: drop-shadow(0 0 5px rgba(255,181,71,.6)); }
+  .mapwrap .edge.over, .mapwrap .edge.rogue { stroke: #ff5a5f; filter: drop-shadow(0 0 5px rgba(255,90,95,.6)); }
+  .mapwrap .edge:hover { stroke: #e3edfb; }
+  .mapwrap .edge.sel { stroke: #8fb8ff; filter: drop-shadow(0 0 6px rgba(143,184,255,.75)); }
+  .mapwrap .chip.soon { stroke: #f0a63a; } .mapwrap .chip.over, .mapwrap .chip.rogue { stroke: #ff5a5f; }
 </style>
 </head>
 <body>
@@ -1003,7 +1055,7 @@ function renderMap(){
   const core = { x:495, y:292, w:260, h:128 };
   // 내부 업무망 경계. 통로 선이 이 경계를 뚫고 지나가는 구도
   const bz = { x: core.x-72, y: core.y-60, w: core.w+144, h: core.h+120 };
-  let out='', edges='', chips='';
+  let out='', edges='', chips='', flows='', flowN=0;
 
   const daysTo = due => { const p=due.split('-').map(Number); return Math.ceil((new Date(p[0],p[1]-1,p[2]||28) - new Date())/86400000); };
   const stOf = c => { const n=daysTo(c.review.due); return n<0?'over':(c.review.soon||n<=45)?'soon':'ok'; };
@@ -1032,7 +1084,10 @@ function renderMap(){
     const p0={x:x1,y:y1}, p3={x:x2,y:y2};
     const p1 = horiz ? {x:x1+(x2>x1?70:-70), y:y1} : {x:x1, y:y1+(y2>y1?60:-60)};
     const p2 = horiz ? {x:x2+(x2>x1?-70:70), y:y2} : {x:x2, y:y2+(y2>y1?-60:60)};
-    edges += `<path class="edge ${kind} ${sel?'sel':''}" d="M ${x1} ${y1} C ${p1.x} ${p1.y}, ${p2.x} ${p2.y}, ${x2} ${y2}" data-sel="${key}"></path>`;
+    const d = `M ${x1} ${y1} C ${p1.x} ${p1.y}, ${p2.x} ${p2.y}, ${x2} ${y2}`;
+    edges += `<path class="edge ${kind} ${sel?'sel':''}" d="${d}" data-sel="${key}"></path>`;
+    if (kind !== 'rogue') { const n = flowN++;
+      flows += `<circle class="flow" r="2.4"><animateMotion dur="${(3.4 + (n%4)*0.55).toFixed(2)}s" begin="-${(n*0.9).toFixed(1)}s" repeatCount="indefinite" path="${d}"/></circle>`; }
     // 선이 경계를 통과하는 지점에 통로 라벨
     let cp = null, tc = .5;
     for (let i=0;i<=80;i++){ if (inBz(bez(p0,p1,p2,p3,i/80))) { tc=i/80; break; } }
@@ -1110,23 +1165,28 @@ function renderMap(){
     ${coreRow(114, '마지막 대조', state.lastScan || '없음', state.lastScan?'':'dim')}`;
 
   const dueList = LEDGER.filter(c => c.review.soon);
-  $('#main').innerHTML = `<section class="view">
-    <div class="pagehead">
-      <div class="tx">
-        <h2 class="q">경계 지도</h2>
-        <p class="qsub">내부업무망에 연결된 승인 통로 전체입니다. 통로를 클릭하면 승인 근거와 통제 내역이 표시됩니다.
-        ${state.scanned ? '<b>붉은 점선은 대장에 없는 연결</b>입니다.' : '로그 대조를 실행하면 대장에 없는 연결이 지도에 표시됩니다.'}</p>
+  const saasDue = LEDGER.filter(c => c.review.soon && c.review.type.includes('반기')).length;
+  const reviewDue = LEDGER.filter(c => c.review.soon && !c.review.type.includes('반기')).length;
+  const detects = Object.values(state.contentLog).reduce((n,a)=>n+a.length,0);
+  const verdict = !state.scanned
+    ? { cls:'', t:'경계 실측 전', s:'승인 장부 기준의 지도입니다. 로그 대조를 실행하면 실제 트래픽과 비교됩니다' }
+    : ROGUES.length
+    ? { cls:'bad', t:`경계 불일치, 미등록 ${ROGUES.length}건`, s:'대장에 없는 연결이 관측되고 있습니다. 아래에서 판정 또는 차단으로 조치하세요' }
+    : { cls:'ok', t:'경계 일치', s:`관측된 모든 연결이 승인 통로입니다${state.lastScan ? '. 마지막 대조 ' + state.lastScan : ''}` };
+  $('#main').innerHTML = `<section class="view home">
+    <div class="hero">
+      <div class="verdict ${verdict.cls}"><span class="vd"></span><div><div class="vk">망분리 경계 상태</div><div class="vt">${verdict.t}</div><div class="vs">${verdict.s}</div></div></div>
+      <div class="hstats">
+        <div><b>${LEDGER.length}</b><span>승인 통로</span></div>
+        <div class="${saasDue?'warn':''}"><b>${saasDue}</b><span>반기 평가 예정</span></div>
+        <div class="${reviewDue?'warn':''}"><b>${reviewDue}</b><span>재승인 필요</span></div>
+        <div class="${ROGUES.length?'bad':''}"><b>${state.scanned ? ROGUES.length : '-'}</b><span>미등록 연결</span></div>
+        <div><b>${detects}</b><span>위반 탐지</span></div>
       </div>
+      <button class="act ${state.scanned?'ghost2':''}" onclick="state.tab='logs'; render()">${state.scanned ? '다시 대조' : '로그 대조 실행'}</button>
     </div>
-    <div class="panel">
-      <div class="panel-hd"><span class="t">망분리 경계 실측도</span><span class="r">${new Date().toISOString().slice(0,10)} 기준</span></div>
-      ${!state.scanned
-        ? `<div class="mapstatus idle"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="#8792a2" stroke-width="1.3"/><path d="M8 7.5V11M8 5.2h.01" stroke="#8792a2" stroke-width="1.3" stroke-linecap="round"/></svg>승인 장부 기준의 지도입니다. 로그 대조를 실행하면 실제 트래픽과의 일치 여부가 여기에 표시됩니다.</div>`
-        : ROGUES.length
-        ? `<div class="mapstatus bad"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 2.2 1.8 13.5h12.4z" stroke="#e5484d" stroke-width="1.3" stroke-linejoin="round"/><path d="M8 6.8v3M8 12h.01" stroke="#e5484d" stroke-width="1.3" stroke-linecap="round"/></svg><b>경계 불일치</b>대장에 없는 연결 ${ROGUES.length}건이 관측되고 있습니다. 지도 아래에서 판정 또는 차단으로 조치하세요.</div>`
-        : `<div class="mapstatus ok"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="#2da44e" stroke-width="1.4"/><path d="M5.2 8.2l2 2 3.6-4" stroke="#2da44e" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><b>경계 일치</b>관측된 모든 연결이 승인 통로입니다.${state.lastScan ? ' 마지막 대조 ' + state.lastScan : ''}</div>`}
-      <div style="padding:4px 12px 0">
-      <svg class="map" viewBox="0 0 ${W} ${H}" width="100%">${edges}${out}${chips}</svg></div>
+    <div class="mapwrap">
+      <svg class="map" viewBox="0 0 ${W} ${H}" width="100%">${edges}${flows}${out}${chips}</svg>
       <div class="maplegend">
         <span><i></i>승인 통로</span>
         <span class="s"><i></i>점검 임박 통로</span>
@@ -1134,6 +1194,7 @@ function renderMap(){
         <span class="d"><em class="ok"></em>기한 정상</span>
         <span class="d"><em class="soon"></em>점검 임박</span>
         <span class="d"><em class="over"></em>기한 경과</span>
+        <span class="live"><i></i>${state.scanned ? '관측 중, 마지막 대조 ' + state.lastScan : '승인 통로 관측 중'}</span>
       </div>
     </div>
     <div class="detail" id="detail"></div>
@@ -1454,6 +1515,9 @@ function renderReport(){
 
 function render(){
   renderStrip(); renderTabs();
+  const home = state.tab === 'map';
+  $('#strip').style.display = home ? 'none' : '';
+  $('#crumb').style.display = home ? 'none' : '';
   ({ map:renderMap, ledger:renderLedger, logs:renderLogs, content:renderContent, report:renderReport })[state.tab]();
 }
 
