@@ -77,7 +77,65 @@ export function LandingPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1200px] px-6 py-20">
+
+      {/* 로컬 AI: 무엇을 하고 왜 사내에서 도는지 */}
+      <section className="mx-auto mt-24 grid max-w-[1200px] grid-cols-[5fr_6fr] items-center gap-14 px-6">
+        <div>
+          <h2 className="text-[34px] font-semibold leading-[1.2] tracking-[-0.02em] text-ink">추론은 망 안에서 끝납니다</h2>
+          <p className="mt-4 text-[15px] leading-[1.7] text-faint">
+            망분리 환경에서는 로그와 문서를 외부 AI API로 보낼 수 없습니다.
+            그래서 살피의 추론은 사내에서 도는 소형 모델 <span className="font-mono text-body">Kanana 2 3B</span>가 합니다.
+          </p>
+          <ul className="mt-6">
+            {[
+              ['목적지 분류', '처음 보는 도메인이 무슨 서비스인지 분류합니다'],
+              ['위험 서술', '왜 위험한지 한 문장으로 설명합니다'],
+              ['결합 탐지', '이름과 신용정보가 한 문맥에 묶인 구간을 지목합니다'],
+            ].map(([t, d]) => (
+              <li key={t} className="flex items-baseline gap-3 border-t border-[rgba(19,23,34,.07)] py-3 text-[14px] first:border-t-0">
+                <b className="w-[86px] shrink-0 font-semibold text-ink">{t}</b><span className="text-faint">{d}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-4 text-[13px] text-dim">AI는 후보를 낼 뿐, 위반 확정은 검증 규칙이 합니다</p>
+        </div>
+        <div className="surface-float overflow-hidden">
+          <div className="flex items-center gap-2.5 px-5 pt-4 pb-3">
+            <span className="text-[14px] font-semibold text-ink">AI 판정 실황</span>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-card px-2.5 py-0.5 font-mono text-[10.5px] text-body shadow-[var(--shadow-ring)]"><i className="size-1.5 rounded-full bg-ok" />Kanana 2 3B, 로컬 추론</span>
+            <span className="ml-auto text-[12px] text-faint">구간 3개, 채택 1건, 폐기 2건</span>
+          </div>
+          <div className="h-[3px] bg-primary/90" />
+          <div className="px-5 pt-1 pb-2">
+            {[
+              ['1/3', '박지현 고객 주택담보대출 연체 3개월 경과 건. 연락처 010-4821-7733.', '결합 위반', 'bad', '1.2s'],
+              ['2/3', '정해나 고객 재방문 상담 진행. 해당 고객은 신용대출 상환 지연 이력이', '근거 밖 이름 지목, 폐기', 'gray', '0.7s'],
+              ['3/3', '해당 고객은 신용대출 상환 지연 이력이 있음. 사내 워크숍 일정 공유.', '결합 요소 불명, 폐기', 'gray', '0.6s'],
+            ].map(([i, chunk, verdict, tone, ms]) => (
+              <div key={i} className="grid grid-cols-[30px_1fr_auto_36px] items-center gap-3 border-t border-[rgba(19,23,34,.06)] py-2.5 first:border-t-0">
+                <span className="font-mono text-[11px] text-dim nums">{i}</span>
+                <span className="truncate font-mono text-[11.5px] text-body">{chunk}</span>
+                {tone === 'bad'
+                  ? <span className="inline-flex h-[22px] items-center rounded-full bg-bad-bg px-2.5 text-[11.5px] font-medium whitespace-nowrap text-bad-fg">{verdict}</span>
+                  : <span className="inline-flex h-[22px] items-center rounded-full border border-[rgba(19,23,34,.16)] px-2.5 text-[11.5px] font-medium whitespace-nowrap text-faint">{verdict}</span>}
+                <span className="text-right font-mono text-[11px] text-dim nums">{ms}</span>
+              </div>
+            ))}
+          </div>
+          <div className="border-t border-[rgba(19,23,34,.06)] px-5 py-4">
+            <div className="mb-1.5 text-[11.5px] font-medium text-faint">원문 판정</div>
+            <p className="text-[13.5px] leading-[24px] text-ink">
+              1. <mark className="rounded-[2px]" style={{ background: 'linear-gradient(transparent 45%, #ffd9d6 45%)', color: 'inherit' }}>박지현 고객 주택담보대출 연체 3개월 경과 건. 연락처 010-4821-7733.</mark><br />
+              2. 신규 상품 한도 정책은 다음 회의에서 확정.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-[1200px] px-6 pt-24 pb-20">
+        <p className="mx-auto mb-14 max-w-[680px] text-center text-[22px] font-semibold leading-[1.5] tracking-[-0.01em] text-ink">
+          발견에서 끝나는 도구와 다릅니다.<br /><span className="font-normal text-faint">발견한 연결을 제2조의3 요건으로 판정해 등재, 차단, 반기 보고까지 잇습니다.</span>
+        </p>
         <div className="grid grid-cols-3">
           {[
             { t: '로그 대조', d: '방화벽 로그에 찍힌 목적지를 승인 대장과 맞춰봅니다. 대장에 있으면 통과, 없으면 미승인으로 처리합니다.' },
@@ -90,11 +148,6 @@ export function LandingPage() {
               <p className="mt-2 text-[14px] leading-[1.7] text-faint">{f.d}</p>
             </div>
           ))}
-        </div>
-        <div className="mt-16 flex items-center justify-center gap-3 text-[12px] text-dim">
-          <span className="inline-flex items-center gap-2 rounded-full bg-card px-3.5 py-1.5 text-body shadow-[var(--shadow-ring)]"><i className="size-1.5 rounded-full bg-primary" /><span className="font-mono">Kanana 2 3B</span> 로컬 추론</span>
-          <span className="inline-flex items-center gap-2 rounded-full bg-card px-3.5 py-1.5 text-body shadow-[var(--shadow-ring)]"><i className="size-1.5 rounded-full bg-primary" />규칙과 AI의 3층 탐지</span>
-          <span className="inline-flex items-center gap-2 rounded-full bg-card px-3.5 py-1.5 text-body shadow-[var(--shadow-ring)]"><i className="size-1.5 rounded-full bg-primary" />합성 데이터 데모</span>
         </div>
       </section>
 
