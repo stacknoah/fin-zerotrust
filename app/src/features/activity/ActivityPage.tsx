@@ -41,16 +41,11 @@ export function ActivityPage() {
             {evs.length ? evs.map(e => <EventRow key={e.id} e={e} full />) : <div className="px-5 py-3 text-[13px] text-dim">기록 없음{f !== 'all' && `, ${FILTERS.find(x => x.key === f)?.label} 유형`}</div>}
           </div>
         </Panel>
-        <section className="overflow-hidden rounded-[14px] bg-[#131722] shadow-[var(--shadow-card)]">
-          <header className="flex items-center gap-2.5 px-5 pt-4 pb-3 text-white">
-            <span className="text-[14px] font-semibold">관측 피드</span>
-            <span className="font-mono text-[12px] text-white/40 nums">{lines.length}줄</span>
-            <span className="ml-auto text-[11.5px] text-white/40">데모 피드(합성){feed.last ? `, 마지막 수신 ${feed.last}` : ''}</span>
-          </header>
-          <div className="max-h-[560px] min-h-[200px] overflow-auto px-5 pt-1 pb-4 font-mono text-[11.5px] leading-[21px] text-white/70">
-            {lines.length ? lines.map((l, i) => <FeedLine key={i} l={l} ledger={ledger} />) : <div className="text-[12.5px] text-white/40">수신 없음. 데모를 실행하면 합성 피드가 들어옵니다</div>}
+        <Panel title="관측 피드" count={`${lines.length}줄`} right={`데모 피드(합성)${feed.last ? `, 마지막 수신 ${feed.last}` : ''}`}>
+          <div className="max-h-[560px] min-h-[200px] overflow-auto px-5 pt-1 pb-4 font-mono text-[11.5px] leading-[21px]">
+            {lines.length ? lines.map((l, i) => <FeedLine key={i} l={l} ledger={ledger} />) : <div className="text-[12.5px] text-dim">수신 없음. 데모를 실행하면 합성 피드가 들어옵니다</div>}
           </div>
-        </section>
+        </Panel>
       </div>
     </div>
   )

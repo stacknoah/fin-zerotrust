@@ -76,15 +76,15 @@ function Ticker() {
   )
 }
 
-/* 관측 피드 한 줄. 어두운 패널 전용 */
+/* 관측 피드 한 줄 */
 export function FeedLine({ l, ledger }: { l: string; ledger: { domains: string[] }[] }) {
   const m = l.match(/^(\S+ \S+) SRC=(\S+) HOST=(\S+) DPT=(\S+) ACTION=(\S+)/)
-  if (!m) return <div className="truncate text-white/60">{l}</div>
+  if (!m) return <div className="truncate text-faint">{l}</div>
   const known = ledger.some(c => c.domains.some(d => m[3] === d || m[3].endsWith('.' + d)))
   return (
     <div className="flex gap-4 whitespace-nowrap">
-      <span className="w-[62px] shrink-0 text-white/40">{m[1].slice(11)}</span><span className="w-[88px] shrink-0 text-white/55">{m[2]}</span>
-      <span className={cn('w-[170px] shrink-0 truncate', known ? 'text-[#9ec0ff]' : 'text-[#ff9a93]')}>{m[3]}</span><span className="w-[44px] shrink-0 text-white/40">:{m[4]}</span><span className="truncate text-white/40">{m[5]}</span>
+      <span className="w-[62px] shrink-0 text-dim">{m[1].slice(11)}</span><span className="w-[88px] shrink-0 text-faint">{m[2]}</span>
+      <span className={cn('w-[170px] shrink-0 truncate font-medium', known ? 'text-body' : 'text-bad-fg')}>{m[3]}</span><span className="w-[44px] shrink-0 text-dim">:{m[4]}</span><span className="truncate text-dim">{m[5]}</span>
     </div>
   )
 }
@@ -108,17 +108,17 @@ function ActivityPanels() {
   const nav = useNavigate()
   const lines = feed.lines.slice(-6)
   const evs = events.slice(-5).reverse()
-  const Head = ({ t, dark }: { t: string; dark?: boolean }) => (
-    <button onClick={() => nav('/activity')} className={cn('flex w-full items-center gap-2.5 px-5 pt-4 pb-3 text-left', dark ? 'text-white' : 'text-ink')}>
-      <span className="text-[14px] font-semibold">{t}</span><span className={cn('ml-auto inline-flex items-center gap-0.5 text-[12.5px] font-medium', dark ? 'text-white/50' : 'text-faint')}>전체 보기<IconArrowRight className="size-3.5" stroke={1.75} /></span>
+  const Head = ({ t }: { t: string }) => (
+    <button onClick={() => nav('/activity')} className="flex w-full items-center gap-2.5 px-5 pt-4 pb-3 text-left text-ink">
+      <span className="text-[14px] font-semibold">{t}</span><span className="ml-auto inline-flex items-center gap-0.5 text-[12.5px] font-medium text-faint">전체 보기<IconArrowRight className="size-3.5" stroke={1.75} /></span>
     </button>
   )
   return (
     <div className="mt-4 grid grid-cols-[7fr_5fr] gap-4">
-      <section className="overflow-hidden rounded-[14px] bg-[#131722] shadow-[var(--shadow-card)]">
-        <Head t="관측 피드" dark />
+      <section className="surface overflow-hidden">
+        <Head t="관측 피드" />
         <div className="min-h-[150px] px-5 pt-1 pb-4 font-mono text-[11.5px] leading-[21px]">
-          {lines.length ? lines.map((l, i) => <FeedLine key={i} l={l} ledger={ledger} />) : <div className="text-[12.5px] text-white/40">수신 없음. 데모를 실행하면 합성 피드가 들어옵니다</div>}
+          {lines.length ? lines.map((l, i) => <FeedLine key={i} l={l} ledger={ledger} />) : <div className="text-[12.5px] text-dim">수신 없음. 데모를 실행하면 합성 피드가 들어옵니다</div>}
         </div>
       </section>
       <section className="surface overflow-hidden">

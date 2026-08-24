@@ -44,7 +44,7 @@ function Search() {
   ].slice(0, 8)
   const go = (id: string) => { setOpen(false); setQ(''); setSel(id); nav('/map') }
   return (
-    <div className="relative w-[250px]">
+    <div className="relative w-[clamp(140px,15vw,250px)] shrink">
       <IconSearch className="pointer-events-none absolute top-1/2 left-2.5 size-[15px] -translate-y-1/2 text-dim" stroke={1.75} />
       <input ref={ref} value={q} onChange={e => { setQ(e.target.value); setOpen(true) }} onFocus={() => setOpen(true)} onBlur={() => setTimeout(() => setOpen(false), 150)}
         placeholder="통로, 도메인 검색" autoComplete="off"
@@ -70,10 +70,10 @@ function AIStatus() {
   const probe = useStore(s => s.probeAI)
   useEffect(() => { probe(); const t = setInterval(probe, 30000); return () => clearInterval(t) }, [probe])
   return (
-    <span className="inline-flex h-8 items-center gap-2 rounded-full bg-card pr-3 pl-2.5 text-[12.5px] font-medium text-body shadow-[var(--shadow-ring)]">
+    <span className="inline-flex h-8 shrink-0 items-center gap-2 rounded-full bg-card pr-3 pl-2.5 text-[12.5px] font-medium whitespace-nowrap text-body shadow-[var(--shadow-ring)]" title={`Kanana 2 3B ${window.SALPI_LLM_ENDPOINT ? '원격' : '로컬'}`}>
       <span className={cn('size-1.5 rounded-full', detReady ? 'bg-ok' : 'bg-dim')} />
       {detReady ? 'AI 연결됨' : 'AI 미연결'}
-      <span className="font-mono text-[11px] font-normal text-dim">Kanana 2 3B {window.SALPI_LLM_ENDPOINT ? '원격' : '로컬'}</span>
+      <span className="font-mono text-[11px] font-normal text-dim max-[1560px]:hidden">Kanana 2 3B {window.SALPI_LLM_ENDPOINT ? '원격' : '로컬'}</span>
     </span>
   )
 }
@@ -81,7 +81,7 @@ function AIStatus() {
 function Tab({ to, t, Icon, badge }: { to: string; t: string; Icon: typeof IconSearch; badge?: number }) {
   return (
     <NavLink to={to} end={to === '/map'} className={({ isActive }) => cn('inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-[13px] font-medium whitespace-nowrap transition-colors duration-150', isActive ? 'bg-[rgba(19,23,34,.06)] text-ink' : 'text-faint hover:bg-[rgba(19,23,34,.04)] hover:text-ink')}>
-      <Icon className="size-[15px]" stroke={1.6} />{t}
+      <Icon className="size-[15px] max-[1460px]:hidden" stroke={1.6} />{t}
       {badge ? <b className="ml-0.5 rounded-full bg-bad px-1.5 text-[10.5px] font-semibold leading-4 text-white nums">{badge}</b> : null}
     </NavLink>
   )
@@ -95,16 +95,16 @@ export function Shell() {
   return (
     <div className="min-h-dvh">
       <header className="sticky top-0 z-40 bg-[rgba(247,248,250,.92)] backdrop-blur-md">
-        <div className="mx-auto flex h-[60px] max-w-[1440px] items-center gap-3 px-8">
+        <div className="mx-auto flex h-[60px] max-w-[1440px] flex-nowrap items-center gap-3 px-8 max-[1200px]:gap-2 max-[1200px]:px-5">
           <button onClick={() => { setSel(null); nav('/map') }} className="mr-3 flex items-center gap-2 text-[15px] font-semibold tracking-tight text-ink">
             <Mark className="size-[22px]" />살피
           </button>
-          <nav className="flex items-center gap-0.5">
+          <nav className="flex shrink-0 items-center gap-0.5">
             {TABS.map(t => <Tab key={t.to} {...t} badge={t.to === '/logs' ? rogues.length : 0} />)}
             <span className="mx-2 h-4 w-px bg-[rgba(19,23,34,.1)]" />
             <Tab to="/workbench" t="판정 워크벤치" Icon={IconChecklist} />
           </nav>
-          <span className="ml-auto flex items-center gap-2.5">
+          <span className="ml-auto flex min-w-0 items-center gap-2.5">
             <Search />
             <AIStatus />
             <button onClick={logout} title="로그아웃" className="ml-1 inline-flex size-8 items-center justify-center rounded-full bg-ink text-[12px] font-semibold text-white transition hover:opacity-80">페</button>
