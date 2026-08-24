@@ -26,8 +26,7 @@ export function ActivityPage() {
   const counts = (ks: EventKind[] | null) => ks ? events.filter(e => ks.includes(e.kind)).length : events.length
   return (
     <div className="view-in">
-      <PageHeader title="활동 기록" crumb="활동 기록" lead="발견, 분류, 조치의 감사 추적. 반기 보고의 증적이 됩니다"
-        actions={feed.on ? <Button variant="outline" onClick={pauseFeed}>일시정지</Button> : <Button onClick={startFeed}>{feed.started ? '관측 재개' : '데모 실행'}</Button>} />
+      <PageHeader title="활동 기록" crumb="활동 기록"  actions={feed.on ? <Button variant="outline" onClick={pauseFeed}>일시정지</Button> : <Button onClick={startFeed}>{feed.started ? '관측 재개' : '데모 실행'}</Button>} />
       <div className="grid grid-cols-[7fr_5fr] items-start gap-4">
         <Panel title="AI 활동" right={detReady ? <span className="font-mono text-[11px]">Kanana 2 3B</span> : 'AI 미연결'}>
           <div className="flex gap-1.5 px-5 pb-3">

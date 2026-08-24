@@ -18,7 +18,7 @@ export function LedgerPage() {
   const Th = ({ children, cls }: { children?: React.ReactNode; cls?: string }) => <TableHead className={cn('h-10 text-[12px] font-medium text-faint', cls)}>{children}</TableHead>
   return (
     <div className="view-in">
-      <PageHeader title="연결 대장" crumb="연결 대장" lead="승인 대장에 오른 연결 전체와 새로 발견된 미등록 연결" actions={<Button onClick={() => open({ name: '새 SaaS' })}>SaaS 연결 등재</Button>} />
+      <PageHeader title="연결 대장" crumb="연결 대장" actions={<Button onClick={() => open({ name: '새 SaaS' })}>SaaS 연결 등재</Button>} />
       <Panel className="overflow-hidden">
         <Table>
           <TableHeader><TableRow className="hover:bg-transparent">

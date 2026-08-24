@@ -5,7 +5,6 @@ import { BoundaryMap } from '@/features/map/BoundaryMap'
 import { Button } from '@/components/ui/button'
 import { Pill, DDay, Empty, MonoCode } from '@/components/salpi'
 import { useWizard } from '@/features/wizard/RegisterDialog'
-import { today } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { IconShieldCheck, IconArrowRight, IconPlayerPlay, IconPlayerPause, IconX } from '@tabler/icons-react'
 
@@ -24,7 +23,6 @@ function Head() {
   return (
     <div className="flex items-end gap-6 pb-5">
       <div>
-        <div className="mb-2 font-mono text-[11px] tracking-[.02em] text-dim">망분리 경계 상태 {today()}{scanned && <>, 마지막 대조 {lastScan}</>}</div>
         <h1 className="text-[30px] font-semibold leading-9 tracking-[-0.025em] text-ink">
           <span className={cn('mr-3 inline-block size-2.5 -translate-y-[3px] rounded-full', tone === 'bad' ? 'bg-bad' : tone === 'ok' ? 'bg-ok' : 'bg-dim', feed.on && tone !== 'idle' && 'breathe')} />
           {tone === 'idle' ? <>경계 실측 전<span className="font-normal text-dim">, 데모를 실행하면 관측이 시작됩니다</span></>
