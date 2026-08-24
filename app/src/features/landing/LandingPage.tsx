@@ -49,11 +49,11 @@ export function LandingPage() {
       <section className="mx-auto max-w-[1200px] px-6 pt-12 text-center">
         <div className="inline-flex h-7 items-center gap-2 rounded-full bg-card px-3.5 text-[12px] font-medium text-faint shadow-[var(--shadow-ring)]"><i className="size-1.5 rounded-full bg-primary" />전자금융감독규정 시행세칙 제2조의3</div>
         <h1 className="mx-auto mt-6 max-w-[860px] text-[54px] font-semibold leading-[1.12] tracking-[-0.032em] text-ink">
-          망을 넘는 모든 연결을 관측하고,<br /><span><span className="text-[#c4302b]">미승인 연결</span>은 잡아서 증적으로 남깁니다</span>
+          망을 넘는 모든 연결을 관측하고,<br /><span><span className="text-[#c4302b]">미승인 연결</span>은 증적으로 남깁니다</span>
         </h1>
         <p className="mx-auto mt-5 max-w-[600px] text-[17px] leading-[1.65] text-faint">
-          방화벽 로그를 승인 대장과 실시간 대조합니다. 미승인 목적지는
-          사내 AI가 분류하고, 발견부터 판정, 차단까지 전 과정이 증적으로 남습니다.
+          방화벽 로그를 승인 대장과 실시간 대조합니다. 미승인 목적지는 사내 AI가 분류하고,
+          발견부터 판정, 차단까지의 증적으로 반기 보고서가 바로 나옵니다.
         </p>
         <div className="mt-8 flex items-center justify-center">
           <button onClick={enter} className="inline-flex h-11 items-center gap-1.5 rounded-full bg-ink px-6 text-[15px] font-medium text-white transition hover:bg-ink/90">
