@@ -16,7 +16,7 @@ const STEPS = ['대상 선택', '데이터 성격', 'L1 시스템 필드', 'L2 �
 function Seg<T extends string>({ value, options, onChange }: { value: T; options: [T, string][]; onChange: (v: T) => void }) {
   return (
     <span className="inline-flex rounded-md border bg-card p-0.5">
-      {options.map(([k, t]) => <button key={k} type="button" onClick={() => onChange(k)} className={cn('h-7 rounded px-2.5 text-[12.5px] transition', value === k ? 'bg-[rgba(19,23,34,.08)] font-semibold text-ink' : 'text-body hover:text-ink')}>{t}</button>)}
+      {options.map(([k, t]) => <button key={k} type="button" onClick={() => onChange(k)} className={cn('h-7 rounded px-2.5 text-[12.5px] transition', value === k ? 'bg-accent font-semibold text-primary' : 'text-body hover:text-ink')}>{t}</button>)}
     </span>
   )
 }

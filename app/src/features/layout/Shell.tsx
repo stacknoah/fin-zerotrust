@@ -14,7 +14,7 @@ export function Mark({ className }: { className?: string }) {
 
 const TABS = [
   { to: '/map', t: '경계 지도', Icon: IconTopologyStar3 },
-  { to: '/ledger', t: '통로 대장', Icon: IconListDetails },
+  { to: '/ledger', t: '연결 대장', Icon: IconListDetails },
   { to: '/logs', t: '로그 대조', Icon: IconGitCompare },
   { to: '/content', t: '내용 검사', Icon: IconFileSearch },
   { to: '/report', t: '반기 보고', Icon: IconReport },
@@ -47,7 +47,7 @@ function Search() {
     <div className="relative w-[clamp(140px,15vw,250px)] shrink">
       <IconSearch className="pointer-events-none absolute top-1/2 left-2.5 size-[15px] -translate-y-1/2 text-dim" stroke={1.75} />
       <input ref={ref} value={q} onChange={e => { setQ(e.target.value); setOpen(true) }} onFocus={() => setOpen(true)} onBlur={() => setTimeout(() => setOpen(false), 150)}
-        placeholder="통로, 도메인 검색" autoComplete="off"
+        placeholder="연결, 도메인 검색" autoComplete="off"
         className="h-8 w-full rounded-full bg-card pr-9 pl-8 text-[13px] text-ink shadow-[var(--shadow-ring)] outline-none transition placeholder:text-dim focus:shadow-[0_0_0_1px_rgba(33,87,209,.6)]" />
       <kbd className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 rounded border bg-muted px-1 font-mono text-[10px] text-dim">/</kbd>
       {open && ql && (
@@ -80,7 +80,7 @@ function AIStatus() {
 
 function Tab({ to, t, Icon, badge }: { to: string; t: string; Icon: typeof IconSearch; badge?: number }) {
   return (
-    <NavLink to={to} end={to === '/map'} className={({ isActive }) => cn('inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-[13px] font-medium whitespace-nowrap transition-colors duration-150', isActive ? 'bg-[rgba(19,23,34,.06)] text-ink' : 'text-faint hover:bg-[rgba(19,23,34,.04)] hover:text-ink')}>
+    <NavLink to={to} end={to === '/map'} className={({ isActive }) => cn('inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-[13px] font-medium whitespace-nowrap transition-colors duration-150', isActive ? 'bg-accent text-primary' : 'text-faint hover:bg-[rgba(19,23,34,.04)] hover:text-ink')}>
       <Icon className="size-[15px] max-[1460px]:hidden" stroke={1.6} />{t}
       {badge ? <b className="ml-0.5 rounded-full bg-bad px-1.5 text-[10.5px] font-semibold leading-4 text-white nums">{badge}</b> : null}
     </NavLink>

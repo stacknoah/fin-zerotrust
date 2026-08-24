@@ -32,7 +32,7 @@ export function ActivityPage() {
         <Panel title="AI 활동" right={detReady ? <span className="font-mono text-[11px]">Kanana 2 3B</span> : 'AI 미연결'}>
           <div className="flex gap-1.5 px-5 pb-3">
             {FILTERS.map(x => (
-              <button key={x.key} onClick={() => setF(x.key)} className={cn('inline-flex h-7 items-center gap-1.5 rounded-full px-3 text-[12.5px] font-medium transition-colors', f === x.key ? 'bg-[rgba(19,23,34,.08)] font-semibold text-ink' : 'text-faint hover:bg-[rgba(19,23,34,.05)] hover:text-ink')}>
+              <button key={x.key} onClick={() => setF(x.key)} className={cn('inline-flex h-7 items-center gap-1.5 rounded-full px-3 text-[12.5px] font-medium transition-colors', f === x.key ? 'bg-accent font-semibold text-primary' : 'text-faint hover:bg-[rgba(19,23,34,.05)] hover:text-ink')}>
                 {x.label}<span className={cn('font-mono text-[11px] nums', 'text-dim')}>{counts(x.kinds)}</span>
               </button>
             ))}

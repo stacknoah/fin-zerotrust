@@ -29,7 +29,7 @@ function Head() {
           <span className={cn('mr-3 inline-block size-2.5 -translate-y-[3px] rounded-full', tone === 'bad' ? 'bg-bad' : tone === 'ok' ? 'bg-ok' : 'bg-dim', feed.on && tone !== 'idle' && 'breathe')} />
           {tone === 'idle' ? <>경계 실측 전<span className="font-normal text-dim">, 데모를 실행하면 관측이 시작됩니다</span></>
             : tone === 'bad' ? <>경계 불일치<span className="font-normal text-dim">, 승인 대장에 없는 연결 <span className="font-semibold text-bad-fg nums">{rogues.length}건</span></span></>
-            : <>경계 일치<span className="font-normal text-dim">, 관측된 연결 전부 승인 통로</span></>}
+            : <>경계 일치<span className="font-normal text-dim">, 관측된 연결 전부 승인 연결</span></>}
         </h1>
       </div>
       <div className="ml-auto flex items-center gap-2">
@@ -60,7 +60,7 @@ function Ticker() {
         <i className={cn('size-[7px] rounded-full', feed.on ? 'bg-ok breathe' : feed.started ? 'bg-warn' : 'bg-dim')} />{feed.on ? '관측 중' : feed.started ? '일시정지' : '대기'}
       </span>
       <span className="h-4 w-px bg-[rgba(19,23,34,.1)]" />
-      <Item l="승인 통로" n={ledger.length} />
+      <Item l="승인 연결" n={ledger.length} />
       <Item l="반기 평가 예정" n={saasDue} />
       <Item l="재승인 필요" n={reviewDue} />
       <Item l="미등록 연결" n={scanned ? rogues.length : '-'} tone={rogues.length ? 'text-bad-fg' : ''} />
@@ -84,7 +84,7 @@ export function FeedLine({ l, ledger }: { l: string; ledger: { domains: string[]
   return (
     <div className="flex gap-4 whitespace-nowrap">
       <span className="w-[62px] shrink-0 text-dim">{m[1].slice(11)}</span><span className="w-[88px] shrink-0 text-faint">{m[2]}</span>
-      <span className={cn('w-[170px] shrink-0 truncate font-medium', known ? 'text-body' : 'text-bad-fg')}>{m[3]}</span><span className="w-[44px] shrink-0 text-dim">:{m[4]}</span><span className="truncate text-dim">{m[5]}</span>
+      <span className={cn('w-[170px] shrink-0 truncate font-medium', known ? 'text-primary' : 'text-bad-fg')}>{m[3]}</span><span className="w-[44px] shrink-0 text-dim">:{m[4]}</span><span className="truncate text-dim">{m[5]}</span>
     </div>
   )
 }
@@ -182,12 +182,12 @@ function Detail() {
       <div className="flex items-center gap-3 px-6 pt-5 pb-3">
         <span className={cn('inline-flex size-8 items-center justify-center rounded-lg text-[13px] font-semibold', c.zone === 'saas' ? 'bg-accent text-primary' : 'bg-[rgba(19,23,34,.06)] text-body')}>{c.name.replace(/^NHN |^Microsoft /, '')[0]}</span>
         <span className="text-[16px] font-semibold text-ink">{c.name}</span><span className="font-mono text-[12px] text-dim">{c.id}</span><Pill>{c.type}</Pill>
-        <span className="ml-auto flex items-center gap-2"><DDay due={c.review.due} />{c.zone === 'saas' && <Button size="sm" variant="outline" className="h-8 px-3.5" onClick={() => nav('/content?target=' + c.id)}>이 통로 내용 검사</Button>}<Close /></span>
+        <span className="ml-auto flex items-center gap-2"><DDay due={c.review.due} />{c.zone === 'saas' && <Button size="sm" variant="outline" className="h-8 px-3.5" onClick={() => nav('/content?target=' + c.id)}>이 연결 내용 검사</Button>}<Close /></span>
       </div>
       <div className="grid grid-cols-[1fr_1fr] gap-x-10 px-6 pb-5">
         <dl className="grid grid-cols-[96px_1fr] gap-x-5 gap-y-2 text-[13.5px]">
           <dt className="text-faint">근거 조문</dt><dd className="text-ink">{c.basis}</dd>
-          <dt className="text-faint">연결</dt><dd className="text-ink"><MonoCode>{c.domains.join(', ')} :{c.ports}</MonoCode> <span className="ml-1">{c.dir}</span></dd>
+          <dt className="text-faint">도메인</dt><dd className="text-ink"><MonoCode>{c.domains.join(', ')} :{c.ports}</MonoCode> <span className="ml-1">{c.dir}</span></dd>
           <dt className="text-faint">승인</dt><dd className="text-ink">{c.approved}</dd>
         </dl>
         <dl className="grid grid-cols-[96px_1fr] gap-x-5 gap-y-2 text-[13.5px]">

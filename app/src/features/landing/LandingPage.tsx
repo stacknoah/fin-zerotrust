@@ -49,11 +49,11 @@ export function LandingPage() {
       <section className="mx-auto max-w-[1200px] px-6 pt-12 text-center">
         <div className="inline-flex h-7 items-center gap-2 rounded-full bg-card px-3.5 text-[12px] font-medium text-faint shadow-[var(--shadow-ring)]"><i className="size-1.5 rounded-full bg-primary" />전자금융감독규정 시행세칙 제2조의3</div>
         <h1 className="mx-auto mt-6 max-w-[860px] text-[54px] font-semibold leading-[1.12] tracking-[-0.032em] text-ink">
-          망분리 경계를 넘는 모든 연결,<br /><span><span className="text-primary">승인 대장</span>과 대조합니다</span>
+          승인 없이 경계를 넘는 연결,<br /><span>지도에 <span className="text-[#c4302b]">빨갛게</span> 뜹니다</span>
         </h1>
         <p className="mx-auto mt-5 max-w-[600px] text-[17px] leading-[1.65] text-faint">
-          외부기관, 원격접속, 재택근무, SaaS 예외 통로를 한 장부로 관리하고
-          장부에 없는 연결은 내부에서 도는 소형 AI가 찾아 분류합니다.
+          망분리 예외가 늘어날수록 구멍도 늘어납니다. 살피는 방화벽 로그를
+          승인 대장과 실시간 대조하고, 정체 모를 목적지는 사내 AI가 분류합니다.
         </p>
         <div className="mt-8 flex items-center justify-center">
           <button onClick={enter} className="inline-flex h-11 items-center gap-1.5 rounded-full bg-ink px-6 text-[15px] font-medium text-white transition hover:bg-ink/90">
@@ -73,7 +73,7 @@ export function LandingPage() {
           <BoundaryMap data={data} compact />
           <div className="flex items-center gap-4 border-t border-[rgba(19,23,34,.06)] px-5 py-2.5 text-[12px] text-faint">
             <span className="flex items-center gap-2 font-medium text-ink"><i className="size-[7px] rounded-full bg-ok breathe" />관측 중</span>
-            <span>방화벽 로그가 들어올 때마다 점 하나가 통로를 지나갑니다</span>
+            <span>방화벽 로그가 들어올 때마다 점 하나가 선을 따라 흐릅니다</span>
             <span className="ml-auto font-mono text-[11px] text-dim">합성 데이터</span>
           </div>
         </div>

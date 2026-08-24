@@ -85,7 +85,7 @@ export function TeleworkPage() {
         <Panel title={c.name} count={<span className="font-mono text-[12px]">{c.id}</span>} right={<DDay due={c.review.due} />}>
           <dl className="grid grid-cols-[84px_1fr] gap-x-4 gap-y-2 px-5 pb-5 text-[13px]">
             <dt className="text-faint">근거 조문</dt><dd className="text-ink">{c.basis}</dd>
-            <dt className="text-faint">연결</dt><dd className="text-ink"><MonoCode>{c.domains.join(', ')} :{c.ports}</MonoCode></dd>
+            <dt className="text-faint">도메인</dt><dd className="text-ink"><MonoCode>{c.domains.join(', ')} :{c.ports}</MonoCode></dd>
             <dt className="text-faint">방향</dt><dd className="text-ink">{c.dir}</dd>
             <dt className="text-faint">승인</dt><dd className="text-ink">{c.approved}</dd>
             <dt className="text-faint">적용 통제</dt><dd className="text-ink">{c.controls}</dd>

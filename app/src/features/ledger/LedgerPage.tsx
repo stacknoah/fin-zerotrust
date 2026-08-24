@@ -18,11 +18,11 @@ export function LedgerPage() {
   const Th = ({ children, cls }: { children?: React.ReactNode; cls?: string }) => <TableHead className={cn('h-10 text-[12px] font-medium text-faint', cls)}>{children}</TableHead>
   return (
     <div className="view-in">
-      <PageHeader title="통로 대장" crumb="통로 대장" lead="승인된 예외 통로 전체와 발견된 미등록 연결" actions={<Button onClick={() => open({ name: '새 SaaS' })}>SaaS 통로 등재</Button>} />
+      <PageHeader title="연결 대장" crumb="연결 대장" lead="승인 대장에 오른 연결 전체와 새로 발견된 미등록 연결" actions={<Button onClick={() => open({ name: '새 SaaS' })}>SaaS 연결 등재</Button>} />
       <Panel className="overflow-hidden">
         <Table>
           <TableHeader><TableRow className="hover:bg-transparent">
-            <Th cls="w-[21%] pl-5">통로</Th><Th cls="w-[10%]">유형</Th><Th cls="w-[14%]">근거 조문</Th><Th cls="w-[19%]">연결</Th><Th cls="w-[10%]">승인</Th><Th>다음 의무</Th><Th cls="w-[11%]" />
+            <Th cls="w-[21%] pl-5">연결</Th><Th cls="w-[10%]">유형</Th><Th cls="w-[14%]">근거 조문</Th><Th cls="w-[19%]">도메인</Th><Th cls="w-[10%]">승인</Th><Th>다음 의무</Th><Th cls="w-[11%]" />
           </TableRow></TableHeader>
           <TableBody>
             {rogues.map(r => (

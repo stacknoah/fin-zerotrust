@@ -42,7 +42,7 @@ export function ReportPage() {
           {blocked.length > 0 && <tr><Td>차단 확정</Td><Td>{blocked.length}</Td></tr>}
         </tbody></table>
         <h4 className="mt-5 mb-1.5 text-[12pt] font-bold">2. SaaS 반기 자체평가 (제4항)와 내용검사 증적</h4>
-        <table className="w-full border-collapse"><thead><tr><Th>통로</Th><Th>적용 통제</Th><Th>내용검사 기록</Th><Th>기한</Th></tr></thead><tbody>
+        <table className="w-full border-collapse"><thead><tr><Th>연결</Th><Th>적용 통제</Th><Th>내용검사 기록</Th><Th>기한</Th></tr></thead><tbody>
           {saas.map(c => <tr key={c.id}><Td>{c.id} {c.name}</Td><Td cls="text-[8.5pt]">{c.controls}</Td><Td>{contentCount(contentLog, c.id)}건 (마스킹 저장)</Td><Td>{c.review.due}</Td></tr>)}
         </tbody></table>
         <h4 className="mt-5 mb-1.5 text-[12pt] font-bold">3. 미등록 연결 발견과 조치</h4>

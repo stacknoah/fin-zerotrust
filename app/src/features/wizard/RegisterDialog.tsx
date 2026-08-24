@@ -106,7 +106,7 @@ export function RegisterDialog() {
   return (
     <Dialog open onOpenChange={o => { if (!o) close() }}>
       <DialogContent className="max-w-[640px] p-6">
-        <DialogTitle className="text-[17px] font-semibold text-ink">SaaS 통로 등재 판정</DialogTitle>
+        <DialogTitle className="text-[17px] font-semibold text-ink">SaaS 연결 등재 판정</DialogTitle>
         <DialogDescription className="text-[12.5px] text-faint">시행세칙 제2조의3 제1항 제3호 적격 검토. <Link to="/workbench" className="text-primary">전체 워크벤치</Link></DialogDescription>
         <div className="my-3 flex gap-1.5">
           {STEPS.map((s, i) => (
