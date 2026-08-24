@@ -11,31 +11,28 @@ import { IconShieldCheck, IconArrowRight, IconPlayerPlay, IconPlayerPause, IconX
 export const EV_KO: Record<EventKind, string> = { rogue: '발견', ai: 'AI', block: '차단', register: '등재', content: '검사', scan: '대조', sys: '상태', tele: '재택' }
 export const EV_TONE: Record<EventKind, string> = { rogue: 'text-bad-fg', ai: 'text-primary', block: 'text-bad-fg', register: 'text-ok-fg', content: 'text-primary', scan: 'text-faint', sys: 'text-faint', tele: 'text-warn-fg' }
 
-/* 머리: 한 문장 판정과 실행 버튼 */
-function Head() {
+/* 지도 위 판정 칩과 실행 버튼 */
+function MapHud() {
   const rogues = useStore(s => s.rogues)
   const scanned = useStore(s => s.scanned)
-  const lastScan = useStore(s => s.lastScan)
   const feed = useStore(s => s.feed)
   const startFeed = useStore(s => s.startFeed)
   const pauseFeed = useStore(s => s.pauseFeed)
   const tone = !scanned ? 'idle' : rogues.length ? 'bad' : 'ok'
   return (
-    <div className="flex items-end gap-6 pb-5">
-      <div>
-        <h1 className="text-[30px] font-semibold leading-9 tracking-[-0.025em] text-ink">
-          <span className={cn('mr-3 inline-block size-2.5 -translate-y-[3px] rounded-full', tone === 'bad' ? 'bg-bad' : tone === 'ok' ? 'bg-ok' : 'bg-dim', feed.on && tone !== 'idle' && 'breathe')} />
-          {tone === 'idle' ? <>경계 실측 전<span className="font-normal text-dim">, 데모를 실행하면 관측이 시작됩니다</span></>
-            : tone === 'bad' ? <>경계 불일치<span className="font-normal text-dim">, 승인 대장에 없는 연결 <span className="font-semibold text-bad-fg nums">{rogues.length}건</span></span></>
-            : <>경계 일치<span className="font-normal text-dim">, 관측된 연결 전부 승인 연결</span></>}
-        </h1>
-      </div>
-      <div className="ml-auto flex items-center gap-2">
+    <>
+      <span className="absolute top-4 left-4 z-10 flex h-9 items-center gap-2.5 rounded-full bg-card pr-4 pl-3.5 shadow-[var(--shadow-float)]">
+        <i className={cn('size-2 rounded-full', tone === 'bad' ? 'bg-bad' : tone === 'ok' ? 'bg-ok' : 'bg-dim', feed.on && tone !== 'idle' && 'breathe')} />
+        <b className="text-[13.5px] font-semibold text-ink">{tone === 'idle' ? '관측 전' : tone === 'bad' ? '경계 불일치' : '경계 일치'}</b>
+        {tone === 'bad' && <span className="text-[12.5px] font-medium text-bad-fg">미승인 <span className="font-mono nums">{rogues.length}</span>건</span>}
+        {tone === 'ok' && <span className="text-[12.5px] text-faint">전부 승인 연결</span>}
+      </span>
+      <span className="absolute top-4 right-4 z-10">
         {feed.on
-          ? <Button variant="outline" className="h-10 px-4" onClick={pauseFeed}><IconPlayerPause className="size-4" stroke={1.75} />일시정지</Button>
-          : <Button className="h-10 px-5 text-[14px] font-medium" onClick={startFeed}><IconPlayerPlay className="size-4" stroke={1.75} />{feed.started ? '관측 재개' : '데모 실행'}</Button>}
-      </div>
-    </div>
+          ? <Button variant="outline" className="h-9 bg-card px-3.5 shadow-[var(--shadow-ring)]" onClick={pauseFeed}><IconPlayerPause className="size-4" stroke={1.75} />일시정지</Button>
+          : <Button className="h-9 px-4 shadow-[var(--shadow-float)]" onClick={startFeed}><IconPlayerPlay className="size-4" stroke={1.75} />{feed.started ? '관측 재개' : '데모 실행'}</Button>}
+      </span>
+    </>
   )
 }
 
@@ -229,9 +226,11 @@ function Bottom() {
 export function HomePage() {
   return (
     <div className="view-in">
-      <Head />
       <Ticker />
-      <BoundaryMap />
+      <div className="relative">
+        <MapHud />
+        <BoundaryMap />
+      </div>
       <Detail />
       <ActivityPanels />
       <Bottom />
