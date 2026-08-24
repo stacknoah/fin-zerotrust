@@ -86,10 +86,10 @@ export function FeedLine({ l, ledger }: { l: string; ledger: { domains: string[]
 
 export function EventRow({ e, full }: { e: { t: string; kind: EventKind; text: string }; full?: boolean }) {
   return (
-    <div className="grid grid-cols-[52px_44px_1fr] items-baseline gap-2.5 px-5 py-[6px] text-[12.5px] leading-[18px] text-body">
-      <span className="font-mono text-[11px] text-dim nums">{e.t}</span>
-      <span className={cn('inline-flex h-[18px] translate-y-[3px] items-center justify-center self-center rounded-full border text-[10.5px] font-medium', e.kind === 'rogue' || e.kind === 'block' ? 'border-[rgba(196,48,43,.35)] text-bad-fg' : e.kind === 'tele' ? 'border-[rgba(178,106,0,.4)] text-warn-fg' : e.kind === 'register' ? 'border-[rgba(26,127,55,.4)] text-ok-fg' : 'border-[rgba(19,23,34,.16)] text-faint')}>{EV_KO[e.kind]}</span>
-      <span className={cn('text-ink', !full && 'line-clamp-2')}>{e.text}</span>
+    <div className="grid grid-cols-[52px_44px_1fr] items-start gap-2.5 px-5 py-[6px] text-[12.5px] leading-5 text-body">
+      <span className="pt-px font-mono text-[11px] leading-[18px] text-dim nums">{e.t}</span>
+      <span className={cn('mt-px inline-flex h-[18px] items-center justify-center rounded-full border text-[10.5px] font-medium leading-none', e.kind === 'rogue' || e.kind === 'block' ? 'border-[rgba(196,48,43,.35)] text-bad-fg' : e.kind === 'tele' ? 'border-[rgba(178,106,0,.4)] text-warn-fg' : e.kind === 'register' ? 'border-[rgba(26,127,55,.4)] text-ok-fg' : 'border-[rgba(19,23,34,.16)] text-faint')}>{EV_KO[e.kind]}</span>
+      <span className={cn('leading-5 text-ink', !full && 'line-clamp-2')}>{e.text}</span>
     </div>
   )
 }
@@ -113,10 +113,10 @@ function ActivityPanels() {
       <section className="surface overflow-hidden">
         <Head t="관측 피드" />
         <div className="min-h-[150px] px-5 pt-1 pb-4 font-mono text-[11.5px] leading-[21px]">
-          {lines.length ? lines.map((l, i) => <FeedLine key={i} l={l} ledger={ledger} />) : <div className="text-[12.5px] text-dim">수신 없음. 데모를 실행하면 합성 피드가 들어옵니다</div>}
+          {lines.length ? lines.map((l, i) => <FeedLine key={i} l={l} ledger={ledger} />) : <div className="text-[12.5px] text-dim">수신 없음</div>}
         </div>
       </section>
-      <section className="surface overflow-hidden">
+      <section className="overflow-hidden rounded-[14px] bg-[#f7faff] shadow-[0_0_0_1px_rgba(33,87,209,.14),var(--shadow-card)]">
         <Head t="AI 활동" />
         <div className="min-h-[150px] pt-0.5 pb-2">
           {evs.length ? evs.map(e => <EventRow key={e.id} e={e} />) : <div className="px-5 text-[12.5px] text-dim">기록 없음{detReady ? '' : ', AI 미연결'}</div>}

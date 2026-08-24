@@ -38,7 +38,6 @@ export function LoginPage() {
           )}
         </div>
       </div>
-      <p className="absolute bottom-8 left-1/2 -translate-x-1/2 text-center text-xs text-dim">합성 데이터 기반 데모. 법적 판단을 대행하지 않습니다</p>
     </div>
   )
 }

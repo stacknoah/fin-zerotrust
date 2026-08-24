@@ -28,7 +28,7 @@ export function ActivityPage() {
     <div className="view-in">
       <PageHeader title="활동 기록" crumb="활동 기록"  actions={feed.on ? <Button variant="outline" onClick={pauseFeed}>일시정지</Button> : <Button onClick={startFeed}>{feed.started ? '관측 재개' : '데모 실행'}</Button>} />
       <div className="grid grid-cols-[7fr_5fr] items-start gap-4">
-        <Panel title="AI 활동" right={detReady ? <span className="font-mono text-[11px]">Kanana 2 3B</span> : 'AI 미연결'}>
+        <Panel title="AI 활동" right={detReady ? <span className="font-mono text-[11px]">Kanana 2 3B</span> : 'AI 미연결'} className="bg-[#f7faff] shadow-[0_0_0_1px_rgba(33,87,209,.14),var(--shadow-card)]">
           <div className="flex gap-1.5 px-5 pb-3">
             {FILTERS.map(x => (
               <button key={x.key} onClick={() => setF(x.key)} className={cn('inline-flex h-7 items-center gap-1.5 rounded-full px-3 text-[12.5px] font-medium transition-colors', f === x.key ? 'bg-accent font-semibold text-primary' : 'text-faint hover:bg-[rgba(19,23,34,.05)] hover:text-ink')}>
@@ -42,7 +42,7 @@ export function ActivityPage() {
         </Panel>
         <Panel title="관측 피드" count={`${lines.length}줄`} right={`데모 피드(합성)${feed.last ? `, 마지막 수신 ${feed.last}` : ''}`}>
           <div className="max-h-[560px] min-h-[200px] overflow-auto px-5 pt-1 pb-4 font-mono text-[11.5px] leading-[21px]">
-            {lines.length ? lines.map((l, i) => <FeedLine key={i} l={l} ledger={ledger} />) : <div className="text-[12.5px] text-dim">수신 없음. 데모를 실행하면 합성 피드가 들어옵니다</div>}
+            {lines.length ? lines.map((l, i) => <FeedLine key={i} l={l} ledger={ledger} />) : <div className="text-[12.5px] text-dim">수신 없음</div>}
           </div>
         </Panel>
       </div>

@@ -144,7 +144,7 @@ export const useStore = create<State>((set, get) => ({
     const s = get()
     if (!s.feed.started) {
       const ok = await get().probeAI()
-      get().logEvent('sys', ok ? 'AI 연결 확인, 미확인 목적지를 Kanana가 분류' : 'AI 미연결, 내장 분류로 동작')
+      get().logEvent('sys', ok ? 'AI 연결됨, 미확인 목적지는 Kanana가 분류' : 'AI 미연결, 내장 분류로 동작')
     }
     set(st => ({ feed: { ...st.feed, on: true, started: true } }))
     get().logEvent('sys', '관측 시작, 데모 피드(합성)')
@@ -177,7 +177,7 @@ export const useStore = create<State>((set, get) => ({
     const rogues = rec.rogues.map(r => { const prev = s.rogues.find(x => x.host === r.host); return prev ? { ...prev, info: r.info } : r })
     set({ feed: f, tele, rogues, scanned: true, lastScan: f.last.slice(0, 5), freshHosts: fresh.map(r => r.host), hitHosts: { id: ++hitSeq, hosts: hitHosts } })
     fresh.forEach(r => {
-      get().logEvent('rogue', `미등록 발견 ${r.host}, 단말 ${r.info.srcs.size}대, 포트 ${[...r.info.ports].join(',')}`)
+      get().logEvent('rogue', `미등록 연결 발견: ${r.host}, 단말 ${r.info.srcs.size}대, 포트 ${[...r.info.ports].join(',')}`)
       classifyRogue(r, get, set)
     })
   },
@@ -205,7 +205,7 @@ function teleTick(t: State['tele'], tick: number, logEvent: State['logEvent']): 
     next++
     if (forceFail || (tick > 30 && Math.random() < 0.12)) {
       sess.check = 'fail'; sess.checkNote = TELE_FAIL[Math.floor(Math.random() * TELE_FAIL.length)]
-      logEvent('tele', `재택 세션 단말 점검 미통과 ${sess.user}(${sess.dept}), ${sess.checkNote}`)
+      logEvent('tele', `재택 단말 점검 미통과: ${sess.user}(${sess.dept}), ${sess.checkNote}`)
     }
     sessions.push(sess)
   } else if (r > 0.84 && sessions.length > 12) {
@@ -224,11 +224,11 @@ async function classifyRogue(r: Rogue, get: () => State, set: (p: Partial<State>
   const live = get().rogues.find(x => x.host === r.host); if (!live) return
   if (out) {
     set(st => ({ rogues: st.rogues.map(x => x.host === r.host ? { ...x, cls: { ...(CLASSIFY[r.host] || {}), ...out! } } : x), feed: { ...st.feed, aiCount: st.feed.aiCount + 1 } }))
-    get().logEvent('ai', `${r.host} AI 분류 ${out.kind}${out.saasLike ? ' (SaaS형)' : ''}, ${out.risk} (${((performance.now() - t0) / 1000).toFixed(1)}s)`)
+    get().logEvent('ai', `${r.host} 분류: ${out.kind}${out.saasLike ? ' (SaaS형)' : ''}. ${out.risk} (${((performance.now() - t0) / 1000).toFixed(1)}s)`)
   } else {
     const cls = CLASSIFY[r.host] || UNKNOWN_CLS
     set(st => ({ rogues: st.rogues.map(x => x.host === r.host ? { ...x, cls: { ...cls } } : x) }))
-    get().logEvent('ai', `${r.host} AI 판단 보류(미분류), 내장 분류 ${cls.kind}`)
+    get().logEvent('ai', `${r.host} AI 판단 보류, 내장 분류로 ${cls.kind}`)
   }
 }
 

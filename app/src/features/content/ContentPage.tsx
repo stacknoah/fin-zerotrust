@@ -65,12 +65,12 @@ export function ContentPage() {
     if (ev.type === 'window') setLive(l => l ? { ...l, rows: [...l.rows, { i: ev.i, total: ev.total, chunk: ev.chunk }] } : l)
     if (ev.type === 'result') {
       setLive(l => l ? { ...l, rows: l.rows.map(r => r.i === ev.i ? { ...r, accepted: ev.accepted, dropped: ev.dropped, ms: ev.ms } : r) } : l)
-      ev.accepted.forEach(a => logEvent('content', `AI 판정 창 ${ev.i}/${ev.total} 채택: ${LABEL_KO(a.label)}`))
-      ev.dropped.forEach(d => logEvent('content', `AI 판정 창 ${ev.i}/${ev.total} 폐기: ${DROP_KO[d.reason] || d.reason}`))
+      ev.accepted.forEach(a => logEvent('content', `문서 ${ev.i}/${ev.total} 구간에서 ${LABEL_KO(a.label)} 확인`))
+      ev.dropped.forEach(d => logEvent('content', `문서 ${ev.i}/${ev.total} 구간 후보: ${DROP_KO[d.reason] || d.reason}`))
     }
     if (ev.type === 'done') {
       setLive(l => l ? { ...l, done: { accepted: ev.accepted, dropped: ev.dropped } } : l)
-      logEvent('content', `AI 판정 완료, 창 ${ev.windows}개, 채택 ${ev.accepted}건, 폐기 ${ev.dropped}건`)
+      logEvent('content', `정밀 검사 완료: 구간 ${ev.windows}개, 채택 ${ev.accepted}건, 폐기 ${ev.dropped}건`)
     }
   }
 
@@ -127,7 +127,7 @@ export function ContentPage() {
       </div>
 
       {live && detMode === 'hybrid' && (
-        <Panel className="mt-3.5" title="AI 판정 실황" count={<Pill>Kanana-2-3B {window.SALPI_LLM_ENDPOINT ? '원격' : '로컬'}</Pill>} right={live.done ? `창 ${live.windows}개 판정 완료, 채택 ${live.done.accepted}건, 검증 폐기 ${live.done.dropped}건` : `문서를 창 ${live.windows}개로 분할`}>
+        <Panel className="mt-3.5" title="AI 판정 실황" count={<Pill>Kanana-2-3B {window.SALPI_LLM_ENDPOINT ? '원격' : '로컬'}</Pill>} right={live.done ? `구간 ${live.windows}개 판정 완료, 채택 ${live.done.accepted}건, 검증 폐기 ${live.done.dropped}건` : `문서를 ${live.windows}개 구간으로 나눠 판정 중`}>
           <div className="px-5"><Progress value={live.done ? 100 : Math.round((live.rows.filter(r => r.ms != null).length / Math.max(live.windows, 1)) * 100)} className="h-1" /></div>
           <div className="px-5 pt-2 pb-3">
             {live.rows.map(r => (

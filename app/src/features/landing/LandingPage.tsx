@@ -52,8 +52,7 @@ export function LandingPage() {
           망을 넘는 모든 연결을 관측하고,<br /><span><span className="text-[#c4302b]">미승인 연결</span>은 증적으로 남깁니다</span>
         </h1>
         <p className="mx-auto mt-5 max-w-[600px] text-[17px] leading-[1.65] text-faint">
-          승인 대장과의 실시간 대조, 사내 AI의 목적지 분류.
-          발견부터 차단까지의 증적이 그대로 반기 보고서가 됩니다.
+          승인 대장과의 실시간 대조, 사내 AI의 목적지 분류.<br />발견부터 차단까지의 증적이 그대로 반기 보고서가 됩니다.
         </p>
         <div className="mt-8 flex items-center justify-center">
           <button onClick={enter} className="inline-flex h-11 items-center gap-1.5 rounded-full bg-ink px-6 text-[15px] font-medium text-white transition hover:bg-ink/90">
@@ -73,7 +72,6 @@ export function LandingPage() {
           <BoundaryMap data={data} compact />
           <div className="flex items-center gap-4 border-t border-[rgba(19,23,34,.06)] px-5 py-2.5 text-[12px] text-faint">
             <span className="flex items-center gap-2 font-medium text-ink"><i className="size-[7px] rounded-full bg-ok breathe" />관측 중</span>
-            <span>방화벽 로그가 들어올 때마다 점 하나가 선을 따라 흐릅니다</span>
             <span className="ml-auto font-mono text-[11px] text-dim">합성 데이터</span>
           </div>
         </div>
@@ -82,9 +80,9 @@ export function LandingPage() {
       <section className="mx-auto max-w-[1200px] px-6 py-20">
         <div className="grid grid-cols-3">
           {[
-            { t: '로그 대조', d: '방화벽 로그의 목적지를 승인 대장과 비교합니다. 집합 연산이라 같은 입력이면 언제나 같은 결과가 나오고, 장부에 없는 연결만 남습니다.' },
-            { t: '내용 검사', d: 'SaaS로 나가는 문서에서 고유식별정보와 신용정보의 결합을 찾습니다. 내부에서 도는 소형 AI가 후보를 내고, 결정적 규칙이 위반을 확정합니다.' },
-            { t: '반기 보고', d: '제2조의3 제4항 자체평가 초안을 장부와 검사 기록에서 바로 만듭니다. 예외 운영 현황, 조치 내역, 서명란까지 인쇄 그대로.' },
+            { t: '로그 대조', d: '방화벽 로그에 찍힌 목적지를 승인 대장과 맞춰봅니다. 대장에 있으면 통과, 없으면 미승인으로 처리합니다.' },
+            { t: '내용 검사', d: 'SaaS로 나가는 문서에서 고유식별정보와 신용정보의 결합을 찾습니다. 로컬 AI가 후보를 찾고, 검증 규칙이 위반을 확정합니다.' },
+            { t: '반기 보고', d: '제2조의3 제4항 자체평가 초안을 장부와 검사 기록에서 바로 만듭니다. 예외 운영 현황과 조치 내역이 채워진 문서를 그대로 인쇄해 제출할 수 있습니다.' },
           ].map((f, i) => (
             <div key={f.t} className={i > 0 ? 'border-l border-[rgba(19,23,34,.08)] pl-10' : 'pr-10'}>
               <div className="mb-2.5 font-mono text-[11.5px] font-medium text-dim">0{i + 1}</div>
@@ -103,7 +101,6 @@ export function LandingPage() {
       <footer className="border-t border-[rgba(19,23,34,.06)]">
         <div className="mx-auto flex h-14 max-w-[1200px] items-center px-6 text-[12px] text-dim">
           <span className="flex items-center gap-1.5"><Mark className="size-4" />살피</span>
-          <span className="ml-auto">합성 데이터 기반 데모. 법적 판단을 대행하지 않습니다</span>
         </div>
       </footer>
     </div>
