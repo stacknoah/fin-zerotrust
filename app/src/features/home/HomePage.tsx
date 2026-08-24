@@ -103,9 +103,9 @@ function ActivityPanels() {
   const nav = useNavigate()
   const lines = feed.lines.slice(-6)
   const evs = events.slice(-5).reverse()
-  const Head = ({ t }: { t: string }) => (
+  const Head = ({ t, extra }: { t: string; extra?: React.ReactNode }) => (
     <button onClick={() => nav('/activity')} className="flex w-full items-center gap-2.5 px-5 pt-4 pb-3 text-left text-ink">
-      <span className="text-[14px] font-semibold">{t}</span><span className="ml-auto inline-flex items-center gap-0.5 text-[12.5px] font-medium text-faint">전체 보기<IconArrowRight className="size-3.5" stroke={1.75} /></span>
+      <span className="text-[14px] font-semibold">{t}</span>{extra}<span className="ml-auto inline-flex items-center gap-0.5 text-[12.5px] font-medium text-faint">전체 보기<IconArrowRight className="size-3.5" stroke={1.75} /></span>
     </button>
   )
   return (
@@ -117,7 +117,9 @@ function ActivityPanels() {
         </div>
       </section>
       <section className="overflow-hidden rounded-[14px] bg-[#f7faff] shadow-[0_0_0_1px_rgba(33,87,209,.14),var(--shadow-card)]">
-        <Head t="AI 활동" />
+        <Head t="AI 활동" extra={detReady
+          ? <span className="inline-flex items-center gap-1.5 rounded-full bg-card px-2.5 py-0.5 font-mono text-[10.5px] text-body shadow-[var(--shadow-ring)]"><i className="size-1.5 rounded-full bg-ok" />Kanana 2 3B, {window.SALPI_LLM_ENDPOINT ? '원격' : '로컬'} 추론</span>
+          : <span className="inline-flex items-center gap-1.5 rounded-full bg-card px-2.5 py-0.5 font-mono text-[10.5px] text-faint shadow-[var(--shadow-ring)]"><i className="size-1.5 rounded-full bg-dim" />AI 미연결</span>} />
         <div className="min-h-[150px] pt-0.5 pb-2">
           {evs.length ? evs.map(e => <EventRow key={e.id} e={e} />) : <div className="px-5 text-[12.5px] text-dim">기록 없음{detReady ? '' : ', AI 미연결'}</div>}
         </div>

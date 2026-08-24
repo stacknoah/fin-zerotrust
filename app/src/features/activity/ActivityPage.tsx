@@ -28,7 +28,7 @@ export function ActivityPage() {
     <div className="view-in">
       <PageHeader title="활동 기록" crumb="활동 기록"  actions={feed.on ? <Button variant="outline" onClick={pauseFeed}>일시정지</Button> : <Button onClick={startFeed}>{feed.started ? '관측 재개' : '데모 실행'}</Button>} />
       <div className="grid grid-cols-[7fr_5fr] items-start gap-4">
-        <Panel title="AI 활동" right={detReady ? <span className="font-mono text-[11px]">Kanana 2 3B</span> : 'AI 미연결'} className="bg-[#f7faff] shadow-[0_0_0_1px_rgba(33,87,209,.14),var(--shadow-card)]">
+        <Panel title="AI 활동" right={detReady ? <span className="inline-flex items-center gap-1.5 font-mono text-[11px]"><i className="size-1.5 rounded-full bg-ok" />Kanana 2 3B, {window.SALPI_LLM_ENDPOINT ? '원격' : '로컬'} 추론</span> : 'AI 미연결'} className="bg-[#f7faff] shadow-[0_0_0_1px_rgba(33,87,209,.14),var(--shadow-card)]">
           <div className="flex gap-1.5 px-5 pb-3">
             {FILTERS.map(x => (
               <button key={x.key} onClick={() => setF(x.key)} className={cn('inline-flex h-7 items-center gap-1.5 rounded-full px-3 text-[12.5px] font-medium transition-colors', f === x.key ? 'bg-accent font-semibold text-primary' : 'text-faint hover:bg-[rgba(19,23,34,.05)] hover:text-ink')}>
