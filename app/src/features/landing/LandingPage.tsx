@@ -52,7 +52,7 @@ export function LandingPage() {
           망을 넘는 모든 연결을 관측하고,<br /><span><span className="text-[#c4302b]">미승인 연결</span>은 증적으로 남깁니다</span>
         </h1>
         <p className="mx-auto mt-5 max-w-[600px] text-[17px] leading-[1.65] text-faint">
-          승인 대장과의 실시간 대조, 사내 AI의 목적지 분류.<br />발견부터 차단까지의 증적이 그대로 반기 보고서가 됩니다.
+          발견에서 끝나는 도구와 다릅니다.<br />발견한 연결을 제2조의3 요건으로 판정해 등재, 차단, 반기 보고까지 잇습니다.
         </p>
         <div className="mt-8 flex items-center justify-center">
           <button onClick={enter} className="inline-flex h-11 items-center gap-1.5 rounded-full bg-ink px-6 text-[15px] font-medium text-white transition hover:bg-ink/90">
@@ -61,25 +61,8 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* 제품 실물: 경계 지도가 실제로 돈다 */}
-      <section className="mx-auto mt-11 max-w-[1200px] px-6">
-        <div className="overflow-hidden rounded-[16px] bg-card shadow-[var(--shadow-float)]">
-          <div className="flex items-center gap-2 border-b border-[rgba(19,23,34,.06)] px-4 py-2.5">
-            <span className="flex gap-1.5"><i className="size-2.5 rounded-full bg-[#e3e6ea]" /><i className="size-2.5 rounded-full bg-[#e3e6ea]" /><i className="size-2.5 rounded-full bg-[#e3e6ea]" /></span>
-            <span className="mx-auto flex h-6 items-center rounded-md bg-muted px-8 font-mono text-[11px] text-dim">salpi.pages.dev/map</span>
-            <span className="w-12" />
-          </div>
-          <BoundaryMap data={data} compact />
-          <div className="flex items-center gap-4 border-t border-[rgba(19,23,34,.06)] px-5 py-2.5 text-[12px] text-faint">
-            <span className="flex items-center gap-2 font-medium text-ink"><i className="size-[7px] rounded-full bg-ok breathe" />관측 중</span>
-            <span className="ml-auto font-mono text-[11px] text-dim">합성 데이터</span>
-          </div>
-        </div>
-      </section>
-
-
       {/* 로컬 AI: 무엇을 하고 왜 사내에서 도는지 */}
-      <section className="mx-auto mt-24 grid max-w-[1200px] grid-cols-[5fr_6fr] items-center gap-14 px-6">
+      <section className="mx-auto mt-20 grid max-w-[1200px] grid-cols-[5fr_6fr] items-center gap-14 px-6">
         <div>
           <h2 className="text-[34px] font-semibold leading-[1.2] tracking-[-0.02em] text-ink">추론은 망 안에서 끝납니다</h2>
           <p className="mt-4 text-[15px] leading-[1.7] text-faint">
@@ -132,24 +115,23 @@ export function LandingPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1200px] px-6 pt-24 pb-20">
-        <p className="mx-auto mb-14 max-w-[680px] text-center text-[22px] font-semibold leading-[1.5] tracking-[-0.01em] text-ink">
-          발견에서 끝나는 도구와 다릅니다.<br /><span className="font-normal text-faint">발견한 연결을 제2조의3 요건으로 판정해 등재, 차단, 반기 보고까지 잇습니다.</span>
-        </p>
-        <div className="grid grid-cols-3">
-          {[
-            { t: '로그 대조', d: '방화벽 로그에 찍힌 목적지를 승인 대장과 맞춰봅니다. 대장에 있으면 통과, 없으면 미승인으로 처리합니다.' },
-            { t: '내용 검사', d: 'SaaS로 나가는 문서에서 고유식별정보와 신용정보의 결합을 찾습니다. 로컬 AI가 후보를 찾고, 검증 규칙이 위반을 확정합니다.' },
-            { t: '반기 보고', d: '제2조의3 제4항 자체평가 초안을 장부와 검사 기록에서 바로 만듭니다. 예외 운영 현황과 조치 내역이 채워진 문서를 그대로 인쇄해 제출할 수 있습니다.' },
-          ].map((f, i) => (
-            <div key={f.t} className={i > 0 ? 'border-l border-[rgba(19,23,34,.08)] pl-10' : 'pr-10'}>
-              <div className="mb-2.5 font-mono text-[11.5px] font-medium text-dim">0{i + 1}</div>
-              <h3 className="text-[17px] font-semibold text-ink">{f.t}</h3>
-              <p className="mt-2 text-[14px] leading-[1.7] text-faint">{f.d}</p>
-            </div>
-          ))}
+      {/* 제품 실물: 경계 지도가 실제로 돈다 */}
+      <section className="mx-auto mt-24 max-w-[1200px] px-6 pb-24">
+        <div className="overflow-hidden rounded-[16px] bg-card shadow-[var(--shadow-float)]">
+          <div className="flex items-center gap-2 border-b border-[rgba(19,23,34,.06)] px-4 py-2.5">
+            <span className="flex gap-1.5"><i className="size-2.5 rounded-full bg-[#e3e6ea]" /><i className="size-2.5 rounded-full bg-[#e3e6ea]" /><i className="size-2.5 rounded-full bg-[#e3e6ea]" /></span>
+            <span className="mx-auto flex h-6 items-center rounded-md bg-muted px-8 font-mono text-[11px] text-dim">salpi.pages.dev/map</span>
+            <span className="w-12" />
+          </div>
+          <BoundaryMap data={data} compact />
+          <div className="flex items-center gap-4 border-t border-[rgba(19,23,34,.06)] px-5 py-2.5 text-[12px] text-faint">
+            <span className="flex items-center gap-2 font-medium text-ink"><i className="size-[7px] rounded-full bg-ok breathe" />관측 중</span>
+            <span className="ml-auto font-mono text-[11px] text-dim">합성 데이터</span>
+          </div>
         </div>
       </section>
+
+
 
       <footer className="border-t border-[rgba(19,23,34,.06)]">
         <div className="mx-auto flex h-14 max-w-[1200px] items-center px-6 text-[12px] text-dim">
