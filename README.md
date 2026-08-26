@@ -31,5 +31,4 @@ app/src/lib/engine.js   탐지 엔진. 규칙, 식별정보, 결합의 3층 구�
 extension/              크롬 확장 실험
 eval/                   탐지 재현율 측정 스크립트
 SPEC.md                 제품 명세
-디자인-연구.md           디자인 레퍼런스 실측과 처방
 ```
