@@ -66,8 +66,7 @@ export function LandingPage() {
         <div>
           <h2 className="text-[34px] font-semibold leading-[1.2] tracking-[-0.02em] text-ink">추론은 망 안에서 끝납니다</h2>
           <p className="mt-4 text-[15px] leading-[1.7] text-faint">
-            망분리 환경에서는 로그와 문서를 외부 AI API로 보낼 수 없습니다.
-            그래서 살피의 추론은 사내에서 도는 소형 모델 <span className="font-mono text-body">Kanana 2 3B</span>가 합니다.
+            망분리 환경에서는 로그와 문서를 외부 AI API로 보낼 수 없습니다.<br />그래서 살피의 추론은 사내에서 도는 소형 모델 <span className="font-mono text-body">Kanana</span>를 사용합니다.
           </p>
           <ul className="mt-6">
             {[
