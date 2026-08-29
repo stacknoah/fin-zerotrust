@@ -162,6 +162,9 @@
 - label은 반드시 "combined", "identifier_only", "unique_id" 셋 중 하나다. 다른 값을 쓰지 마라.
 - evidence_span은 입력에 있는 문자열을 그대로 복사한다. 요약하거나 고치지 마라.
 - label이 "combined"이면 identifier와 credit_context를 반드시 채운다. 빈 문자열은 안 된다.
+- label이 "combined"이면 evidence_span 안에 그 사람 이름이 반드시 들어가야 한다.
+  신용정보가 다른 줄에 있으면, 이름이 있는 줄을 evidence_span으로 복사하고
+  신용정보는 credit_context에 적어라.
 - 입력에서 찾은 것을 하나도 빠뜨리지 말고 전부 findings 배열에 담아라.
 - 반드시 이 형태의 JSON 하나만 출력한다:
   {"findings":[{"label":"...","evidence_span":"...","identifier":"...","credit_context":"..."}]}
@@ -181,7 +184,13 @@
 
 [예시 3] 이름만 있는 경우
 입력: 4. 김민수 고객 방문 예정.
-출력: {"findings":[{"label":"identifier_only","evidence_span":"김민수 고객 방문 예정","identifier":"김민수","credit_context":""}]}`;
+출력: {"findings":[{"label":"identifier_only","evidence_span":"김민수 고객 방문 예정","identifier":"김민수","credit_context":""}]}
+
+[예시 4] 지시어로 이어지는 결합
+입력:
+5. 최윤호 님 재방문.
+   - 해당 고객은 카드 대금 미납 이력이 있음.
+출력: {"findings":[{"label":"combined","evidence_span":"최윤호 님 재방문","identifier":"최윤호","credit_context":"카드 대금 미납"}]}`;
 
   const LABELS = ['combined', 'identifier_only', 'unique_id', 'none'];
 
@@ -199,6 +208,16 @@
    */
 
   // LLM 출력 검증. 환각을 구조적으로 걸러낸다
+  // 결합 판단에 허용되는 문맥: 이름이 있는 줄과, 바로 아래 이어지는 부연 줄까지.
+  // 부연 줄 = 새 항목 번호로 시작하지 않고 다른 사람 이름도 없는 줄. 그 밖의 줄에 있는
+  // 신용 문맥을 끌어다 붙이면 결합 근거로 인정하지 않는다.
+  function combinedContext(units, idIdx) {
+    let ctx = units[idIdx].text;
+    const next = units[idIdx + 1];
+    if (next && !/^\d+[.)]/.test(next.text) && findNames(next.text).length === 0) ctx += ' ' + next.text;
+    return ctx;
+  }
+
   function verifyFinding(f, text) {
     if (!f || typeof f !== 'object') return { ok: false, reason: 'not_object' };
     if (!LABELS.includes(f.label)) return { ok: false, reason: 'bad_label' };
@@ -215,8 +234,48 @@
       // 지목한 사람이 근거 스팬 안에 있어야 한다. 창의 다른 줄에 있는 이름을 끌어다
       // 붙인 판정은 그 스팬을 개인신용정보라고 부를 근거가 없다
       if (!span.includes(id)) return { ok: false, reason: 'identifier_not_in_span' };
+      // 식별자는 사람 이름이어야 한다. 번호를 이름 자리에 넣은 판정은 버린다
+      if (/\d/.test(id)) return { ok: false, reason: 'identifier_not_a_name' };
+      // 신용 문맥이 이름 줄 또는 바로 아래 부연 줄에 실제로 있어야 한다.
+      // 창 안 무관한 줄의 신용 어휘를 끌어붙인 결합을 막는다
+      const units = splitUnits(text);
+      const idIdx = units.findIndex(u => u.text.includes(id));
+      if (idIdx >= 0) {
+        const ctx = norm(combinedContext(units, idIdx));
+        if (!ctx.includes(cc) && !CREDIT_KW.test(ctx)) return { ok: false, reason: 'credit_not_adjacent' };
+      }
+    }
+    if (f.label === 'unique_id') {
+      // 스팬에 실제 고유식별번호 패턴이 있어야 한다. 이름뿐인 스팬을 막는다
+      if (!/\d{6}[- ]?\d{7}/.test(span) && !/(?:\d[- ]?){15,16}/.test(span)) return { ok: false, reason: 'no_unique_id_pattern' };
     }
     return { ok: true };
+  }
+
+  // 결합 판정 보정. 모델이 근거 줄을 잘못 골랐을 때, 창 안에서 결정적으로 재구성한다.
+  // 조건: 지목한 이름이 창의 어느 줄에 실제로 있고, 신용 문맥도 창에 실제로 있을 것.
+  function repairCombined(f, chunk) {
+    let id = norm(f.identifier);
+    const units = splitUnits(chunk);
+    if (!id) {
+      // 이름이 비어 있으면 2층 후보 중 창에 있는 이름 하나로 채워본다
+      const names = findNames(chunk);
+      if (names.length !== 1) return null;
+      id = names[0].name;
+    }
+    const idIdx = units.findIndex(u => u.text.includes(id));
+    if (idIdx < 0) return null;
+    const idUnit = units[idIdx];
+    // 신용 문맥은 이름 줄과 바로 아래 부연 줄에서만 찾는다. 검증과 같은 기준
+    const ctx = combinedContext(units, idIdx);
+    const cc = norm(f.credit_context);
+    if (cc && norm(ctx).includes(cc)) {
+      return { label: 'combined', evidence_span: idUnit.text, identifier: id, credit_context: cc };
+    }
+    if (!CREDIT_KW.test(ctx)) return null;
+    const m = ctx.match(CREDIT_KW);
+    const creditLine = ctx === idUnit.text ? idUnit.text : ctx.slice(idUnit.text.length + 1);
+    return { label: 'combined', evidence_span: idUnit.text, identifier: id, credit_context: creditLine || m[0] };
   }
 
   async function fetchJSON(url, body, timeoutMs) {
@@ -290,10 +349,10 @@
     return wins.length ? wins : [text];
   }
 
-  async function llmOnce(chunk, o) {
+  async function llmOnce(chunk, o, hint) {
     const out = await fetchJSON(llmBase(o) + '/api/generate', {
       model: o.model,
-      prompt: SYSTEM_PROMPT + '\n\n입력:\n' + chunk + '\n출력:',
+      prompt: SYSTEM_PROMPT + (hint ? '\n\n' + hint : '') + '\n\n입력:\n' + chunk + '\n출력:',
       format: 'json',
       stream: false,
       options: { temperature: 0, num_predict: 1024 },
@@ -316,11 +375,14 @@
       if (emit) emit({ type: 'window', i: wi, total: windows.length, chunk });
       const t0 = Date.now();
       const winEvents = [];
+      // 2층이 찾은 인물 후보를 힌트로 준다. 모델이 이름을 놓치는 것을 줄인다
+      const hintNames = [...new Set(findNames(chunk).map(n => n.name))];
+      const hint = hintNames.length ? '[인물 후보] 이 입력에 등장하는 인물: ' + hintNames.join(', ') : '';
       let parsed = null;
       // JSON이 깨지면 한 번 더 시도한다
       for (let attempt = 0; attempt < 2 && !parsed; attempt++) {
         let raw;
-        try { raw = await llmOnce(chunk, o); } catch (e) { rejected.push({ reason: 'call_failed' }); winEvents.push({ ok: false, reason: 'call_failed' }); break; }
+        try { raw = await llmOnce(chunk, o, hint); } catch (e) { rejected.push({ reason: 'call_failed' }); winEvents.push({ ok: false, reason: 'call_failed' }); break; }
         try { parsed = JSON.parse(raw); }
         catch (e) { if (attempt === 1) { rejected.push({ reason: 'invalid_json', raw: String(raw).slice(0, 160) }); winEvents.push({ ok: false, reason: 'invalid_json' }); } }
       }
@@ -330,8 +392,14 @@
                      : Array.isArray(parsed) ? parsed : [];
       const winAccepted = [], winDropped = [];
       for (const raw0 of findings) {
-        const f = raw0;
-        const v = verifyFinding(f, chunk);
+        let f = raw0;
+        let v = verifyFinding(f, chunk);
+        // 결합 후보가 스팬 문제로 떨어지면 결정적 보정을 시도한다.
+        // 이름과 신용 문맥이 창 안에 실제로 있을 때만, 이름이 있는 줄로 스팬을 재구성한다.
+        if (!v.ok && f && f.label === 'combined' && (v.reason === 'span_not_in_source' || v.reason === 'identifier_not_in_span' || v.reason === 'combined_missing_parts')) {
+          const r = repairCombined(f, chunk);
+          if (r) { f = r; v = verifyFinding(f, chunk); if (v.ok) repaired++; }
+        }
         if (!v.ok) {
           rejected.push({ reason: v.reason, label: f && f.label, span: norm(f && f.evidence_span).slice(0, 60) });
           if (v.reason !== 'label_none') winDropped.push({ ok: false, reason: v.reason, span: norm(f && f.evidence_span).slice(0, 40) });
@@ -373,9 +441,16 @@
       seen.add(key);
       out.push(Object.assign({}, h, { severity: SEVERITY[h.label] || 'info' }));
     }
+    // 같은 위반을 규칙층과 모델이 서로 다른 길이의 스팬으로 보고하면 하나만 남긴다.
+    // 같은 라벨에서 다른 스팬을 포함하는 더 긴 스팬이 중복이다
+    const viol = out.filter(h => SEVERITY[h.label] === 'violation');
+    const dedup = out.filter(h => {
+      if (SEVERITY[h.label] !== 'violation') return true;
+      return !viol.some(o => o !== h && o.label === h.label && o.span !== h.span && h.span.includes(o.span));
+    });
     // 같은 스팬이 결합으로도 식별정보 단독으로도 잡히면 결합이 이긴다
-    const combinedSpans = new Set(out.filter(h => h.label === 'combined').map(h => h.span));
-    return out.filter(h => !(h.label === 'identifier_only' && [...combinedSpans].some(s => s.includes(h.span))));
+    const combinedSpans = new Set(dedup.filter(h => h.label === 'combined').map(h => h.span));
+    return dedup.filter(h => !(h.label === 'identifier_only' && [...combinedSpans].some(s => s.includes(h.span))));
   }
 
   /* ────────── 통합 스캔 ────────── */

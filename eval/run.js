@@ -15,7 +15,9 @@
 'use strict';
 
 const path = require('path');
-const Engine = require(path.join(__dirname, '..', 'engine.js'));
+const { pathToFileURL } = require('url');
+let Engine;   // app의 ESM 엔진을 동적으로 불러온다
+
 const { generate } = require(path.join(__dirname, 'generate.js'));
 
 const argv = process.argv.slice(2);
@@ -104,6 +106,7 @@ async function runMethod(name, docs, opts) {
 }
 
 (async function main() {
+  Engine = (await import(pathToFileURL(path.join(__dirname, '..', 'app', 'src', 'lib', 'engine.js')).href)).default;
   const docs = generate(DOCS, SEED);
   const goldCount = docs.reduce((n, d) => n + d.gold.filter(isViolationGold).length, 0);
   console.log(`합성 문서 ${docs.length}건, 위반 정답 ${goldCount}건 (seed=${SEED})\n`);

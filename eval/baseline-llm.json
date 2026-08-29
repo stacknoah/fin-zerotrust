@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-29T14:50:28.776Z",
+  "generatedAt": "2026-08-29T14:40:06.104Z",
   "seed": 20260810,
   "docs": 30,
   "goldViolations": 84,
@@ -34,7 +34,7 @@
           "hit": 17
         }
       },
-      "elapsedSec": 0,
+      "elapsedSec": 0.001,
       "rejectedCount": 0,
       "repaired": 0
     },
@@ -74,12 +74,12 @@
     },
     {
       "name": "LLM단독: kanana-2-3b-instruct",
-      "tp": 74,
-      "fp": 1,
-      "fn": 10,
-      "precision": 0.9866666666666667,
-      "recall": 0.8809523809523809,
-      "f1": 0.930817610062893,
+      "tp": 66,
+      "fp": 10,
+      "fn": 18,
+      "precision": 0.868421052631579,
+      "recall": 0.7857142857142857,
+      "f1": 0.825,
       "perType": {
         "card": {
           "total": 19,
@@ -87,33 +87,33 @@
         },
         "combined_same_line": {
           "total": 14,
-          "hit": 10
+          "hit": 9
         },
         "combined_cross_line": {
           "total": 14,
-          "hit": 10
+          "hit": 8
         },
         "combined_indirect": {
           "total": 20,
-          "hit": 18
+          "hit": 13
         },
         "rrn": {
           "total": 17,
           "hit": 17
         }
       },
-      "elapsedSec": 75.916,
-      "rejectedCount": 42,
-      "repaired": 2
+      "elapsedSec": 87.692,
+      "rejectedCount": 31,
+      "repaired": 0
     },
     {
       "name": "합집합: kanana-2-3b-instruct",
-      "tp": 77,
-      "fp": 1,
-      "fn": 7,
-      "precision": 0.9871794871794872,
-      "recall": 0.9166666666666666,
-      "f1": 0.9506172839506173,
+      "tp": 70,
+      "fp": 10,
+      "fn": 14,
+      "precision": 0.875,
+      "recall": 0.8333333333333334,
+      "f1": 0.8536585365853658,
       "perType": {
         "card": {
           "total": 19,
@@ -125,20 +125,20 @@
         },
         "combined_cross_line": {
           "total": 14,
-          "hit": 10
+          "hit": 8
         },
         "combined_indirect": {
           "total": 20,
-          "hit": 18
+          "hit": 13
         },
         "rrn": {
           "total": 17,
           "hit": 17
         }
       },
-      "elapsedSec": 76.401,
-      "rejectedCount": 42,
-      "repaired": 2
+      "elapsedSec": 85.798,
+      "rejectedCount": 31,
+      "repaired": 0
     }
   ]
 }
