@@ -230,7 +230,7 @@ async function classifyRogue(r: Rogue, get: () => State, set: (p: Partial<State>
   } else {
     const cls = CLASSIFY[r.host] || UNKNOWN_CLS
     set(st => ({ rogues: st.rogues.map(x => x.host === r.host ? { ...x, cls: { ...cls } } : x) }))
-    get().logEvent('ai', `${r.host} AI 판단 보류, 내장 분류로 ${cls.kind}`)
+    get().logEvent('ai', `${r.host} AI 판단 보류(이름에서 단서를 읽지 못함), 내장 분류로 ${cls.kind}`)
   }
 }
 

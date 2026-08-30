@@ -56,16 +56,10 @@ function Ticker() {
       </span>
       <span className="h-4 w-px bg-[rgba(19,23,34,.1)]" />
       <Item l="승인 연결" n={ledger.length} />
-      {feed.started && <>
-        <Item l="반기 평가 예정" n={saasDue} />
-        <Item l="재승인 필요" n={reviewDue} />
-      </>}
-      <Item l="미승인 연결" n={scanned ? rogues.length : '-'} tone={rogues.length ? 'text-bad-fg' : ''} />
-      {feed.started && <Item l="내용검사 위반" n={detectCount(contentLog)} />}
+      <span title="관측 전에는 셈하지 않습니다"><Item l="미승인 연결" n={scanned ? rogues.length : '-'} tone={rogues.length ? 'text-bad-fg' : ''} /></span>
       {feed.started && <>
         <span className="h-4 w-px bg-[rgba(19,23,34,.1)]" />
         <Item l="수신" n={feed.received + '줄'} />
-        <Item l="목적지" n={hosts.size + '곳'} />
         <Item l="AI 분류" n={feed.aiCount + '건'} />
       </>}
       <span className="ml-auto font-mono text-[11px] text-dim">{feed.started ? `데모 피드(합성)${feed.last ? ', 마지막 수신 ' + feed.last : ''}` : '합성 데이터'}</span>

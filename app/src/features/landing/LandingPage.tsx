@@ -59,7 +59,7 @@ export function LandingPage() {
             데모 열기<IconArrowRight className="size-4" stroke={2} />
           </button>
         </div>
-        <p className="mt-4 text-[13px] text-dim">정보보호 담당자를 위한 금융 망분리 관제 콘솔. 발견부터 반기 보고까지 한 화면에서 끝냅니다</p>
+        <p className="mt-4 text-[13px] text-dim">정보보호 담당자를 위한 금융 망분리 관제 콘솔. 판정 보조는 망 안에서 도는 로컬 AI, Kanana가 맡습니다</p>
       </section>
 
       {/* 로컬 AI: 무엇을 하고 왜 사내에서 도는지 */}
@@ -83,7 +83,11 @@ export function LandingPage() {
           </ul>
           <p className="mt-4 text-[13px] text-dim">AI는 후보를 낼 뿐 위반 확정은 검증 규칙이 하고, 확신이 없으면 미분류로 남겨 사람에게 넘깁니다</p>
           <div className="mt-4 rounded-xl bg-[rgba(19,23,34,.035)] p-4 text-[13px] leading-6 text-body">
-            <div>결합 탐지: 합성 평가셋(문서 200건, 위반 591건) 재현율 <span className="font-mono font-semibold nums">88.7%</span>, 정밀도 <span className="font-mono font-semibold nums">97.6%</span>. 규칙만으로는 52.3%</div>
+            <div>결합 탐지: 합성 평가셋(문서 200건, 위반 591건) 재현율 <span className="font-mono font-semibold nums">88.7%</span>, 정밀도 <span className="font-mono font-semibold nums">97.6%</span></div>
+            <div className="mt-1.5 mb-2 space-y-1">
+              <div className="flex items-center gap-2"><span className="w-[52px] text-[11px] text-faint">규칙만</span><span className="h-[6px] rounded-full bg-[rgba(19,23,34,.18)]" style={{ width: '52.3%' }} /><span className="font-mono text-[11px] text-faint nums">52.3%</span></div>
+              <div className="flex items-center gap-2"><span className="w-[52px] text-[11px] text-faint">규칙+AI</span><span className="h-[6px] rounded-full bg-primary" style={{ width: '88.7%' }} /><span className="font-mono text-[11px] font-semibold text-ink nums">88.7%</span></div>
+            </div>
             <div>처음 보는 도메인 분류: 정적 카테고리 목록 <span className="font-mono font-semibold nums">0%</span>, Kanana <span className="font-mono font-semibold nums">81.8%</span> (무명 22종)</div>
             <div>4배 큰 Mi:dm 11.5B와 F1 동률(<span className="font-mono font-semibold nums">93.8</span>), 속도 2.7배. 같은 Q4 양자화, 같은 M4 Pro 기준</div>
             <div className="mt-1 text-[12px] text-dim">평가셋 생성 규칙과 채점 코드는 <a className="underline underline-offset-2" href="https://github.com/stacknoah/fin-zerotrust/tree/main/eval" target="_blank" rel="noreferrer">저장소 eval</a>에 공개</div>
@@ -131,10 +135,10 @@ export function LandingPage() {
           </div>
           {[
             ['미승인 목적지 발견', '있음', '없음'],
+            ['문서 속 민감정보 탐지', '없음', '있음'],
+            ['신용정보법 제2조의 결합 법리 판정', '없음', '없음'],
             ['제2조의3 요건 판정과 승인 대장', '없음', '없음'],
-            ['식별정보와 신용정보의 결합 판정', '없음', '패턴만'],
             ['반기 자체평가 보고서 생성', '없음', '없음'],
-            ['망 안에서 끝나는 로컬 추론', '없음', '일부'],
           ].map(([t, a, d]) => (
             <div key={String(t)} className="grid grid-cols-[1fr_repeat(3,130px)] items-center border-b border-[rgba(19,23,34,.05)] px-6 py-2.5 text-[13.5px] last:border-b-0">
               <span className="text-ink">{t}</span>
