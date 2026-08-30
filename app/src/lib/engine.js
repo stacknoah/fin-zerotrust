@@ -491,6 +491,7 @@ const SalpiEngine = (function () {
 포트도 단서다. 3389는 원격 데스크톱, 25와 587은 메일, 22는 원격 셸. 특이 포트면 clue에 함께 적는다.
 종류는 다음 중 하나만 고른다: 생성형 AI 서비스, 협업 SaaS, 메신저, 원격제어 도구, 개인 클라우드 저장소, 파일 전송, 외부 웹메일, 소셜 미디어, 광고 추적, 미분류
 risk는 clue에 맞게 새로 쓴다. 예시 문장을 베끼지 않는다.
+이름에서 서비스 성격을 읽을 수 없으면 추측하지 말고 kind를 "미분류"로 둔다. 틀린 확신보다 기권이 낫다.
 saas_like는 업무용 SaaS로 등재 검토가 가능한 종류(협업 SaaS, 메신저, 생성형 AI 서비스, 개인 클라우드 저장소)면 true, 아니면 false.
 
 예시
@@ -500,6 +501,7 @@ saas_like는 업무용 SaaS로 등재 검토가 가능한 종류(협업 SaaS, �
 도메인: fastmailer.net → {"clue": "fast, mailer(메일)", "kind": "외부 웹메일", "saas_like": false, "risk": "업무 문서를 첨부해 외부 메일로 보낼 수 있음"}
 도메인: workchat.io → {"clue": "work, chat(대화)", "kind": "메신저", "saas_like": true, "risk": "대화와 파일 공유로 고객 정보가 나갈 수 있음"}
 도메인: notion.so → {"clue": "notion(문서 협업 서비스)", "kind": "협업 SaaS", "saas_like": true, "risk": "승인 없이 쓰는 문서 협업. 고객 정보가 문서로 나갈 수 있음"}
+도메인: qx7r2k.net → {"clue": "의미를 읽을 수 없는 문자열", "kind": "미분류", "saas_like": false, "risk": "정체를 알 수 없는 목적지. 사람 확인 필요"}
 
 반드시 JSON 한 개만 출력한다. 형식: {"clue": "...", "kind": "...", "saas_like": true 또는 false, "risk": "60자 이내 한 문장"}`;
   async function llmClassifyHost(host, obs, opts) {

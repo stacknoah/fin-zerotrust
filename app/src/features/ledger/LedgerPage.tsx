@@ -33,7 +33,7 @@ export function LedgerPage() {
                 <TableCell><MonoCode>{r.host} :{[...r.info.ports].join(',')}</MonoCode></TableCell>
                 <TableCell className="font-mono text-[12px] text-faint nums">누적 {r.info.count}회</TableCell>
                 <TableCell><Pill tone="warn">조치 대기</Pill>{r.cls.ai && <span className="ml-1.5 font-mono text-[10.5px] text-faint">AI 분류</span>}</TableCell>
-                <TableCell className="w-[176px] pr-4 whitespace-nowrap"><span className="flex items-center justify-end gap-1.5">{r.cls.saasLike ? <Button size="sm" onClick={() => open({ host: r.host, name: r.host, fromRogue: true, cls: r.cls })}>판정</Button> : <span className="mr-1 cursor-help text-[11.5px] text-dim underline decoration-dotted underline-offset-2" title="SaaS 등재 유형이 아님. 원격제어는 1항 2호 전용회선 요건을 못 채워 차단만 가능">등재 대상 아님</span>}<Button size="sm" variant="outline" className="text-bad-fg hover:text-bad-fg" onClick={() => quickBlock(r.host)}>차단 요청</Button></span></TableCell>
+                <TableCell className="w-[176px] pr-4 whitespace-nowrap"><span className="flex items-center justify-end gap-1.5">{r.cls.saasLike ? <Button size="sm" onClick={() => open({ host: r.host, name: r.host, fromRogue: true, cls: r.cls })}>판정</Button> : r.cls.kind === '미분류' ? <span className="mr-1 rounded-full bg-warn-bg px-2 py-px text-[11px] font-medium text-warn-fg">사람 판정 필요</span> : <span className="mr-1 cursor-help text-[11.5px] text-dim underline decoration-dotted underline-offset-2" title="SaaS 등재 유형이 아님. 원격제어는 1항 2호 전용회선 요건을 못 채워 차단만 가능">등재 대상 아님</span>}<Button size="sm" variant="outline" className="text-bad-fg hover:text-bad-fg" onClick={() => quickBlock(r.host)}>차단 요청</Button></span></TableCell>
               </TableRow>
             ))}
             {ledger.map(c => {

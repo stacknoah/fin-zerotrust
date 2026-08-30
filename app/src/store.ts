@@ -17,7 +17,7 @@ const TELE_NAMES = TELE_NAMES0.map(n => n[0] + '○' + n.slice(2))
 const TELE_DEPTS = ['영업2팀','여신심사팀','IT운영팀','준법감시팀','고객지원팀','리스크관리팀','상품개발팀']
 const TELE_REGIONS = ['서울','경기','인천','부산','대전']
 const TELE_FAIL = ['백신 정의 갱신 3일 경과', 'OS 보안 패치 미적용', '화면 캡처 차단 에이전트 미실행']
-const FEED_ROGUE_AT: Record<number, string> = { 4: 'chatgpt.com', 10: 'notion.so', 17: 'anydesk.com', 24: 'webmail.daehanpost.kr', 31: 'pcshare.kr' }
+const FEED_ROGUE_AT: Record<number, string> = { 4: 'chatgpt.com', 10: 'notion.so', 17: 'anydesk.com', 22: 'webmail.daehanpost.kr', 27: 'pcshare.kr', 32: 'kv7m2.io' }
 
 function teleInit(): TeleSession[] {
   const t0 = Date.now()

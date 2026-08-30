@@ -52,7 +52,7 @@ export function LandingPage() {
           망을 넘는 모든 연결을 관측하고,<br /><span><span className="text-[#c4302b]">미승인 연결</span>은 증적으로 남깁니다</span>
         </h1>
         <p className="mx-auto mt-5 max-w-[600px] text-[17px] leading-[1.65] text-faint">
-          발견에서 끝나는 도구와 다릅니다.<br />발견한 연결을 제2조의3 요건으로 판정해 등재, 차단, 반기 보고까지 잇습니다.
+          발견에서 끝나는 도구와 다릅니다.<br />발견한 연결을 제2조의3 요건으로 판정해 등재와 차단 요청, 반기 보고까지 잇습니다.
         </p>
         <div className="mt-8 flex items-center justify-center">
           <button onClick={enter} className="inline-flex h-11 items-center gap-1.5 rounded-full bg-ink px-6 text-[15px] font-medium text-white transition hover:bg-ink/90">
@@ -82,9 +82,12 @@ export function LandingPage() {
             ))}
           </ul>
           <p className="mt-4 text-[13px] text-dim">AI는 후보를 낼 뿐 위반 확정은 검증 규칙이 하고, 확신이 없으면 미분류로 남겨 사람에게 넘깁니다</p>
-          <p className="mt-2 text-[13px] text-body">결합 탐지: 합성 평가셋(문서 200건, 위반 591건) 재현율 <span className="font-mono font-semibold nums">88.7%</span>, 정밀도 <span className="font-mono font-semibold nums">97.6%</span>. 규칙만으로는 52.3%.</p>
-          <p className="mt-1 text-[13px] text-body">처음 보는 도메인 분류: 정적 카테고리 목록 <span className="font-mono font-semibold nums">0%</span>, Kanana <span className="font-mono font-semibold nums">81.8%</span> (무명 22종 기준).</p>
-          <p className="mt-1 text-[13px] text-body">4배 큰 Mi:dm 11.5B와 같은 평가셋에서 F1 동률(<span className="font-mono font-semibold nums">93.8</span>), 속도는 2.7배. 그래서 3B입니다.</p>
+          <div className="mt-4 rounded-xl bg-[rgba(19,23,34,.035)] p-4 text-[13px] leading-6 text-body">
+            <div>결합 탐지: 합성 평가셋(문서 200건, 위반 591건) 재현율 <span className="font-mono font-semibold nums">88.7%</span>, 정밀도 <span className="font-mono font-semibold nums">97.6%</span>. 규칙만으로는 52.3%</div>
+            <div>처음 보는 도메인 분류: 정적 카테고리 목록 <span className="font-mono font-semibold nums">0%</span>, Kanana <span className="font-mono font-semibold nums">81.8%</span> (무명 22종)</div>
+            <div>4배 큰 Mi:dm 11.5B와 F1 동률(<span className="font-mono font-semibold nums">93.8</span>), 속도 2.7배. 같은 Q4 양자화, 같은 M4 Pro 기준</div>
+            <div className="mt-1 text-[12px] text-dim">평가셋 생성 규칙과 채점 코드는 <a className="underline underline-offset-2" href="https://github.com/stacknoah/fin-zerotrust/tree/main/eval" target="_blank" rel="noreferrer">저장소 eval</a>에 공개</div>
+          </div>
         </div>
         <div className="surface-float overflow-hidden">
           <div className="flex items-center gap-2.5 px-5 pt-4 pb-3">
@@ -123,19 +126,20 @@ export function LandingPage() {
       {/* 기존 도구와의 경계 */}
       <section className="mx-auto mt-24 max-w-[1200px] px-6">
         <div className="surface overflow-hidden">
-          <div className="grid grid-cols-[1fr_repeat(2,150px)] border-b border-[rgba(19,23,34,.07)] px-6 py-3 text-[12px] font-medium text-faint">
-            <span /><span className="text-center">SWG, CASB</span><span className="text-center text-ink">살피</span>
+          <div className="grid grid-cols-[1fr_repeat(3,130px)] border-b border-[rgba(19,23,34,.07)] px-6 py-3 text-[12px] font-medium text-faint">
+            <span /><span className="text-center">SWG, CASB</span><span className="text-center">DLP</span><span className="text-center text-ink">살피</span>
           </div>
           {[
-            ['미승인 목적지 발견', true, true],
-            ['제2조의3 요건 판정과 승인 대장', false, true],
-            ['SaaS 문서의 신용정보 결합 검사', false, true],
-            ['반기 자체평가 보고서 생성', false, true],
-            ['망 안에서 끝나는 로컬 추론', false, true],
-          ].map(([t, a, b]) => (
-            <div key={String(t)} className="grid grid-cols-[1fr_repeat(2,150px)] items-center border-b border-[rgba(19,23,34,.05)] px-6 py-2.5 text-[13.5px] last:border-b-0">
+            ['미승인 목적지 발견', '있음', '없음'],
+            ['제2조의3 요건 판정과 승인 대장', '없음', '없음'],
+            ['식별정보와 신용정보의 결합 판정', '없음', '패턴만'],
+            ['반기 자체평가 보고서 생성', '없음', '없음'],
+            ['망 안에서 끝나는 로컬 추론', '없음', '일부'],
+          ].map(([t, a, d]) => (
+            <div key={String(t)} className="grid grid-cols-[1fr_repeat(3,130px)] items-center border-b border-[rgba(19,23,34,.05)] px-6 py-2.5 text-[13.5px] last:border-b-0">
               <span className="text-ink">{t}</span>
-              <span className="text-center">{a ? <span className="text-body">있음</span> : <span className="text-dim">없음</span>}</span>
+              <span className={a === '있음' ? 'text-center text-body' : 'text-center text-dim'}>{a}</span>
+              <span className={d === '없음' ? 'text-center text-dim' : 'text-center text-body'}>{d}</span>
               <span className="text-center font-medium text-primary">있음</span>
             </div>
           ))}

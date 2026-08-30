@@ -15,9 +15,9 @@ export function Mark({ className }: { className?: string }) {
 const TABS = [
   { to: '/map', t: '경계 지도', Icon: IconTopologyStar3 },
   { to: '/ledger', t: '연결 대장', Icon: IconListDetails },
-  { to: '/logs', t: '로그 대조', Icon: IconGitCompare },
   { to: '/content', t: '내용 검사', Icon: IconFileSearch },
   { to: '/report', t: '반기 보고', Icon: IconReport },
+  { to: '/logs', t: '로그 대조', Icon: IconGitCompare },
   { to: '/activity', t: '활동 기록', Icon: IconActivity },
 ]
 
