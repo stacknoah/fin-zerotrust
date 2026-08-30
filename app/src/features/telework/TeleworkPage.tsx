@@ -1,3 +1,5 @@
+import { useState } from 'react'
+import { toast } from 'sonner'
 import { useStore, teleStat, type TeleSession } from '@/store'
 import { PageHeader, Panel, Pill, DDay, MonoCode } from '@/components/salpi'
 import { Button } from '@/components/ui/button'
@@ -59,12 +61,15 @@ export function TeleworkPage() {
   const ts = teleStat(sessions)
   const mfa = ts.n ? Math.round((sessions.filter(x => x.mfa).length / ts.n) * 100) : 0
   const sorted = sessions.slice().sort((a, b) => (a.check === 'fail' ? -1 : 1) - (b.check === 'fail' ? -1 : 1))
+  const logEvent = useStore(s => s.logEvent)
+  const [asked, setAsked] = useState<Record<string, boolean>>({})
+  const ask = (x: TeleSession) => { setAsked(p => ({ ...p, [x.id]: true })); logEvent('tele', `점검 요구 발송: ${x.user}(${x.dept}), ${x.checkNote}`); toast(`${x.user} 단말 점검 요구 발송`) }
   return (
     <div className="view-in">
       <PageHeader title="재택근무" crumb="재택근무"
         lead={<span><b className="font-semibold text-ink nums">{ts.n}명</b> 접속 중{ts.fail ? <>, 단말 점검 미통과 <b className="font-semibold text-bad-fg nums">{ts.fail}명</b></> : ', 단말 점검 전원 통과'}, 다중인증 통과 {mfa}%</span>}
         actions={feed.on ? <Button variant="outline" onClick={pauseFeed}>일시정지</Button> : <Button onClick={startFeed}>{feed.started ? '관측 재개' : '데모 실행'}</Button>} />
-      <Panel className="mb-4" title="세션 타임라인" count={ts.n} right={<span>제12조 보안대책 적용 단말의 원격접속, <MonoCode>{c.domains[0]} :{c.ports}</MonoCode></span>}>
+      <Panel className="mb-4" title="세션 타임라인" count={ts.n} right={<span>근거 ①항 2호, 단말 보호대책은 제12조, <MonoCode>{c.domains[0]} :{c.ports}</MonoCode></span>}>
         <Timeline sessions={sessions} />
       </Panel>
       <div className="grid grid-cols-[1fr_320px] items-start gap-4">
@@ -76,7 +81,7 @@ export function TeleworkPage() {
                 <TableRow key={x.id} className={cn(x.check === 'fail' && 'bg-[#fff8f8] hover:bg-[#fff2f2]')}>
                   <TableCell className="pl-5 text-ink">{x.user}</TableCell><TableCell className="text-body">{x.dept}</TableCell><TableCell className="text-body">{x.region}</TableCell><TableCell className="font-mono text-[12px] nums">{x.since}</TableCell>
                   <TableCell>{x.mfa ? <Pill tone="ok">통과</Pill> : <Pill tone="bad">실패</Pill>}</TableCell>
-                  <TableCell>{x.check === 'ok' ? <Pill tone="ok">통과</Pill> : <span className="flex items-center gap-2"><Pill tone="bad">미통과</Pill><span className="text-xs text-body">{x.checkNote}</span></span>}</TableCell>
+                  <TableCell>{x.check === 'ok' ? <Pill tone="ok">통과</Pill> : <span className="flex items-center gap-2"><Pill tone="bad">미통과</Pill><span className="text-xs text-body">{x.checkNote}</span>{asked[x.id] ? <span className="text-[11px] text-faint">점검 요구됨</span> : <Button size="sm" variant="outline" onClick={() => ask(x)}>점검 요구</Button>}</span>}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

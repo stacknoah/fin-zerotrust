@@ -153,6 +153,8 @@
 .detail-in { animation: detailIn 260ms cubic-bezier(.3,0,0,1) both; }
 @keyframes detailIn { from { opacity: 0; transform: translateY(8px); } }
 .breathe { animation: breathe 1.8s ease-in-out infinite; }
+.demo-pulse { animation: demoPulse 2.4s ease-in-out infinite; }
+@keyframes demoPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(33,87,209,.35); } 50% { box-shadow: 0 0 0 7px rgba(33,87,209,0); } }
 @keyframes breathe { 50% { opacity: .35; } }
 .view-in { animation: viewIn 150ms cubic-bezier(.3,0,0,1) both; }
 @keyframes viewIn { from { opacity: 0; } }

@@ -79,7 +79,7 @@ export function WorkbenchPage() {
 
   return (
     <div className="view-in">
-      <PageHeader title="판정 워크벤치" crumb="판정 워크벤치" actions={<Button variant="outline" onClick={() => {
+      <PageHeader title="판정 워크벤치" crumb="판정 워크벤치" actions={<Button onClick={() => {
         setSaas('dooray'); setUsage('doc'); setNature('id_only'); setL1('no')
         const all: Record<number, boolean> = {}; for (let i = 0; i < 12; i++) all[i] = true
         setApplied(all); setComp(all); setStep(5)

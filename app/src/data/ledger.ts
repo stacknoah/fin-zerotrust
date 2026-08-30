@@ -76,21 +76,25 @@ export const UNKNOWN_CLS: Classification = { kind: '미분류', saasLike: false,
 
 export const KNOWN_SAAS: Record<string, string> = { 'notion.so': 'notion', 'dooray.com': 'dooray', 'office.com': 'm365', 'zoom.us': 'zoom', 'slack.com': 'slack' }
 
-export const SAMPLE_LOG = `2026-08-14 09:02:11 SRC=10.20.1.15 HOST=paymon.dooray.com DPT=443 ACTION=ALLOW
-2026-08-14 09:05:43 SRC=10.20.1.22 HOST=teams.microsoft.com DPT=443 ACTION=ALLOW
-2026-08-14 09:12:07 SRC=10.20.1.15 HOST=kftc.or.kr DPT=8583 ACTION=ALLOW
-2026-08-14 09:31:54 SRC=10.20.2.8  HOST=chatgpt.com DPT=443 ACTION=ALLOW
-2026-08-14 09:48:20 SRC=10.20.2.11 HOST=notion.so DPT=443 ACTION=ALLOW
-2026-08-14 10:04:19 SRC=10.20.1.30 HOST=sharepoint.com DPT=443 ACTION=ALLOW
-2026-08-14 10:22:45 SRC=10.20.2.8  HOST=chatgpt.com DPT=443 ACTION=ALLOW
-2026-08-14 11:08:33 SRC=10.20.3.4  HOST=anydesk.com DPT=443 ACTION=ALLOW
-2026-08-14 11:15:02 SRC=10.20.1.22 HOST=kcredit.or.kr DPT=443 ACTION=ALLOW
-2026-08-14 11:40:17 SRC=10.20.2.11 HOST=notion.so DPT=443 ACTION=ALLOW
-2026-08-14 13:40:11 SRC=10.20.2.19 HOST=webmail.daehanpost.kr DPT=443 ACTION=ALLOW\n2026-08-14 13:44:02 SRC=10.20.3.18 HOST=pcshare.kr DPT=3389 ACTION=ALLOW
-2026-08-14 13:52:36 SRC=10.20.1.15 HOST=nicevan.co.kr DPT=9443 ACTION=ALLOW
-2026-08-14 14:11:58 SRC=10.20.3.4  HOST=anydesk.com DPT=443 ACTION=ALLOW
-2026-08-14 15:03:27 SRC=10.20.1.40 HOST=office365.com DPT=443 ACTION=ALLOW
-2026-08-14 16:44:09 SRC=10.20.2.8  HOST=chatgpt.com DPT=443 ACTION=ALLOW`
+const _d = new Date().toISOString().slice(0, 10)
+// 라이브 데모 피드와 같은 미승인 6종이 나오도록 구성한 샘플. 날짜는 열어본 날
+export const SAMPLE_LOG = `${_d} 09:02:11 SRC=10.20.1.15 HOST=paymon.dooray.com DPT=443 ACTION=ALLOW
+${_d} 09:05:43 SRC=10.20.1.22 HOST=teams.microsoft.com DPT=443 ACTION=ALLOW
+${_d} 09:12:07 SRC=10.20.1.15 HOST=kftc.or.kr DPT=8583 ACTION=ALLOW
+${_d} 09:31:54 SRC=10.20.2.8  HOST=chatgpt.com DPT=443 ACTION=ALLOW
+${_d} 09:48:20 SRC=10.20.2.11 HOST=notion.so DPT=443 ACTION=ALLOW
+${_d} 10:04:19 SRC=10.20.1.30 HOST=sharepoint.com DPT=443 ACTION=ALLOW
+${_d} 10:22:45 SRC=10.20.2.8  HOST=chatgpt.com DPT=443 ACTION=ALLOW
+${_d} 11:08:33 SRC=10.20.3.4  HOST=anydesk.com DPT=7070 ACTION=ALLOW
+${_d} 11:15:02 SRC=10.20.1.22 HOST=kcredit.or.kr DPT=443 ACTION=ALLOW
+${_d} 11:40:17 SRC=10.20.2.11 HOST=notion.so DPT=443 ACTION=ALLOW
+${_d} 13:40:11 SRC=10.20.2.19 HOST=webmail.daehanpost.kr DPT=443 ACTION=ALLOW
+${_d} 13:44:02 SRC=10.20.3.18 HOST=pcshare.kr DPT=3389 ACTION=ALLOW
+${_d} 13:52:36 SRC=10.20.1.15 HOST=nicevan.co.kr DPT=9443 ACTION=ALLOW
+${_d} 14:11:58 SRC=10.20.3.4  HOST=anydesk.com DPT=7070 ACTION=ALLOW
+${_d} 14:37:29 SRC=10.20.2.20 HOST=kv7m2.io DPT=443 ACTION=ALLOW
+${_d} 15:03:27 SRC=10.20.1.40 HOST=office365.com DPT=443 ACTION=ALLOW
+${_d} 16:44:09 SRC=10.20.2.8  HOST=chatgpt.com DPT=443 ACTION=ALLOW`
 
 export const DET_SAMPLE = `3월 여신협의회 회의록
 1. 박지현 고객 주택담보대출 연체 3개월 경과 건. 연락처 010-4821-7733.

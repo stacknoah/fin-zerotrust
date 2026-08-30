@@ -30,7 +30,7 @@ function MapHud() {
       <span className="absolute top-4 right-4 z-10">
         {feed.on
           ? <Button variant="outline" className="h-9 bg-card px-3.5 shadow-[var(--shadow-ring)]" onClick={pauseFeed}><IconPlayerPause className="size-4" stroke={1.75} />일시정지</Button>
-          : <Button className="h-9 px-4 shadow-[var(--shadow-float)]" onClick={startFeed}><IconPlayerPlay className="size-4" stroke={1.75} />{feed.started ? '관측 재개' : '데모 실행'}</Button>}
+          : <Button className={cn('h-9 px-4 shadow-[var(--shadow-float)]', !feed.started && 'demo-pulse')} onClick={startFeed}><IconPlayerPlay className="size-4" stroke={1.75} />{feed.started ? '관측 재개' : '데모 실행'}</Button>}
       </span>
     </>
   )
