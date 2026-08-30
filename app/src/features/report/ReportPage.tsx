@@ -29,7 +29,7 @@ export function ReportPage() {
         <Check ok n={ledger.length}>예외 운영 현황 집계 완료</Check>
         <Check ok n={saas.length}>SaaS 반기 자체평가 대상 정리</Check>
         <Check ok={detects > 0} n={detects}>내용검사 증적{detects ? '' : ', 아직 없음'}</Check>
-        <Check ok={!rogues.length} n={rogues.length}>{rogues.length ? '미등록 연결 조치 대기' : '미등록 연결 전부 조치됨'}</Check>
+        <Check ok={!rogues.length} n={rogues.length}>{rogues.length ? '미승인 연결 조치 대기' : '미승인 연결 전부 조치됨'}</Check>
         <p className="border-t border-[rgba(19,23,34,.06)] px-5 py-3.5 text-[12.5px] leading-5 text-faint">보고서는 장부와 검사 기록에서 그대로 생성됩니다. 오른쪽 미리보기가 인쇄 결과와 같습니다.</p>
       </Panel>
       <div className="print-area surface-float p-10 font-[Apple_SD_Gothic_Neo,Pretendard,sans-serif] text-[10.5pt] leading-[1.7] text-[#111]">
@@ -38,14 +38,14 @@ export function ReportPage() {
         <h4 className="mt-5 mb-1.5 text-[12pt] font-bold">1. 예외 운영 현황</h4>
         <table className="w-full border-collapse"><thead><tr><Th>유형</Th><Th>건수</Th></tr></thead><tbody>
           {Object.entries(byType).map(([t, n]) => <tr key={t}><Td>{t}</Td><Td>{n}</Td></tr>)}
-          <tr className={rogues.length ? 'bg-[#fff1f1]' : ''}><Td><b>미등록 연결 (로그 실측)</b></Td><Td><b>{rogues.length}</b></Td></tr>
+          <tr className={rogues.length ? 'bg-[#fff1f1]' : ''}><Td><b>미승인 연결 (로그 실측)</b></Td><Td><b>{rogues.length}</b></Td></tr>
           {blocked.length > 0 && <tr><Td>차단 요청</Td><Td>{blocked.length}</Td></tr>}
         </tbody></table>
         <h4 className="mt-5 mb-1.5 text-[12pt] font-bold">2. SaaS 반기 자체평가 (제4항)와 내용검사 증적</h4>
         <table className="w-full border-collapse"><thead><tr><Th>연결</Th><Th>적용 통제</Th><Th>내용검사 기록</Th><Th>기한</Th></tr></thead><tbody>
           {saas.map(c => <tr key={c.id}><Td>{c.id} {c.name}</Td><Td cls="text-[8.5pt]">{c.controls}</Td><Td>{contentCount(contentLog, c.id) ? `${contentCount(contentLog, c.id)}건, 마스킹 저장` : '기록 없음'}</Td><Td>{c.review.due}</Td></tr>)}
         </tbody></table>
-        <h4 className="mt-5 mb-1.5 text-[12pt] font-bold">3. 미등록 연결 발견과 조치</h4>
+        <h4 className="mt-5 mb-1.5 text-[12pt] font-bold">3. 미승인 연결 발견과 조치</h4>
         {rogues.length || blocked.length ? (
           <table className="w-full border-collapse"><thead><tr><Th>목적지</Th><Th>분류</Th><Th>상태</Th></tr></thead><tbody>
             {rogues.map(r => <tr key={r.host}><Td>{r.host}</Td><Td>{r.cls.kind}</Td><Td>조치 대기 (등재 판정 또는 차단)</Td></tr>)}

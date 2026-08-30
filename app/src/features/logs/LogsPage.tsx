@@ -53,7 +53,7 @@ export function LogsPage() {
       </div>
       {rows && (
         <Panel className="mt-4 overflow-hidden" title="대조 결과" right={lastScan && <span>마지막 대조 {lastScan}</span>} count={
-          <span className="ml-2 inline-flex gap-2"><Chip l="목적지" n={rows.length} /><Chip l="승인됨" n={okN} /><Chip l="미등록" n={badN} bad={!!badN} />{blkN ? <Chip l="차단 요청" n={blkN} /> : null}</span>}>
+          <span className="ml-2 inline-flex gap-2"><Chip l="목적지" n={rows.length} /><Chip l="승인됨" n={okN} /><Chip l="미승인" n={badN} bad={!!badN} />{blkN ? <Chip l="차단 요청" n={blkN} /> : null}</span>}>
           <Table>
             <TableHeader><TableRow className="hover:bg-transparent"><TableHead className="pl-5">목적지</TableHead><TableHead>관측</TableHead><TableHead>판정</TableHead><TableHead>대응 / 분류와 사유</TableHead><TableHead /></TableRow></TableHeader>
             <TableBody>
@@ -63,7 +63,7 @@ export function LogsPage() {
                 const live = rogues.find(x => x.host === r.host)
                 return (
                   <TableRow key={r.host} className="bg-[#fff7f7] hover:bg-[#fff1f1]">
-                    <TableCell className="pl-5 font-mono font-semibold text-bad-fg">{r.host}</TableCell><TableCell>{r.info.count}회 {r.info.srcs.size}대</TableCell><TableCell><Pill tone="bad">미등록</Pill></TableCell>
+                    <TableCell className="pl-5 font-mono font-semibold text-bad-fg">{r.host}</TableCell><TableCell>{r.info.count}회 {r.info.srcs.size}대</TableCell><TableCell><Pill tone="bad">미승인</Pill></TableCell>
                     <TableCell className="whitespace-normal"><b className="font-semibold text-ink">{r.rogue.cls.kind}</b><div className="text-[13px] text-body">{r.rogue.cls.risk}</div></TableCell>
                     <TableCell className={cn('whitespace-nowrap', !live && 'opacity-40')}><span className="flex gap-1.5">{r.rogue.cls.saasLike && <Button size="sm" disabled={!live} onClick={() => open({ host: r.host, name: r.host, fromRogue: true, cls: r.rogue.cls })}>판정</Button>}<Button size="sm" variant="destructive" disabled={!live} onClick={() => quickBlock(r.host)}>차단 요청</Button></span></TableCell>
                   </TableRow>

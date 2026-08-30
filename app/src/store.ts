@@ -103,8 +103,8 @@ export const useStore = create<State>((set, get) => ({
     const s = get()
     const rec = reconcile(text, s.ledger, s.blocked)
     set({ rogues: rec.rogues, scanned: true, lastScan: hhmm() })
-    get().logEvent('scan', `수동 대조: 목적지 ${rec.rows.length}곳, 미등록 ${rec.rogues.length}건`)
-    toast(`대조 완료: 목적지 ${rec.rows.length}곳, 미등록 ${rec.rogues.length}건`)
+    get().logEvent('scan', `수동 대조: 목적지 ${rec.rows.length}곳, 미승인 ${rec.rogues.length}건`)
+    toast(`대조 완료: 목적지 ${rec.rows.length}곳, 미승인 ${rec.rogues.length}건`)
     return rec
   },
 
@@ -179,7 +179,7 @@ export const useStore = create<State>((set, get) => ({
     const rogues = rec.rogues.map(r => { const prev = s.rogues.find(x => x.host === r.host); return prev ? { ...prev, info: r.info } : r })
     set({ feed: f, tele, rogues, scanned: true, lastScan: f.last.slice(0, 5), freshHosts: fresh.map(r => r.host), hitHosts: { id: ++hitSeq, hosts: hitHosts } })
     fresh.forEach(r => {
-      get().logEvent('rogue', `미등록 연결 발견: ${r.host}, 단말 ${r.info.srcs.size}대, 포트 ${[...r.info.ports].join(',')}`)
+      get().logEvent('rogue', `미승인 연결 발견: ${r.host}, 단말 ${r.info.srcs.size}대, 포트 ${[...r.info.ports].join(',')}`)
       classifyRogue(r, get, set)
     })
   },

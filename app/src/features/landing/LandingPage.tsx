@@ -82,7 +82,8 @@ export function LandingPage() {
             ))}
           </ul>
           <p className="mt-4 text-[13px] text-dim">AI는 후보를 낼 뿐, 위반 확정은 검증 규칙이 합니다</p>
-          <p className="mt-2 text-[13px] text-body">합성 평가셋(문서 30건, 위반 84건) 기준 재현율 <span className="font-mono font-semibold nums">91.7%</span>, 정밀도 <span className="font-mono font-semibold nums">98.7%</span>. 규칙만으로는 59.5%에 그칩니다.</p>
+          <p className="mt-2 text-[13px] text-body">결합 탐지: 합성 평가셋(문서 200건, 위반 591건) 재현율 <span className="font-mono font-semibold nums">88.7%</span>, 정밀도 <span className="font-mono font-semibold nums">97.6%</span>. 규칙만으로는 52.3%.</p>
+          <p className="mt-1 text-[13px] text-body">처음 보는 도메인 분류: 정적 카테고리 목록 <span className="font-mono font-semibold nums">0%</span>, Kanana <span className="font-mono font-semibold nums">81.8%</span> (무명 22종 기준).</p>
         </div>
         <div className="surface-float overflow-hidden">
           <div className="flex items-center gap-2.5 px-5 pt-4 pb-3">

@@ -60,7 +60,7 @@ function Ticker() {
         <Item l="반기 평가 예정" n={saasDue} />
         <Item l="재승인 필요" n={reviewDue} />
       </>}
-      <Item l="미등록 연결" n={scanned ? rogues.length : '-'} tone={rogues.length ? 'text-bad-fg' : ''} />
+      <Item l="미승인 연결" n={scanned ? rogues.length : '-'} tone={rogues.length ? 'text-bad-fg' : ''} />
       {feed.started && <Item l="내용검사 위반" n={detectCount(contentLog)} />}
       {feed.started && <>
         <span className="h-4 w-px bg-[rgba(19,23,34,.1)]" />
@@ -150,7 +150,7 @@ function Detail() {
       <div ref={ref} className="detail-in mt-4 grid grid-cols-[1fr_320px] overflow-hidden surface">
         <div className="px-6 py-5">
           <div className="flex items-center gap-2.5">
-            <span className="font-mono text-[16px] font-semibold text-ink">{r.host}</span><Pill tone="bad">미등록 연결</Pill>{r.cls.ai && <Pill tone="blue">AI 분류</Pill>}
+            <span className="font-mono text-[16px] font-semibold text-ink">{r.host}</span><Pill tone="bad">미승인 연결</Pill>{r.cls.ai && <Pill tone="blue">AI 분류</Pill>}
           </div>
           <dl className="mt-4 grid max-w-[720px] grid-cols-[96px_1fr] gap-x-5 gap-y-2 text-[13.5px]">
             <dt className="text-faint">관측</dt><dd className="text-ink nums">{r.info.count}회, 단말 {r.info.srcs.size}대, 포트 {[...r.info.ports].join(', ')}</dd>
@@ -216,12 +216,12 @@ function Bottom() {
         )) : <div className="px-5 py-3 text-sm text-dim">없음</div>}
       </section>
       <section className="border-l border-[rgba(19,23,34,.07)]">
-        <header className="flex items-center px-5 pt-4 pb-2 text-[14px] font-semibold text-ink">미등록 연결 조치<span className="ml-2 font-mono text-[12px] font-normal text-dim nums">{rogues.length}</span></header>
+        <header className="flex items-center px-5 pt-4 pb-2 text-[14px] font-semibold text-ink">미승인 연결 조치<span className="ml-2 font-mono text-[12px] font-normal text-dim nums">{rogues.length}</span></header>
         {rogues.length ? rogues.map(r => (
           <div key={r.host} className="flex items-center gap-3 border-t border-[rgba(19,23,34,.06)] px-5 py-2 text-sm"><span className="font-mono text-[13px] font-medium text-bad-fg">{r.host}</span><span className="text-[12px] text-faint">{r.cls.kind}</span><span className="ml-auto flex gap-1.5">
             {r.cls.saasLike && <Button size="sm" className="h-7 px-3 text-[12px]" onClick={() => open({ host: r.host, name: r.host, fromRogue: true, cls: r.cls })}>판정</Button>}
             <Button size="sm" variant="outline" className="h-7 px-3 text-[12px] text-bad-fg hover:text-bad-fg" onClick={() => quickBlock(r.host)}>차단 요청</Button></span></div>
-        )) : <Empty action={!scanned ? <Button size="sm" variant="outline" onClick={startFeed}>데모 실행</Button> : undefined}><IconShieldCheck className="mx-auto mb-2 size-8 text-dim" stroke={1.4} />{scanned ? '조치할 미등록 연결 없음' : '대조 결과 없음'}</Empty>}
+        )) : <Empty action={!scanned ? <Button size="sm" variant="outline" onClick={startFeed}>데모 실행</Button> : undefined}><IconShieldCheck className="mx-auto mb-2 size-8 text-dim" stroke={1.4} />{scanned ? '조치할 미승인 연결 없음' : '대조 결과 없음'}</Empty>}
       </section>
     </div>
   )

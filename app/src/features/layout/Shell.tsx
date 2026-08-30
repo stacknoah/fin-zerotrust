@@ -40,7 +40,7 @@ function Search() {
   const ql = q.trim().toLowerCase()
   const hits = !ql ? [] : [
     ...ledger.filter(c => c.name.toLowerCase().includes(ql) || c.id.toLowerCase().includes(ql) || c.domains.some(d => d.includes(ql))).map(c => ({ id: c.id, name: c.name, host: c.domains[0], rogue: false })),
-    ...rogues.filter(r => r.host.includes(ql)).map((r, i) => ({ id: 'R-' + rogues.indexOf(r), name: r.host, host: '미등록', rogue: true, i })),
+    ...rogues.filter(r => r.host.includes(ql)).map((r, i) => ({ id: 'R-' + rogues.indexOf(r), name: r.host, host: '미승인', rogue: true, i })),
   ].slice(0, 8)
   const go = (id: string) => { setOpen(false); setQ(''); setSel(id); nav('/map') }
   return (

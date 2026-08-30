@@ -1,0 +1,339 @@
+{
+ "generatedAt": "2026-08-30T19:09:12.474Z",
+ "summary": {
+  "total": 36,
+  "unknownCount": 22,
+  "baseAll": "38.9",
+  "aiAll": "83.3",
+  "baseKnown": "100.0",
+  "aiKnown": "85.7",
+  "baseUnknown": "0.0",
+  "aiUnknown": "81.8"
+ },
+ "rows": [
+  {
+   "host": "chatgpt.com",
+   "gold": "생성형 AI 서비스",
+   "unknown": false,
+   "base": "생성형 AI 서비스",
+   "ai": "생성형 AI 서비스",
+   "baseOk": true,
+   "aiOk": true
+  },
+  {
+   "host": "claude.ai",
+   "gold": "생성형 AI 서비스",
+   "unknown": false,
+   "base": "생성형 AI 서비스",
+   "ai": "생성형 AI 서비스",
+   "baseOk": true,
+   "aiOk": true
+  },
+  {
+   "host": "gemini.google.com",
+   "gold": "생성형 AI 서비스",
+   "unknown": false,
+   "base": "생성형 AI 서비스",
+   "ai": "생성형 AI 서비스",
+   "baseOk": true,
+   "aiOk": true
+  },
+  {
+   "host": "notion.so",
+   "gold": "협업 SaaS",
+   "unknown": false,
+   "base": "협업 SaaS",
+   "ai": "협업 SaaS",
+   "baseOk": true,
+   "aiOk": true
+  },
+  {
+   "host": "slack.com",
+   "gold": "협업 SaaS",
+   "unknown": false,
+   "base": "협업 SaaS",
+   "ai": "메신저",
+   "baseOk": true,
+   "aiOk": false
+  },
+  {
+   "host": "trello.com",
+   "gold": "협업 SaaS",
+   "unknown": false,
+   "base": "협업 SaaS",
+   "ai": "협업 SaaS",
+   "baseOk": true,
+   "aiOk": true
+  },
+  {
+   "host": "anydesk.com",
+   "gold": "원격제어 도구",
+   "unknown": false,
+   "base": "원격제어 도구",
+   "ai": "원격제어 도구",
+   "baseOk": true,
+   "aiOk": true
+  },
+  {
+   "host": "teamviewer.com",
+   "gold": "원격제어 도구",
+   "unknown": false,
+   "base": "원격제어 도구",
+   "ai": "원격제어 도구",
+   "baseOk": true,
+   "aiOk": true
+  },
+  {
+   "host": "dropbox.com",
+   "gold": "개인 클라우드 저장소",
+   "unknown": false,
+   "base": "개인 클라우드 저장소",
+   "ai": "개인 클라우드 저장소",
+   "baseOk": true,
+   "aiOk": true
+  },
+  {
+   "host": "box.com",
+   "gold": "개인 클라우드 저장소",
+   "unknown": false,
+   "base": "개인 클라우드 저장소",
+   "ai": "원격제어 도구",
+   "baseOk": true,
+   "aiOk": false
+  },
+  {
+   "host": "wetransfer.com",
+   "gold": "파일 전송",
+   "unknown": false,
+   "base": "파일 전송",
+   "ai": "파일 전송",
+   "baseOk": true,
+   "aiOk": true
+  },
+  {
+   "host": "gmail.com",
+   "gold": "외부 웹메일",
+   "unknown": false,
+   "base": "외부 웹메일",
+   "ai": "외부 웹메일",
+   "baseOk": true,
+   "aiOk": true
+  },
+  {
+   "host": "facebook.com",
+   "gold": "소셜 미디어",
+   "unknown": false,
+   "base": "소셜 미디어",
+   "ai": "소셜 미디어",
+   "baseOk": true,
+   "aiOk": true
+  },
+  {
+   "host": "doubleclick.net",
+   "gold": "광고 추적",
+   "unknown": false,
+   "base": "광고 추적",
+   "ai": "광고 추적",
+   "baseOk": true,
+   "aiOk": true
+  },
+  {
+   "host": "pcshare.kr",
+   "gold": "원격제어 도구",
+   "unknown": true,
+   "base": "미분류",
+   "ai": "원격제어 도구",
+   "baseOk": false,
+   "aiOk": true
+  },
+  {
+   "host": "screenhand.io",
+   "gold": "원격제어 도구",
+   "unknown": true,
+   "base": "미분류",
+   "ai": "원격제어 도구",
+   "baseOk": false,
+   "aiOk": true
+  },
+  {
+   "host": "pc-remote24.net",
+   "gold": "원격제어 도구",
+   "unknown": true,
+   "base": "미분류",
+   "ai": "원격제어 도구",
+   "baseOk": false,
+   "aiOk": true
+  },
+  {
+   "host": "webmail.daehanpost.kr",
+   "gold": "외부 웹메일",
+   "unknown": true,
+   "base": "미분류",
+   "ai": "외부 웹메일",
+   "baseOk": false,
+   "aiOk": true
+  },
+  {
+   "host": "mail.bizpost.kr",
+   "gold": "외부 웹메일",
+   "unknown": true,
+   "base": "미분류",
+   "ai": "외부 웹메일",
+   "baseOk": false,
+   "aiOk": true
+  },
+  {
+   "host": "mydrive24.kr",
+   "gold": "개인 클라우드 저장소",
+   "unknown": true,
+   "base": "미분류",
+   "ai": "개인 클라우드 저장소",
+   "baseOk": false,
+   "aiOk": true
+  },
+  {
+   "host": "diskbox.io",
+   "gold": "개인 클라우드 저장소",
+   "unknown": true,
+   "base": "미분류",
+   "ai": "개인 클라우드 저장소",
+   "baseOk": false,
+   "aiOk": true
+  },
+  {
+   "host": "cloudkeep.net",
+   "gold": "개인 클라우드 저장소",
+   "unknown": true,
+   "base": "미분류",
+   "ai": "개인 클라우드 저장소",
+   "baseOk": false,
+   "aiOk": true
+  },
+  {
+   "host": "fastsend.co.kr",
+   "gold": "파일 전송",
+   "unknown": true,
+   "base": "미분류",
+   "ai": "원격제어 도구",
+   "baseOk": false,
+   "aiOk": false
+  },
+  {
+   "host": "sendbig.io",
+   "gold": "파일 전송",
+   "unknown": true,
+   "base": "미분류",
+   "ai": "개인 클라우드 저장소",
+   "baseOk": false,
+   "aiOk": false
+  },
+  {
+   "host": "filedrop24.com",
+   "gold": "파일 전송",
+   "unknown": true,
+   "base": "미분류",
+   "ai": "파일 전송",
+   "baseOk": false,
+   "aiOk": true
+  },
+  {
+   "host": "talkline.io",
+   "gold": "메신저",
+   "unknown": true,
+   "base": "미분류",
+   "ai": "원격제어 도구",
+   "baseOk": false,
+   "aiOk": false
+  },
+  {
+   "host": "chatroom24.kr",
+   "gold": "메신저",
+   "unknown": true,
+   "base": "미분류",
+   "ai": "메신저",
+   "baseOk": false,
+   "aiOk": true
+  },
+  {
+   "host": "docsbase.io",
+   "gold": "협업 SaaS",
+   "unknown": true,
+   "base": "미분류",
+   "ai": "협업 SaaS",
+   "baseOk": false,
+   "aiOk": true
+  },
+  {
+   "host": "wikiteam.kr",
+   "gold": "협업 SaaS",
+   "unknown": true,
+   "base": "미분류",
+   "ai": "협업 SaaS",
+   "baseOk": false,
+   "aiOk": true
+  },
+  {
+   "host": "projecthub.co.kr",
+   "gold": "협업 SaaS",
+   "unknown": true,
+   "base": "미분류",
+   "ai": "협업 SaaS",
+   "baseOk": false,
+   "aiOk": true
+  },
+  {
+   "host": "aiwriter.kr",
+   "gold": "생성형 AI 서비스",
+   "unknown": true,
+   "base": "미분류",
+   "ai": "생성형 AI 서비스",
+   "baseOk": false,
+   "aiOk": true
+  },
+  {
+   "host": "gptdesk.io",
+   "gold": "생성형 AI 서비스",
+   "unknown": true,
+   "base": "미분류",
+   "ai": "원격제어 도구",
+   "baseOk": false,
+   "aiOk": false
+  },
+  {
+   "host": "llmchat24.net",
+   "gold": "생성형 AI 서비스",
+   "unknown": true,
+   "base": "미분류",
+   "ai": "생성형 AI 서비스",
+   "baseOk": false,
+   "aiOk": true
+  },
+  {
+   "host": "socialfeed.io",
+   "gold": "소셜 미디어",
+   "unknown": true,
+   "base": "미분류",
+   "ai": "소셜 미디어",
+   "baseOk": false,
+   "aiOk": true
+  },
+  {
+   "host": "adtracker24.net",
+   "gold": "광고 추적",
+   "unknown": true,
+   "base": "미분류",
+   "ai": "광고 추적",
+   "baseOk": false,
+   "aiOk": true
+  },
+  {
+   "host": "pixelads.io",
+   "gold": "광고 추적",
+   "unknown": true,
+   "base": "미분류",
+   "ai": "광고 추적",
+   "baseOk": false,
+   "aiOk": true
+  }
+ ]
+}

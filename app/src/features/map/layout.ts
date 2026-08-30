@@ -84,12 +84,12 @@ export function buildMap(ledger: Conduit[], rogues: Rogue[], tele: { n: number; 
   // 미등록 (우하): 허브에서 줄기 하나로 나가 경계를 한 번 뚫고 버스에서 갈라진다
   let trunkKey: string | undefined
   if (rogues.length) {
-    zones.push({ key: 'rogue', x: RZ, y: RY, w: 252, h: ZT + rogues.length * PITCH + ZB, title: '미등록 목적지', n: String(rogues.length), st: { cls: 'bad', t: '조치 필요' } })
+    zones.push({ key: 'rogue', x: RZ, y: RY, w: 252, h: ZT + rogues.length * PITCH + ZB, title: '미승인 목적지', n: String(rogues.length), st: { cls: 'bad', t: '조치 필요' } })
     const yt = core.y + core.h - 28, bx = RN - 44 - 12
     const ys = rogues.map((_, k) => RY + ZT + k * PITCH + 22)
     const last = ys[ys.length - 1]
     trunkKey = 'R-' + (rogues.length - 1)
-    edges.push({ key: trunkKey, d: `M${core.x + core.w} ${yt} H${bx - R} a${R} ${R} 0 0 1 ${R} ${R} V${last - R} a${R} ${R} 0 0 0 ${R} ${R} H${RN}`, kind: 'rogue', chip: { x: bz.x + bz.w, y: yt, label: '미등록' } })
+    edges.push({ key: trunkKey, d: `M${core.x + core.w} ${yt} H${bx - R} a${R} ${R} 0 0 1 ${R} ${R} V${last - R} a${R} ${R} 0 0 0 ${R} ${R} H${RN}`, kind: 'rogue', chip: { x: bz.x + bz.w, y: yt, label: '미승인' } })
     rogues.forEach((r, k) => {
       nodes.push({ key: 'R-' + k, x: RN, y: RY + ZT + k * PITCH, w: 220, name: r.host, rogue: true, st: 'rogue', zone: 'rogue' })
       if (k < rogues.length - 1) edges.push({ key: 'R-' + k, d: `M${bx} ${ys[k]} H${RN}`, kind: 'rogue' })

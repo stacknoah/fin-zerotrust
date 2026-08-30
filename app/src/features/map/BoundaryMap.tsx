@@ -174,7 +174,7 @@ function Hub({ rogues, ledgerN, scanned, lastScan }: { rogues: number; ledgerN: 
       <text x={core.x + core.w - 20} y={core.y + 27} fontSize="11" fontWeight="500" fill="rgba(255,255,255,.5)" textAnchor="end" fontFamily="var(--font-mono)">단말 152대</text>
       <line x1={core.x + 16} y1={core.y + 41.5} x2={core.x + core.w - 16} y2={core.y + 41.5} stroke="rgba(255,255,255,.1)" />
       {row(63, '승인 연결', ledgerN)}
-      {row(87, '미등록 연결', scanned ? rogues : '-', scanned ? (rogues ? '#ff8a80' : '#7ee2a0') : 'rgba(255,255,255,.4)')}
+      {row(87, '미승인 연결', scanned ? rogues : '-', scanned ? (rogues ? '#ff8a80' : '#7ee2a0') : 'rgba(255,255,255,.4)')}
     </g>
   )
 }
@@ -183,7 +183,7 @@ function Legend({ live, scanned, lastScan }: { live: boolean; scanned: boolean; 
   const Line = ({ cls }: { cls: string }) => <i className={cn('mr-2 inline-block w-4 align-[3px] border-t', cls)} />
   return (
     <div className="relative flex items-center gap-5 border-t border-[rgba(19,23,34,.07)] bg-card px-5 py-2.5 text-xs text-faint">
-      <span className="flex items-center gap-4"><span className="font-mono text-[10.5px] tracking-[.04em] text-dim">연결</span><span><Line cls="border-[#8fa9e6] border-t-[1.25px]" />승인</span><span><Line cls="border-[#c4302b] border-dashed border-t-[1.5px]" />미등록</span></span>
+      <span className="flex items-center gap-4"><span className="font-mono text-[10.5px] tracking-[.04em] text-dim">연결</span><span><Line cls="border-[#8fa9e6] border-t-[1.25px]" />승인</span><span><Line cls="border-[#c4302b] border-dashed border-t-[1.5px]" />미승인</span></span>
       <span className="ml-4 flex items-center gap-4 border-l border-[rgba(19,23,34,.08)] pl-5"><span className="font-mono text-[10.5px] tracking-[.04em] text-dim">기한</span><span><i className="mr-1.5 inline-block size-1.5 rounded-full bg-ok" />정상</span><span><i className="mr-1.5 inline-block size-1.5 rounded-full bg-warn" />임박</span><span><i className="mr-1.5 inline-block size-1.5 rounded-full bg-bad" />경과</span></span>
       {scanned && <span className="ml-auto font-mono text-[11px] text-dim">{live ? '관측 중, ' : ''}마지막 대조 {lastScan}</span>}
     </div>
@@ -223,7 +223,7 @@ function Popover({ hoverKey, x, y, wrap }: { hoverKey: string; x: number; y: num
     const k = hoverKey.startsWith('R-') ? Number(hoverKey.slice(2)) : rogues.findIndex(r => r.host === hoverKey)
     const r = rogues[k]; if (!r) return null
     body = <>
-      <div className="mb-1 flex items-center gap-2 text-ink"><b className="font-mono font-semibold">{r.host}</b><Pill tone="bad">미등록</Pill>{r.cls.ai && <Pill tone="blue">AI 분류</Pill>}</div>
+      <div className="mb-1 flex items-center gap-2 text-ink"><b className="font-mono font-semibold">{r.host}</b><Pill tone="bad">미승인</Pill>{r.cls.ai && <Pill tone="blue">AI 분류</Pill>}</div>
       <div className="flex gap-3.5"><span>{r.cls.kind}</span><span>{r.info.count}회, 단말 {r.info.srcs.size}대</span></div>
       <div className="mt-1 text-body">{r.cls.risk}</div>
     </>

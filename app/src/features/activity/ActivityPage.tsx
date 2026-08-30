@@ -4,6 +4,7 @@ import { PageHeader, Panel } from '@/components/salpi'
 import { Button } from '@/components/ui/button'
 import { EventRow, FeedLine } from '@/features/home/HomePage'
 import { cn } from '@/lib/utils'
+import { today } from '@/lib/format'
 
 const FILTERS: { key: string; label: string; kinds: EventKind[] | null }[] = [
   { key: 'all', label: '전체', kinds: null },
@@ -26,7 +27,16 @@ export function ActivityPage() {
   const counts = (ks: EventKind[] | null) => ks ? events.filter(e => ks.includes(e.kind)).length : events.length
   return (
     <div className="view-in">
-      <PageHeader title="활동 기록" crumb="활동 기록"  actions={feed.on ? <Button variant="outline" onClick={pauseFeed}>일시정지</Button> : <Button onClick={startFeed}>{feed.started ? '관측 재개' : '데모 실행'}</Button>} />
+      <PageHeader title="활동 기록" crumb="활동 기록" actions={<>
+        <Button variant="outline" disabled={!events.length} onClick={() => {
+          const csv = '\uFEFF시각,유형,내용\n' + events.map(e => `${e.t},${e.kind},"${e.text.replace(/"/g, '""')}"`).join('\n')
+          const a = document.createElement('a')
+          a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }))
+          a.download = `salpi-증적-${today()}.csv`
+          a.click(); URL.revokeObjectURL(a.href)
+        }}>증적 내보내기</Button>
+        {feed.on ? <Button variant="outline" onClick={pauseFeed}>일시정지</Button> : <Button onClick={startFeed}>{feed.started ? '관측 재개' : '데모 실행'}</Button>}
+      </>} />
       <div className="grid grid-cols-[7fr_5fr] items-start gap-4">
         <Panel title="AI 활동" right={detReady ? <span className="inline-flex items-center gap-1.5 font-mono text-[11px]"><i className="size-1.5 rounded-full bg-ok" />Kanana 2 3B, {window.SALPI_LLM_ENDPOINT ? '원격' : '로컬'} 추론</span> : 'AI 미연결'} className="bg-[#f7faff] shadow-[0_0_0_1px_rgba(33,87,209,.14),var(--shadow-card)]">
           <div className="flex gap-1.5 px-5 pb-3">
@@ -40,7 +50,7 @@ export function ActivityPage() {
             {evs.length ? evs.map(e => <EventRow key={e.id} e={e} full />) : <div className="px-5 py-3 text-[13px] text-dim">기록 없음{f !== 'all' && `, ${FILTERS.find(x => x.key === f)?.label} 유형`}</div>}
           </div>
         </Panel>
-        <Panel title="관측 피드" count={`${lines.length}줄`} right={`데모 피드(합성)${feed.last ? `, 마지막 수신 ${feed.last}` : ''}`}>
+        <Panel title="관측 피드" count={`${lines.length}줄`} right={`ALLOW는 방화벽 판정, 데모 피드(합성)${feed.last ? `, 마지막 수신 ${feed.last}` : ''}`}>
           <div className="max-h-[560px] min-h-[200px] overflow-auto px-5 pt-1 pb-4 font-mono text-[11.5px] leading-[21px]">
             {lines.length ? lines.map((l, i) => <FeedLine key={i} l={l} ledger={ledger} />) : <div className="text-[12.5px] text-dim">수신 없음</div>}
           </div>
