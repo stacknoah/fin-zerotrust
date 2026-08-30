@@ -97,7 +97,7 @@ export function LandingPage() {
           <div className="flex items-center gap-2.5 px-5 pt-4 pb-3">
             <span className="text-[14px] font-semibold text-ink">AI 판정 실황</span>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-card px-2.5 py-0.5 font-mono text-[10.5px] text-body shadow-[var(--shadow-ring)]"><i className="size-1.5 rounded-full bg-ok" />Kanana 2 3B, 로컬 추론</span>
-            <span className="ml-auto text-[12px] text-faint">구간 3개, 결합 위반 2건 확정</span>
+            <span className="ml-auto text-[12px] text-faint">실측 기록 재생, 구간 3개, 결합 위반 2건 확정</span>
           </div>
           <div className="h-[3px] bg-primary/90" />
           <div className="px-5 pt-1 pb-2">

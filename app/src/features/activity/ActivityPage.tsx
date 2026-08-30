@@ -51,7 +51,7 @@ export function ActivityPage() {
             {evs.length ? evs.map(e => <EventRow key={e.id} e={e} full />) : <div className="px-5 py-3 text-[13px] text-dim">기록 없음{f !== 'all' && `, ${FILTERS.find(x => x.key === f)?.label} 유형`}</div>}
           </div>
         </Panel>
-        <Panel title="관측 피드" count={`${lines.length}줄`} right={`ALLOW는 방화벽 판정, 데모 피드(합성)${feed.last ? `, 마지막 수신 ${feed.last}` : ''}`}>
+        <Panel title="관측 피드" count={`${lines.length}줄`} right={`ext는 외부 유입, ALLOW는 방화벽 판정, 데모 피드(합성)${feed.last ? `, 마지막 수신 ${feed.last}` : ''}`}>
           <div className="max-h-[560px] min-h-[200px] overflow-auto px-5 pt-1 pb-4 font-mono text-[11.5px] leading-[21px]">
             {lines.length ? lines.map((l, i) => <FeedLine key={i} l={l} ledger={ledger} />) : <div className="text-[12.5px] text-dim">수신 없음</div>}
           </div>
