@@ -52,7 +52,7 @@ export function LogsPage() {
         </Panel>
       </div>
       {rows && (
-        <Panel className="mt-4 overflow-hidden" title="대조 결과" right={lastScan && <span>마지막 대조 {lastScan}</span>} count={
+        <Panel className="mt-4 overflow-hidden" title="대조 결과" right={<span>붙여넣은 입력 기준{lastScan ? `, 마지막 대조 ${lastScan}` : null}</span>} count={
           <span className="ml-2 inline-flex gap-2"><Chip l="목적지" n={rows.length} /><Chip l="승인됨" n={okN} /><Chip l="미승인" n={badN} bad={!!badN} />{blkN ? <Chip l="차단 요청" n={blkN} /> : null}</span>}>
           <Table>
             <TableHeader><TableRow className="hover:bg-transparent"><TableHead className="pl-5">목적지</TableHead><TableHead>관측</TableHead><TableHead>판정</TableHead><TableHead>대응 / 분류와 사유</TableHead><TableHead /></TableRow></TableHeader>

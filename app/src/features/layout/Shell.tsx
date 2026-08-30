@@ -68,12 +68,28 @@ function Search() {
 function AIStatus() {
   const detReady = useStore(s => s.detReady)
   const probe = useStore(s => s.probeAI)
+  const [open, setOpen] = useState(false)
   useEffect(() => { probe(); const t = setInterval(probe, 30000); return () => clearInterval(t) }, [probe])
+  const ep = window.SALPI_LLM_ENDPOINT
   return (
-    <span className="inline-flex h-8 shrink-0 items-center gap-2 rounded-full bg-card pr-3 pl-2.5 text-[12.5px] font-medium whitespace-nowrap text-body shadow-[var(--shadow-ring)]" title={`Kanana 2 3B ${window.SALPI_LLM_ENDPOINT ? '원격' : '로컬'}`}>
-      <span className={cn('size-1.5 rounded-full', detReady ? 'bg-ok' : 'bg-dim')} />
-      {detReady ? 'AI 연결됨' : 'AI 미연결'}
-      <span className="font-mono text-[11px] font-normal text-dim max-[1560px]:hidden">Kanana 2 3B {window.SALPI_LLM_ENDPOINT ? '원격' : '로컬'}</span>
+    <span className="relative">
+      <button onClick={() => setOpen(o => !o)} onBlur={() => setTimeout(() => setOpen(false), 150)}
+        className="inline-flex h-8 shrink-0 items-center gap-2 rounded-full bg-card pr-3 pl-2.5 text-[12.5px] font-medium whitespace-nowrap text-body shadow-[var(--shadow-ring)] transition hover:shadow-[0_0_0_1px_rgba(33,87,209,.4)]">
+        <span className={cn('size-1.5 rounded-full', detReady ? 'bg-ok' : 'bg-dim')} />
+        {detReady ? 'AI 연결됨' : 'AI 미연결'}
+        <span className="font-mono text-[11px] font-normal text-dim max-[1560px]:hidden">Kanana 2 3B {ep ? '원격' : '로컬'}</span>
+      </button>
+      {open && (
+        <div className="absolute top-full right-0 z-50 mt-1.5 w-[320px] surface-float p-4 text-left">
+          <div className="text-[13px] font-semibold text-ink">추론 런타임</div>
+          <dl className="mt-2 grid grid-cols-[72px_1fr] gap-x-3 gap-y-1.5 text-[12.5px]">
+            <dt className="text-faint">엔진</dt><dd className="text-ink">Ollama, 온프레미스</dd>
+            <dt className="text-faint">모델</dt><dd className="font-mono text-[11px] break-all text-ink">kanana-2-3b-instruct Q4_K_M (2.2GB)</dd>
+            <dt className="text-faint">위치</dt><dd className="font-mono text-[11px] break-all text-ink">{ep ? new URL(ep).host : 'localhost:11434'}</dd>
+            <dt className="text-faint">외부 API</dt><dd className="text-ink">호출 없음. 로그와 문서는 망 밖으로 나가지 않음</dd>
+          </dl>
+        </div>
+      )}
     </span>
   )
 }

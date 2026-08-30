@@ -81,9 +81,10 @@ export function LandingPage() {
               </li>
             ))}
           </ul>
-          <p className="mt-4 text-[13px] text-dim">AI는 후보를 낼 뿐, 위반 확정은 검증 규칙이 합니다</p>
+          <p className="mt-4 text-[13px] text-dim">AI는 후보를 낼 뿐 위반 확정은 검증 규칙이 하고, 확신이 없으면 미분류로 남겨 사람에게 넘깁니다</p>
           <p className="mt-2 text-[13px] text-body">결합 탐지: 합성 평가셋(문서 200건, 위반 591건) 재현율 <span className="font-mono font-semibold nums">88.7%</span>, 정밀도 <span className="font-mono font-semibold nums">97.6%</span>. 규칙만으로는 52.3%.</p>
           <p className="mt-1 text-[13px] text-body">처음 보는 도메인 분류: 정적 카테고리 목록 <span className="font-mono font-semibold nums">0%</span>, Kanana <span className="font-mono font-semibold nums">81.8%</span> (무명 22종 기준).</p>
+          <p className="mt-1 text-[13px] text-body">4배 큰 Mi:dm 11.5B와 같은 평가셋에서 F1 동률(<span className="font-mono font-semibold nums">93.8</span>), 속도는 2.7배. 그래서 3B입니다.</p>
         </div>
         <div className="surface-float overflow-hidden">
           <div className="flex items-center gap-2.5 px-5 pt-4 pb-3">
@@ -116,6 +117,28 @@ export function LandingPage() {
               3. <mark className="rounded-[2px]" style={{ background: 'linear-gradient(transparent 45%, #ffd9d6 45%)', color: 'inherit' }}>정해나 고객 재방문 상담 진행.</mark> <span className="text-faint">지시어로 이어진 다음 줄의 연체 이력과 결합</span>
             </p>
           </div>
+        </div>
+      </section>
+
+      {/* 기존 도구와의 경계 */}
+      <section className="mx-auto mt-24 max-w-[1200px] px-6">
+        <div className="surface overflow-hidden">
+          <div className="grid grid-cols-[1fr_repeat(2,150px)] border-b border-[rgba(19,23,34,.07)] px-6 py-3 text-[12px] font-medium text-faint">
+            <span /><span className="text-center">SWG, CASB</span><span className="text-center text-ink">살피</span>
+          </div>
+          {[
+            ['미승인 목적지 발견', true, true],
+            ['제2조의3 요건 판정과 승인 대장', false, true],
+            ['SaaS 문서의 신용정보 결합 검사', false, true],
+            ['반기 자체평가 보고서 생성', false, true],
+            ['망 안에서 끝나는 로컬 추론', false, true],
+          ].map(([t, a, b]) => (
+            <div key={String(t)} className="grid grid-cols-[1fr_repeat(2,150px)] items-center border-b border-[rgba(19,23,34,.05)] px-6 py-2.5 text-[13.5px] last:border-b-0">
+              <span className="text-ink">{t}</span>
+              <span className="text-center">{a ? <span className="text-body">있음</span> : <span className="text-dim">없음</span>}</span>
+              <span className="text-center font-medium text-primary">있음</span>
+            </div>
+          ))}
         </div>
       </section>
 

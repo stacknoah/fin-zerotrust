@@ -156,25 +156,24 @@ function Node({ n, sel, enter, ai, onClick, onEnter, onLeave }: { n: MapNode; se
 }
 
 function Hub({ rogues, ledgerN, scanned, lastScan }: { rogues: number; ledgerN: number; scanned: boolean; lastScan: string | null }) {
-  const row = (dy: number, k: string, v: string | number, cls = '#fff') => (
+  const row = (dy: number, k: string, v: string | number, cls = '#131722') => (
     <g key={k}>
-      <text x={core.x + 20} y={core.y + dy} fontSize="12" fill="rgba(255,255,255,.55)">{k}</text>
+      <text x={core.x + 20} y={core.y + dy} fontSize="12" fill="#697386">{k}</text>
       <text x={core.x + core.w - 20} y={core.y + dy} fontSize="12.5" fontWeight="500" fill={cls} textAnchor="end" fontFamily="var(--font-mono)">{v}</text>
     </g>
   )
   return (
     <g style={{ pointerEvents: 'none' }}>
       <defs>
-        <radialGradient id="hubShadow" cx="50%" cy="50%" r="50%"><stop offset="0" stopColor="#131722" stopOpacity=".18" /><stop offset=".6" stopColor="#131722" stopOpacity=".05" /><stop offset="1" stopColor="#131722" stopOpacity="0" /></radialGradient>
+        <radialGradient id="hubShadow" cx="50%" cy="50%" r="50%"><stop offset="0" stopColor="#131722" stopOpacity=".14" /><stop offset=".6" stopColor="#131722" stopOpacity=".04" /><stop offset="1" stopColor="#131722" stopOpacity="0" /></radialGradient>
       </defs>
       <rect x={core.x - 24} y={core.y - 8} width={core.w + 48} height={core.h + 44} rx="36" fill="url(#hubShadow)" />
-      <rect x={core.x} y={core.y} width={core.w} height={core.h} rx="12" fill="#131722" />
-      <rect x={core.x + .5} y={core.y + .5} width={core.w - 1} height={core.h - 1} rx="11.5" fill="none" stroke="rgba(255,255,255,.08)" />
-      <text x={core.x + 20} y={core.y + 27} fontSize="14" fontWeight="600" fill="#fff" letterSpacing="-.01em">내부업무망</text>
-      <text x={core.x + core.w - 20} y={core.y + 27} fontSize="11" fontWeight="500" fill="rgba(255,255,255,.5)" textAnchor="end" fontFamily="var(--font-mono)">단말 152대</text>
-      <line x1={core.x + 16} y1={core.y + 41.5} x2={core.x + core.w - 16} y2={core.y + 41.5} stroke="rgba(255,255,255,.1)" />
+      <rect x={core.x} y={core.y} width={core.w} height={core.h} rx="12" fill="#ffffff" stroke="#131722" strokeWidth="1.5" />
+      <text x={core.x + 20} y={core.y + 27} fontSize="14" fontWeight="600" fill="#131722" letterSpacing="-.01em">내부업무망</text>
+      <text x={core.x + core.w - 20} y={core.y + 27} fontSize="11" fontWeight="500" fill="#8792a2" textAnchor="end" fontFamily="var(--font-mono)">단말 152대</text>
+      <line x1={core.x + 16} y1={core.y + 41.5} x2={core.x + core.w - 16} y2={core.y + 41.5} stroke="rgba(19,23,34,.1)" />
       {row(63, '승인 연결', ledgerN)}
-      {row(87, '미승인 연결', scanned ? rogues : '-', scanned ? (rogues ? '#ff8a80' : '#7ee2a0') : 'rgba(255,255,255,.4)')}
+      {row(87, '미승인 연결', scanned ? rogues : '-', scanned ? (rogues ? '#c4302b' : '#1f8a4c') : '#8792a2')}
     </g>
   )
 }

@@ -126,7 +126,7 @@ export function ContentPage() {
           </ol>
           <div className="mx-5 mb-4 rounded-lg bg-muted px-3.5 py-2.5 text-[12px] leading-5 text-body">
             합성 문서 200건, 위반 591건으로 측정한 결과 재현율 <b className="font-mono font-semibold nums">88.7%</b>, 정밀도 <b className="font-mono font-semibold nums">97.6%</b>.
-            규칙만 쓰면 재현율 52.3%에 그친다. 검사 방해 지시문을 심은 주입 공격 문서도 평가셋에 포함. AI가 후보를 늘리고 검증 규칙이 오탐을 걷어낸 수치. 생성 규칙과 채점 코드는 저장소 eval 폴더에 공개. 측정 환경은 Apple M4 Pro, 로컬 추론.
+            규칙만 쓰면 재현율 52.3%에 그친다. 검사 방해 지시문을 심은 주입 공격 문서도 평가셋에 포함. AI가 후보를 늘리고 검증 규칙이 오탐을 걷어낸 수치. 생성 규칙과 채점 코드는 저장소 eval 폴더에 공개. 측정 환경은 Apple M4 Pro, 로컬 추론. 관측은 도메인 단위로 집계해 처음 본 목적지에만 추론을 부르므로 호출량은 로그 줄 수와 무관. 같은 평가셋에서 Kanana 3B는 4배 큰 Mi:dm 11.5B와 F1 동률(93.8), 속도 2.7배.
           </div>
         </Panel>
       </div>
