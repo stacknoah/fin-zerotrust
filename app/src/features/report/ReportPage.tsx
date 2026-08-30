@@ -39,17 +39,17 @@ export function ReportPage() {
         <table className="w-full border-collapse"><thead><tr><Th>유형</Th><Th>건수</Th></tr></thead><tbody>
           {Object.entries(byType).map(([t, n]) => <tr key={t}><Td>{t}</Td><Td>{n}</Td></tr>)}
           <tr className={rogues.length ? 'bg-[#fff1f1]' : ''}><Td><b>미등록 연결 (로그 실측)</b></Td><Td><b>{rogues.length}</b></Td></tr>
-          {blocked.length > 0 && <tr><Td>차단 확정</Td><Td>{blocked.length}</Td></tr>}
+          {blocked.length > 0 && <tr><Td>차단 요청</Td><Td>{blocked.length}</Td></tr>}
         </tbody></table>
         <h4 className="mt-5 mb-1.5 text-[12pt] font-bold">2. SaaS 반기 자체평가 (제4항)와 내용검사 증적</h4>
         <table className="w-full border-collapse"><thead><tr><Th>연결</Th><Th>적용 통제</Th><Th>내용검사 기록</Th><Th>기한</Th></tr></thead><tbody>
-          {saas.map(c => <tr key={c.id}><Td>{c.id} {c.name}</Td><Td cls="text-[8.5pt]">{c.controls}</Td><Td>{contentCount(contentLog, c.id)}건 (마스킹 저장)</Td><Td>{c.review.due}</Td></tr>)}
+          {saas.map(c => <tr key={c.id}><Td>{c.id} {c.name}</Td><Td cls="text-[8.5pt]">{c.controls}</Td><Td>{contentCount(contentLog, c.id) ? `${contentCount(contentLog, c.id)}건, 마스킹 저장` : '기록 없음'}</Td><Td>{c.review.due}</Td></tr>)}
         </tbody></table>
         <h4 className="mt-5 mb-1.5 text-[12pt] font-bold">3. 미등록 연결 발견과 조치</h4>
         {rogues.length || blocked.length ? (
           <table className="w-full border-collapse"><thead><tr><Th>목적지</Th><Th>분류</Th><Th>상태</Th></tr></thead><tbody>
             {rogues.map(r => <tr key={r.host}><Td>{r.host}</Td><Td>{r.cls.kind}</Td><Td>조치 대기 (등재 판정 또는 차단)</Td></tr>)}
-            {blocked.map(b => <tr key={b.host}><Td>{b.host}</Td><Td>{b.kind}</Td><Td>차단 확정</Td></tr>)}
+            {blocked.map(b => <tr key={b.host}><Td>{b.host}</Td><Td>{b.kind}</Td><Td>차단 요청, 정책 반영 대기</Td></tr>)}
           </tbody></table>
         ) : <p>대조 결과 없음</p>}
         <table className="mt-4 w-full border-collapse"><thead><tr><Th w="70%">확인</Th><Th>서명</Th></tr></thead><tbody>

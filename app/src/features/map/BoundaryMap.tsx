@@ -148,7 +148,7 @@ function Node({ n, sel, enter, ai, onClick, onEnter, onLeave }: { n: MapNode; se
       <rect x={n.x} y={n.y + 1} width={n.w} height="44" rx="8" fill="rgba(19,23,34,.04)" />
       <rect className="bg" x={n.x} y={n.y} width={n.w} height="44" rx="8" />
       <circle cx={n.x + 16} cy={n.y + 22} r="3" fill={dot} />
-      <text x={n.x + 28} y={n.y + 26.5} fontSize="13" fontWeight="500" fill={n.rogue ? '#a3261f' : '#131722'} letterSpacing="-.01em" fontFamily={n.rogue ? 'var(--font-mono)' : undefined} style={{ pointerEvents: 'none' }}>{n.name}</text>
+      <text x={n.x + 28} y={n.y + 26.5} fontSize={n.rogue && n.name.length > 15 ? 10.5 : 13} fontWeight="500" fill={n.rogue ? '#a3261f' : '#131722'} letterSpacing="-.01em" fontFamily={n.rogue ? 'var(--font-mono)' : undefined} style={{ pointerEvents: 'none' }}>{n.name}</text>
       {n.aux && <text x={n.x + n.w - 14} y={n.y + 26.5} fontSize="12" fontWeight="500" fill="#3f4655" textAnchor="end" fontFamily="var(--font-mono)" style={{ pointerEvents: 'none' }}>{n.aux}</text>}
       {n.rogue && ai && <g style={{ pointerEvents: 'none' }}><rect x={n.x + n.w - 40} y={n.y + 13} width="26" height="18" rx="5" fill="#eaf0fd" /><text x={n.x + n.w - 27} y={n.y + 25.5} fontSize="10" fontWeight="600" fill="#2157d1" textAnchor="middle" fontFamily="var(--font-mono)">AI</text></g>}
     </g>
@@ -175,7 +175,6 @@ function Hub({ rogues, ledgerN, scanned, lastScan }: { rogues: number; ledgerN: 
       <line x1={core.x + 16} y1={core.y + 41.5} x2={core.x + core.w - 16} y2={core.y + 41.5} stroke="rgba(255,255,255,.1)" />
       {row(63, '승인 연결', ledgerN)}
       {row(87, '미등록 연결', scanned ? rogues : '-', scanned ? (rogues ? '#ff8a80' : '#7ee2a0') : 'rgba(255,255,255,.4)')}
-      {row(111, '마지막 대조', lastScan || '-', lastScan ? '#fff' : 'rgba(255,255,255,.4)')}
     </g>
   )
 }

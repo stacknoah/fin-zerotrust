@@ -55,7 +55,7 @@ export const INITIAL_LEDGER: Conduit[] = [
     review: { type: '위원회 재승인', due: '2027-01' } },
 ]
 
-export interface Classification { kind: string; saasLike: boolean; risk: string; ai?: boolean; pending?: boolean }
+export interface Classification { kind: string; saasLike: boolean; risk: string; ai?: boolean; pending?: boolean; clue?: string }
 
 /* 미확인 도메인의 내장 분류. AI가 연결되면 Kanana가 분류하고, 미연결이거나 판단 보류면 이걸 쓴다 */
 export const CLASSIFY: Record<string, Classification> = {
@@ -67,6 +67,10 @@ export const CLASSIFY: Record<string, Classification> = {
     risk: '①항 2호 원격접속 요건(전용회선급, 별표7 통제)을 충족하지 않는 개인 원격제어. 가장 위험한 유형' },
   'dropbox.com': { kind: '개인 클라우드 저장소', saasLike: true,
     risk: '승인되지 않은 파일 반출 통로. 제15조 망분리 원칙 위반 상태' },
+  'webmail.daehanpost.kr': { kind: '외부 웹메일', saasLike: false,
+    risk: '업무 문서를 첨부해 외부 메일로 내보낼 수 있는 통로' },
+  'pcshare.kr': { kind: '원격제어 도구', saasLike: false,
+    risk: '외부에서 내부 단말 화면을 잡을 수 있는 원격제어로 추정' },
 }
 export const UNKNOWN_CLS: Classification = { kind: '미분류', saasLike: false, risk: '승인 대장의 어느 통로에도 해당하지 않는 외부 연결' }
 

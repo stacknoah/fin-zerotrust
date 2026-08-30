@@ -4,7 +4,7 @@ import { dueState, type DueState } from '@/lib/format'
 
 export const W = 1400
 const R = 8, PITCH = 52, ZT = 36, ZB = 16, FP = 22, H_N = 44
-export const core = { x: W / 2 - 130, y: 292, w: 260, h: 128 }
+export const core = { x: W / 2 - 130, y: 292, w: 260, h: 104 }
 export const bz = { x: core.x - 48, y: core.y - 40, w: core.w + 96, h: core.h + 80 }
 const RZ = W - 36 - 252, RN = RZ + 16
 const DY = 420, RY = 372, RMY = 228

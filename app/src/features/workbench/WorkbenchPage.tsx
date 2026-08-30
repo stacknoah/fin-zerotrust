@@ -79,7 +79,11 @@ export function WorkbenchPage() {
 
   return (
     <div className="view-in">
-      <PageHeader title="판정 워크벤치" crumb="판정 워크벤치" />
+      <PageHeader title="판정 워크벤치" crumb="판정 워크벤치" actions={<Button variant="outline" onClick={() => {
+        setSaas('dooray'); setUsage('doc'); setNature('id_only'); setL1('no')
+        const all: Record<number, boolean> = {}; for (let i = 0; i < 12; i++) all[i] = true
+        setApplied(all); setComp(all); setStep(5)
+      }}>예시로 채워 판정 보기</Button>} />
       <div className="grid grid-cols-[180px_1fr] items-start gap-6 max-md:grid-cols-1">
         <nav className="sticky top-[120px] rounded-lg border bg-card p-2.5">
           {STEPS.map((s, i) => (

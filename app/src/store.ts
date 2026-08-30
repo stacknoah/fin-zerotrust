@@ -11,11 +11,13 @@ export interface ActivityEvent { id: number; t: string; kind: EventKind; text: s
 export interface ContentRecord { t: number; tag: string; masked: string }
 export interface TeleSession { id: string; user: string; dept: string; region: string; since: string; mfa: boolean; check: 'ok' | 'fail'; checkNote: string }
 
-const TELE_NAMES = ['김서연','박준호','이지우','최민재','정하윤','강도현','윤서아','임태양','한예린','오승민','신유진','조현우','배소율','권지훈','송나래','황민서','문채원','류시우','전다은','홍재민','노아인','서지안','백현준','안소현','장우진','구하은','남도윤','심예나','유건우','곽지민','마서진','표준서','엄채은','탁시현','변하람','원지호','길다인','방수아','석준영','피서윤']
+const TELE_NAMES0 = ['김서연','박준호','이지우','최민재','정하윤','강도현','윤서아','임태양','한예린','오승민','신유진','조현우','배소율','권지훈','송나래','황민서','문채원','류시우','전다은','홍재민','노아인','서지안','백현준','안소현','장우진','구하은','남도윤','심예나','유건우','곽지민','마서진','표준서','엄채은','탁시현','변하람','원지호','길다인','방수아','석준영','피서윤']
+// 관제 화면에는 실명 대신 가운데를 가린 이름만 노출한다
+const TELE_NAMES = TELE_NAMES0.map(n => n[0] + '○' + n.slice(2))
 const TELE_DEPTS = ['영업2팀','여신심사팀','IT운영팀','준법감시팀','고객지원팀','리스크관리팀','상품개발팀']
 const TELE_REGIONS = ['서울','경기','인천','부산','대전']
 const TELE_FAIL = ['백신 정의 갱신 3일 경과', 'OS 보안 패치 미적용', '화면 캡처 차단 에이전트 미실행']
-const FEED_ROGUE_AT: Record<number, string> = { 4: 'chatgpt.com', 10: 'notion.so', 17: 'anydesk.com', 26: 'dropbox.com' }
+const FEED_ROGUE_AT: Record<number, string> = { 4: 'chatgpt.com', 10: 'notion.so', 17: 'anydesk.com', 24: 'webmail.daehanpost.kr', 31: 'pcshare.kr' }
 
 function teleInit(): TeleSession[] {
   const t0 = Date.now()
@@ -109,8 +111,8 @@ export const useStore = create<State>((set, get) => ({
   quickBlock: host => {
     const r = get().rogues.find(x => x.host === host); if (!r) return
     set(s => ({ blocked: [...s.blocked, { host, kind: r.cls.kind, reason: r.cls.risk }], rogues: s.rogues.filter(x => x.host !== host), sel: null }))
-    get().logEvent('block', `${host} 차단 확정`)
-    toast.error(`${host} 차단 확정`)
+    get().logEvent('block', `${host} 차단 요청 기록, 방화벽 정책 반영 대기`)
+    toast.error(`${host} 차단 요청 기록`)
   },
 
   register: w => {
@@ -134,8 +136,8 @@ export const useStore = create<State>((set, get) => ({
 
   blockFromWizard: (host, kind, reason) => {
     set(s => ({ blocked: [...s.blocked, { host, kind, reason }], rogues: s.rogues.filter(r => r.host !== host) }))
-    get().logEvent('block', `${host} 차단 확정`)
-    toast.error(`${host} 차단 확정`)
+    get().logEvent('block', `${host} 차단 요청 기록, 방화벽 정책 반영 대기`)
+    toast.error(`${host} 차단 요청 기록`)
   },
 
   addContentLog: (id, recs) => set(s => ({ contentLog: { ...s.contentLog, [id]: [...(s.contentLog[id] || []), ...recs].slice(-100) } })),
@@ -189,8 +191,8 @@ function feedLine(tick: number, ledger: Conduit[]) {
   const approved = ledger.filter(c => c.zone !== 'tele').map(c => ({ host: c.domains[0], port: (c.ports || '443').split(',')[0].trim() }))
   const pick = Math.random()
   let host: string, port: string
-  if (FEED_ROGUE_AT[tick]) { host = FEED_ROGUE_AT[tick]; port = host === 'anydesk.com' ? '7070' : '443' }
-  else if (seen.length && pick < 0.22) { host = seen[Math.floor(Math.random() * seen.length)]; port = host === 'anydesk.com' ? '7070' : '443' }
+  if (FEED_ROGUE_AT[tick]) { host = FEED_ROGUE_AT[tick]; port = host === 'anydesk.com' ? '7070' : host === 'pcshare.kr' ? '3389' : '443' }
+  else if (seen.length && pick < 0.22) { host = seen[Math.floor(Math.random() * seen.length)]; port = host === 'anydesk.com' ? '7070' : host === 'pcshare.kr' ? '3389' : '443' }
   else { const a = approved[Math.floor(Math.random() * approved.length)]; host = a.host; port = a.port }
   const src = `10.20.${1 + Math.floor(Math.random() * 3)}.${2 + Math.floor(Math.random() * 60)}`
   return `${today()} ${now()} SRC=${src} HOST=${host} DPT=${port} ACTION=ALLOW`
@@ -224,7 +226,7 @@ async function classifyRogue(r: Rogue, get: () => State, set: (p: Partial<State>
   const live = get().rogues.find(x => x.host === r.host); if (!live) return
   if (out) {
     set(st => ({ rogues: st.rogues.map(x => x.host === r.host ? { ...x, cls: { ...(CLASSIFY[r.host] || {}), ...out! } } : x), feed: { ...st.feed, aiCount: st.feed.aiCount + 1 } }))
-    get().logEvent('ai', `${r.host} 분류: ${out.kind}${out.saasLike ? ' (SaaS형)' : ''}. ${out.risk} (${((performance.now() - t0) / 1000).toFixed(1)}s)`)
+    get().logEvent('ai', `${r.host} 분류: ${out.kind}${out.saasLike ? ' (SaaS형)' : ''}${out.clue ? `, 단서 ${out.clue}` : ''}. ${out.risk} (${((performance.now() - t0) / 1000).toFixed(1)}s)`)
   } else {
     const cls = CLASSIFY[r.host] || UNKNOWN_CLS
     set(st => ({ rogues: st.rogues.map(x => x.host === r.host ? { ...x, cls: { ...cls } } : x) }))

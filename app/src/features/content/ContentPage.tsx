@@ -110,7 +110,7 @@ export function ContentPage() {
           </div>
           <div className="px-5 pb-5"><Textarea value={text} onChange={e => setText(e.target.value)} placeholder="검사할 문서나 회의록을 붙여넣으세요" className="min-h-[168px] bg-card text-[13.5px] leading-7" /></div>
         </Panel>
-        <Panel title="3층 탐지">
+        <Panel title="3층 탐지" right={<span className="font-mono text-[11px]">측정 기준</span>}>
           <ol className="px-5 pb-5">
             {[
               ['규칙', '주민번호 체크섬, 카드번호 검증 등 결정적 규칙. 브라우저에서 즉시'],
@@ -123,6 +123,10 @@ export function ContentPage() {
               </li>
             ))}
           </ol>
+          <div className="mx-5 mb-4 rounded-lg bg-muted px-3.5 py-2.5 text-[12px] leading-5 text-body">
+            합성 문서 30건, 위반 84건으로 측정한 결과 재현율 <b className="font-mono font-semibold nums">91.7%</b>, 정밀도 <b className="font-mono font-semibold nums">98.7%</b>.
+            규칙만 쓰면 재현율 59.5%에 그친다. AI가 후보를 늘리고 검증 규칙이 오탐을 걷어낸 수치.
+          </div>
         </Panel>
       </div>
 

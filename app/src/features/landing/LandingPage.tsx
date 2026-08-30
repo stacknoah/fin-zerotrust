@@ -80,19 +80,20 @@ export function LandingPage() {
             ))}
           </ul>
           <p className="mt-4 text-[13px] text-dim">AI는 후보를 낼 뿐, 위반 확정은 검증 규칙이 합니다</p>
+          <p className="mt-2 text-[13px] text-body">합성 평가셋(문서 30건, 위반 84건) 기준 재현율 <span className="font-mono font-semibold nums">91.7%</span>, 정밀도 <span className="font-mono font-semibold nums">98.7%</span>. 규칙만으로는 59.5%에 그칩니다.</p>
         </div>
         <div className="surface-float overflow-hidden">
           <div className="flex items-center gap-2.5 px-5 pt-4 pb-3">
             <span className="text-[14px] font-semibold text-ink">AI 판정 실황</span>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-card px-2.5 py-0.5 font-mono text-[10.5px] text-body shadow-[var(--shadow-ring)]"><i className="size-1.5 rounded-full bg-ok" />Kanana 2 3B, 로컬 추론</span>
-            <span className="ml-auto text-[12px] text-faint">구간 3개, 채택 1건, 폐기 2건</span>
+            <span className="ml-auto text-[12px] text-faint">구간 3개, 결합 위반 2건 확정</span>
           </div>
           <div className="h-[3px] bg-primary/90" />
           <div className="px-5 pt-1 pb-2">
             {[
               ['1/3', '박지현 고객 주택담보대출 연체 3개월 경과 건. 연락처 010-4821-7733.', '결합 위반', 'bad', '1.2s'],
-              ['2/3', '정해나 고객 재방문 상담 진행. 해당 고객은 신용대출 상환 지연 이력이', '근거 밖 이름 지목, 폐기', 'gray', '0.7s'],
-              ['3/3', '해당 고객은 신용대출 상환 지연 이력이 있음. 사내 워크숍 일정 공유.', '결합 요소 불명, 폐기', 'gray', '0.6s'],
+              ['2/3', '정해나 고객 재방문 상담 진행. 해당 고객은 신용대출 상환 지연 이력이', '지시어 결합 위반', 'bad', '0.9s'],
+              ['3/3', '해당 고객은 신용대출 상환 지연 이력이 있음. 사내 워크숍 일정 공유.', '이상 없음', 'gray', '0.6s'],
             ].map(([i, chunk, verdict, tone, ms]) => (
               <div key={i} className="grid grid-cols-[30px_1fr_auto_36px] items-center gap-3 border-t border-[rgba(19,23,34,.06)] py-2.5 first:border-t-0">
                 <span className="font-mono text-[11px] text-dim nums">{i}</span>
@@ -108,7 +109,7 @@ export function LandingPage() {
             <div className="mb-1.5 text-[11.5px] font-medium text-faint">원문 판정</div>
             <p className="text-[13.5px] leading-[24px] text-ink">
               1. <mark className="rounded-[2px]" style={{ background: 'linear-gradient(transparent 45%, #ffd9d6 45%)', color: 'inherit' }}>박지현 고객 주택담보대출 연체 3개월 경과 건. 연락처 010-4821-7733.</mark><br />
-              2. 신규 상품 한도 정책은 다음 회의에서 확정.
+              3. <mark className="rounded-[2px]" style={{ background: 'linear-gradient(transparent 45%, #ffd9d6 45%)', color: 'inherit' }}>정해나 고객 재방문 상담 진행.</mark> <span className="text-faint">지시어로 이어진 다음 줄의 연체 이력과 결합</span>
             </p>
           </div>
         </div>

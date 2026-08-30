@@ -56,10 +56,12 @@ function Ticker() {
       </span>
       <span className="h-4 w-px bg-[rgba(19,23,34,.1)]" />
       <Item l="승인 연결" n={ledger.length} />
-      <Item l="반기 평가 예정" n={saasDue} />
-      <Item l="재승인 필요" n={reviewDue} />
+      {feed.started && <>
+        <Item l="반기 평가 예정" n={saasDue} />
+        <Item l="재승인 필요" n={reviewDue} />
+      </>}
       <Item l="미등록 연결" n={scanned ? rogues.length : '-'} tone={rogues.length ? 'text-bad-fg' : ''} />
-      <Item l="위반 탐지" n={detectCount(contentLog)} />
+      {feed.started && <Item l="위반 탐지" n={detectCount(contentLog)} />}
       {feed.started && <>
         <span className="h-4 w-px bg-[rgba(19,23,34,.1)]" />
         <Item l="수신" n={feed.received + '줄'} />
@@ -157,7 +159,7 @@ function Detail() {
           </dl>
           <div className="mt-4 flex gap-2">
             {r.cls.saasLike && <Button size="sm" className="h-9 px-4" onClick={() => open({ host: r.host, name: r.host, fromRogue: true, cls: r.cls })}>판정하기 (등재 절차)</Button>}
-            <Button size="sm" variant="outline" className="h-9 px-4 text-bad-fg hover:text-bad-fg" onClick={() => quickBlock(r.host)}>차단 확정</Button>
+            <Button size="sm" variant="outline" className="h-9 px-4 text-bad-fg hover:text-bad-fg" onClick={() => quickBlock(r.host)}>차단 요청</Button>
           </div>
         </div>
         <div className="relative border-l border-[rgba(19,23,34,.07)] bg-bad-bg/60 px-6 py-5">
@@ -218,7 +220,7 @@ function Bottom() {
         {rogues.length ? rogues.map(r => (
           <div key={r.host} className="flex items-center gap-3 border-t border-[rgba(19,23,34,.06)] px-5 py-2 text-sm"><span className="font-mono text-[13px] font-medium text-bad-fg">{r.host}</span><span className="text-[12px] text-faint">{r.cls.kind}</span><span className="ml-auto flex gap-1.5">
             {r.cls.saasLike && <Button size="sm" className="h-7 px-3 text-[12px]" onClick={() => open({ host: r.host, name: r.host, fromRogue: true, cls: r.cls })}>판정</Button>}
-            <Button size="sm" variant="outline" className="h-7 px-3 text-[12px] text-bad-fg hover:text-bad-fg" onClick={() => quickBlock(r.host)}>차단</Button></span></div>
+            <Button size="sm" variant="outline" className="h-7 px-3 text-[12px] text-bad-fg hover:text-bad-fg" onClick={() => quickBlock(r.host)}>차단 요청</Button></span></div>
         )) : <Empty action={!scanned ? <Button size="sm" variant="outline" onClick={startFeed}>데모 실행</Button> : undefined}><IconShieldCheck className="mx-auto mb-2 size-8 text-dim" stroke={1.4} />{scanned ? '조치할 미등록 연결 없음' : '대조 결과 없음'}</Empty>}
       </section>
     </div>

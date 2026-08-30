@@ -39,9 +39,9 @@ export function LogsPage() {
         <Panel title="동작 방식">
           <ol className="px-5 pb-5">
             {[
-              ['수신', '방화벽 로그를 받아 목적지 도메인 단위로 관측 횟수, 단말, 포트를 집계'],
+              ['수신', '프록시, DNS, 방화벽 SNI 로그에서 목적지 도메인을 받아 관측 횟수, 단말, 포트로 집계. 여기서는 붙여넣기로 대신함'],
               ['대조', '승인 대장의 도메인 목록과 비교. 같은 입력이면 언제나 같은 결과'],
-              ['잔여', '대장에 없는 목적지만 남고, 로컬 AI가 무엇에 쓰는 서비스인지 분류'],
+              ['잔여', '대장에 없는 목적지만 남고, 처음 본 목적지에만 로컬 AI를 불러 분류'],
             ].map(([t, d], i) => (
               <li key={t} className="flex gap-3 py-2.5 not-last:border-b not-last:border-[rgba(19,23,34,.06)]">
                 <span className="mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-[rgba(19,23,34,.06)] font-mono text-[10.5px] font-semibold text-body">{i + 1}</span>
@@ -53,19 +53,19 @@ export function LogsPage() {
       </div>
       {rows && (
         <Panel className="mt-4 overflow-hidden" title="대조 결과" right={lastScan && <span>마지막 대조 {lastScan}</span>} count={
-          <span className="ml-2 inline-flex gap-2"><Chip l="목적지" n={rows.length} /><Chip l="승인됨" n={okN} /><Chip l="미등록" n={badN} bad={!!badN} />{blkN ? <Chip l="차단 확정" n={blkN} /> : null}</span>}>
+          <span className="ml-2 inline-flex gap-2"><Chip l="목적지" n={rows.length} /><Chip l="승인됨" n={okN} /><Chip l="미등록" n={badN} bad={!!badN} />{blkN ? <Chip l="차단 요청" n={blkN} /> : null}</span>}>
           <Table>
             <TableHeader><TableRow className="hover:bg-transparent"><TableHead className="pl-5">목적지</TableHead><TableHead>관측</TableHead><TableHead>판정</TableHead><TableHead>대응 / 분류와 사유</TableHead><TableHead /></TableRow></TableHeader>
             <TableBody>
               {rows.map(r => {
                 if (r.status === 'ok') return <TableRow key={r.host}><TableCell className="pl-5 font-mono">{r.host}</TableCell><TableCell>{r.info.count}회 {r.info.srcs.size}대</TableCell><TableCell><Pill tone="ok">승인됨</Pill></TableCell><TableCell className="text-body">{r.conduit.id} {r.conduit.name} ({r.conduit.basis})</TableCell><TableCell /></TableRow>
-                if (r.status === 'blocked') return <TableRow key={r.host} className="opacity-60"><TableCell className="pl-5 font-mono">{r.host}</TableCell><TableCell>{r.info.count}회</TableCell><TableCell><Pill>차단 확정</Pill></TableCell><TableCell className="text-body">{r.blk.kind}</TableCell><TableCell /></TableRow>
+                if (r.status === 'blocked') return <TableRow key={r.host} className="opacity-60"><TableCell className="pl-5 font-mono">{r.host}</TableCell><TableCell>{r.info.count}회</TableCell><TableCell><Pill>차단 요청됨</Pill></TableCell><TableCell className="text-body">{r.blk.kind}</TableCell><TableCell /></TableRow>
                 const live = rogues.find(x => x.host === r.host)
                 return (
                   <TableRow key={r.host} className="bg-[#fff7f7] hover:bg-[#fff1f1]">
                     <TableCell className="pl-5 font-mono font-semibold text-bad-fg">{r.host}</TableCell><TableCell>{r.info.count}회 {r.info.srcs.size}대</TableCell><TableCell><Pill tone="bad">미등록</Pill></TableCell>
                     <TableCell className="whitespace-normal"><b className="font-semibold text-ink">{r.rogue.cls.kind}</b><div className="text-[13px] text-body">{r.rogue.cls.risk}</div></TableCell>
-                    <TableCell className={cn('whitespace-nowrap', !live && 'opacity-40')}><span className="flex gap-1.5">{r.rogue.cls.saasLike && <Button size="sm" disabled={!live} onClick={() => open({ host: r.host, name: r.host, fromRogue: true, cls: r.rogue.cls })}>판정</Button>}<Button size="sm" variant="destructive" disabled={!live} onClick={() => quickBlock(r.host)}>차단</Button></span></TableCell>
+                    <TableCell className={cn('whitespace-nowrap', !live && 'opacity-40')}><span className="flex gap-1.5">{r.rogue.cls.saasLike && <Button size="sm" disabled={!live} onClick={() => open({ host: r.host, name: r.host, fromRogue: true, cls: r.rogue.cls })}>판정</Button>}<Button size="sm" variant="destructive" disabled={!live} onClick={() => quickBlock(r.host)}>차단 요청</Button></span></TableCell>
                   </TableRow>
                 )
               })}

@@ -10,7 +10,7 @@ export interface Classification { kind: string; saasLike: boolean; risk: string;
 export interface Engine {
   scan(text: string, opts?: { mode?: 'rules'|'heuristic'|'llm'|'hybrid'; llm?: LlmOpts }): Promise<ScanResult>
   llmAvailable(opts?: LlmOpts): Promise<{ ok: boolean; models?: string[]; hasModel?: boolean; error?: string }>
-  llmClassifyHost(host: string, obs: { count: number; devices: number; ports: string[] }, opts?: LlmOpts): Promise<Classification | null>
+  llmClassifyHost(host: string, obs: { count: number; devices: number; ports: string[] }, opts?: LlmOpts): Promise<(Classification & { clue?: string }) | null>
   DEFAULT_LLM: { endpoint: string; model: string; timeoutMs: number }
 }
 declare const SalpiEngine: Engine
