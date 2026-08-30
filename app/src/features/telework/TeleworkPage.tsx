@@ -90,6 +90,7 @@ export function TeleworkPage() {
             <dt className="text-faint">승인</dt><dd className="text-ink">{c.approved}</dd>
             <dt className="text-faint">적용 통제</dt><dd className="text-ink">{c.controls}</dd>
             <dt className="text-faint">다음 의무</dt><dd className="text-ink">{c.review.type} {c.review.due}</dd>
+            <dt className="text-faint">점검 출처</dt><dd className="text-ink">단말 관리(EDR, MDM) 연동. 데모는 합성 데이터</dd>
           </dl>
         </Panel>
       </div>

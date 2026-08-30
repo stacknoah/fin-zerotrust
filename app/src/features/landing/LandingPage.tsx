@@ -59,6 +59,7 @@ export function LandingPage() {
             데모 열기<IconArrowRight className="size-4" stroke={2} />
           </button>
         </div>
+        <p className="mt-4 text-[13px] text-dim">방화벽 로그를 승인 대장과 자동 대조하는 금융 망분리 관제 콘솔</p>
       </section>
 
       {/* 로컬 AI: 무엇을 하고 왜 사내에서 도는지 */}
@@ -67,6 +68,7 @@ export function LandingPage() {
           <h2 className="text-[34px] font-semibold leading-[1.2] tracking-[-0.02em] text-ink">추론은 망 안에서 끝납니다</h2>
           <p className="mt-4 text-[15px] leading-[1.7] text-faint">
             망분리 환경에서는 로그와 문서를 외부 AI API로 보낼 수 없습니다.<br />그래서 살피의 추론은 사내에서 도는 소형 모델 <span className="font-mono text-body">Kanana</span>를 사용합니다.
+            카카오가 공개한 국산 3B 모델로, 양자화하면 2.2GB라 업무망 서버는 물론 단말에도 올릴 수 있습니다.
           </p>
           <ul className="mt-6">
             {[
@@ -109,6 +111,7 @@ export function LandingPage() {
             <div className="mb-1.5 text-[11.5px] font-medium text-faint">원문 판정</div>
             <p className="text-[13.5px] leading-[24px] text-ink">
               1. <mark className="rounded-[2px]" style={{ background: 'linear-gradient(transparent 45%, #ffd9d6 45%)', color: 'inherit' }}>박지현 고객 주택담보대출 연체 3개월 경과 건. 연락처 010-4821-7733.</mark><br />
+              <span className="text-dim">2. 신규 상품 한도 정책은 다음 회의에서 확정.</span><br />
               3. <mark className="rounded-[2px]" style={{ background: 'linear-gradient(transparent 45%, #ffd9d6 45%)', color: 'inherit' }}>정해나 고객 재방문 상담 진행.</mark> <span className="text-faint">지시어로 이어진 다음 줄의 연체 이력과 결합</span>
             </p>
           </div>

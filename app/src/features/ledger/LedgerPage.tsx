@@ -31,9 +31,9 @@ export function LedgerPage() {
                 <TableCell><span className="inline-flex h-[22px] items-center rounded-full border border-[rgba(19,23,34,.14)] px-2 text-[11.5px] font-medium whitespace-nowrap text-body">{r.cls.kind}</span></TableCell>
                 <TableCell className="text-[13px] text-dim">대장에 없음</TableCell>
                 <TableCell><MonoCode>{r.host} :{[...r.info.ports].join(',')}</MonoCode></TableCell>
-                <TableCell className="font-mono text-[12px] text-faint nums">관측 {r.info.count}회</TableCell>
+                <TableCell className="font-mono text-[12px] text-faint nums">누적 {r.info.count}회</TableCell>
                 <TableCell><Pill tone="warn">조치 대기</Pill>{r.cls.ai && <span className="ml-1.5 font-mono text-[10.5px] text-faint">AI 분류</span>}</TableCell>
-                <TableCell className="w-[176px] pr-4 whitespace-nowrap"><span className="flex justify-end gap-1.5">{r.cls.saasLike && <Button size="sm" onClick={() => open({ host: r.host, name: r.host, fromRogue: true, cls: r.cls })}>판정</Button>}<Button size="sm" variant="outline" className="text-bad-fg hover:text-bad-fg" onClick={() => quickBlock(r.host)}>차단 요청</Button></span></TableCell>
+                <TableCell className="w-[176px] pr-4 whitespace-nowrap"><span className="flex items-center justify-end gap-1.5">{r.cls.saasLike ? <Button size="sm" onClick={() => open({ host: r.host, name: r.host, fromRogue: true, cls: r.cls })}>판정</Button> : <span className="mr-1 text-[11.5px] text-dim">등재 대상 아님</span>}<Button size="sm" variant="outline" className="text-bad-fg hover:text-bad-fg" onClick={() => quickBlock(r.host)}>차단 요청</Button></span></TableCell>
               </TableRow>
             ))}
             {ledger.map(c => {

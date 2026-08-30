@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 import { IconCheck, IconArrowRight } from '@tabler/icons-react'
 
-const STEPS = ['대상 선택', '데이터 성격', 'L1 시스템 필드', 'L2 자유 입력', 'L3 부수 생성', '판정']
+const STEPS = ['대상 선택', '데이터 성격', '자동 수집 정보', '담당자 입력', 'AI 검사 연계', '판정']
 
 function Seg<T extends string>({ value, options, onChange }: { value: T; options: [T, string][]; onChange: (v: T) => void }) {
   return (

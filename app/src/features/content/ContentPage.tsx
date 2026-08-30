@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils'
 const DROP_KO: Record<string, string> = {
   span_not_in_source: '원문에 없는 근거, 폐기', identifier_not_in_span: '근거 밖 이름 지목, 폐기', combined_missing_parts: '결합 요소 불명, 폐기',
   bad_label: '형식 벗어난 판정, 폐기', empty_span: '근거 없음, 폐기', invalid_json: '형식 오류, 폐기', call_failed: '호출 실패',
+  credit_not_adjacent: '이름 곁에 신용정보 없음, 폐기', identifier_not_a_name: '이름 아닌 식별자, 폐기', no_unique_id_pattern: '번호 패턴 없음, 폐기',
 }
 const LABEL_KO = (l: string) => (l === 'combined' ? '결합 위반' : l === 'unique_id' ? '고유식별정보' : '식별정보')
 
@@ -125,13 +126,13 @@ export function ContentPage() {
           </ol>
           <div className="mx-5 mb-4 rounded-lg bg-muted px-3.5 py-2.5 text-[12px] leading-5 text-body">
             합성 문서 30건, 위반 84건으로 측정한 결과 재현율 <b className="font-mono font-semibold nums">91.7%</b>, 정밀도 <b className="font-mono font-semibold nums">98.7%</b>.
-            규칙만 쓰면 재현율 59.5%에 그친다. AI가 후보를 늘리고 검증 규칙이 오탐을 걷어낸 수치.
+            규칙만 쓰면 재현율 59.5%에 그친다. AI가 후보를 늘리고 검증 규칙이 오탐을 걷어낸 수치. 생성 규칙과 채점 코드는 저장소 eval 폴더에 공개.
           </div>
         </Panel>
       </div>
 
       {live && detMode === 'hybrid' && (
-        <Panel className="mt-3.5" title="AI 판정 실황" count={<Pill>Kanana-2-3B {window.SALPI_LLM_ENDPOINT ? '원격' : '로컬'}</Pill>} right={live.done ? `구간 ${live.windows}개 판정 완료, 채택 ${live.done.accepted}건, 검증 폐기 ${live.done.dropped}건` : `문서를 ${live.windows}개 구간으로 나눠 판정 중`}>
+        <Panel className="mt-3.5" title="AI 판정 실황" count={<Pill>Kanana 2 3B, {window.SALPI_LLM_ENDPOINT ? '원격' : '로컬'} 추론</Pill>} right={live.done ? `구간 ${live.windows}개 판정 완료, 채택 ${live.done.accepted}건, 검증 폐기 ${live.done.dropped}건` : `문서를 ${live.windows}개 구간으로 나눠 판정 중`}>
           <div className="px-5"><Progress value={live.done ? 100 : Math.round((live.rows.filter(r => r.ms != null).length / Math.max(live.windows, 1)) * 100)} className="h-1" /></div>
           <div className="px-5 pt-2 pb-3">
             {live.rows.map(r => (

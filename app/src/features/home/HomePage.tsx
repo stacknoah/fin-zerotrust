@@ -61,7 +61,7 @@ function Ticker() {
         <Item l="재승인 필요" n={reviewDue} />
       </>}
       <Item l="미등록 연결" n={scanned ? rogues.length : '-'} tone={rogues.length ? 'text-bad-fg' : ''} />
-      {feed.started && <Item l="위반 탐지" n={detectCount(contentLog)} />}
+      {feed.started && <Item l="내용검사 위반" n={detectCount(contentLog)} />}
       {feed.started && <>
         <span className="h-4 w-px bg-[rgba(19,23,34,.1)]" />
         <Item l="수신" n={feed.received + '줄'} />
