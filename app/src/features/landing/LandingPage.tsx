@@ -59,7 +59,7 @@ export function LandingPage() {
             데모 열기<IconArrowRight className="size-4" stroke={2} />
           </button>
         </div>
-        <p className="mt-4 text-[13px] text-dim">방화벽 로그를 승인 대장과 자동 대조하는 금융 망분리 관제 콘솔</p>
+        <p className="mt-4 text-[13px] text-dim">정보보호 담당자를 위한 금융 망분리 관제 콘솔. 발견부터 반기 보고까지 한 화면에서 끝냅니다</p>
       </section>
 
       {/* 로컬 AI: 무엇을 하고 왜 사내에서 도는지 */}

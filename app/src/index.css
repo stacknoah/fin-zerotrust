@@ -128,7 +128,7 @@
 @keyframes nodeIn { from { opacity: 0; transform: translateY(6px); } }
 .map-edge { fill: none; stroke: #8fa9e6; stroke-width: 1.25; stroke-linecap: round; stroke-linejoin: round; transition: stroke 150ms; vector-effect: non-scaling-stroke; }
 .map-edge.soon { stroke: #8fa9e6; }
-.map-edge.over { stroke: #c4302b; }
+.map-edge.over { stroke: #b26a00; }
 .map-edge.rogue { stroke: #c4302b; stroke-width: 1.5; stroke-dasharray: 3 4; }
 .map-edge.sel { stroke: #2157d1; stroke-width: 1.75; }
 .map-edge.enter { animation: edgeIn 700ms cubic-bezier(.3,0,0,1) both; }

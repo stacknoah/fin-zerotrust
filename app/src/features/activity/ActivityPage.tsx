@@ -9,7 +9,8 @@ import { today } from '@/lib/format'
 const FILTERS: { key: string; label: string; kinds: EventKind[] | null }[] = [
   { key: 'all', label: '전체', kinds: null },
   { key: 'ai', label: 'AI', kinds: ['ai', 'content'] },
-  { key: 'found', label: '발견', kinds: ['rogue', 'scan', 'tele'] },
+  { key: 'found', label: '발견', kinds: ['rogue', 'scan'] },
+  { key: 'tele', label: '재택', kinds: ['tele'] },
   { key: 'action', label: '조치', kinds: ['block', 'register'] },
 ]
 

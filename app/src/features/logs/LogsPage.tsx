@@ -64,7 +64,7 @@ export function LogsPage() {
                 return (
                   <TableRow key={r.host} className="bg-[#fff7f7] hover:bg-[#fff1f1]">
                     <TableCell className="pl-5 font-mono font-semibold text-bad-fg">{r.host}</TableCell><TableCell>{r.info.count}회 {r.info.srcs.size}대</TableCell><TableCell><Pill tone="bad">미승인</Pill></TableCell>
-                    <TableCell className="whitespace-normal"><b className="font-semibold text-ink">{r.rogue.cls.kind}</b><div className="text-[13px] text-body">{r.rogue.cls.risk}</div></TableCell>
+                    <TableCell className="whitespace-normal"><b className="font-semibold text-ink">{r.rogue.cls.kind}</b>{r.rogue.cls.ai && <span className="ml-1.5 rounded-full bg-accent px-1.5 py-px font-mono text-[10px] text-primary">AI</span>}<div className="text-[13px] text-body">{r.rogue.cls.risk}</div></TableCell>
                     <TableCell className={cn('whitespace-nowrap', !live && 'opacity-40')}><span className="flex gap-1.5">{r.rogue.cls.saasLike && <Button size="sm" disabled={!live} onClick={() => open({ host: r.host, name: r.host, fromRogue: true, cls: r.rogue.cls })}>판정</Button>}<Button size="sm" variant="destructive" disabled={!live} onClick={() => quickBlock(r.host)}>차단 요청</Button></span></TableCell>
                   </TableRow>
                 )

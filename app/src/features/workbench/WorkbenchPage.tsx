@@ -88,7 +88,7 @@ export function WorkbenchPage() {
         <nav className="sticky top-[120px] rounded-lg border bg-card p-2.5">
           {STEPS.map((s, i) => (
             <div key={s} className={cn('flex items-center gap-2.5 rounded-md px-3 py-2 text-sm', i === step ? 'bg-accent font-semibold text-primary' : i < step ? 'text-body' : 'text-faint')}>
-              <span className={cn('inline-flex size-5 items-center justify-center rounded-full border-[1.5px] font-mono text-[10px] font-semibold', i === step ? 'border-primary bg-primary text-white' : i < step ? 'border-ok-bg bg-ok-bg text-ok-fg' : 'border-[#c5cfdb] text-faint')}>{i < step ? <IconCheck className="size-3" stroke={3} /> : i + 1}</span>{s}
+              <span className={cn('inline-flex size-5 items-center justify-center rounded-full border-[1.5px] font-mono text-[10px] font-semibold', i === step ? 'border-primary bg-primary text-white' : i < step ? 'border-ok-bg bg-ok-bg text-ok-fg' : 'border-[#c5cfdb] text-faint')}>{i < step ? <IconCheck className="size-3" stroke={3} /> : i + 1}</span>{s}{i === 4 && <span className="ml-auto rounded-full bg-accent px-1.5 py-px font-mono text-[9.5px] font-semibold text-primary">AI</span>}
             </div>
           ))}
         </nav>
@@ -161,6 +161,7 @@ export function WorkbenchPage() {
             <div className="mt-8 flex items-center justify-between">
               <Button variant="ghost" onClick={() => go(4)}>이전</Button>
               <span className="flex gap-2"><Button variant="outline" onClick={restart}>처음부터</Button><Button onClick={() => window.print()}>검토서 생성</Button></span>
+            <p className="mt-4 text-[11.5px] leading-4 text-dim">내부 검토 보조 자료입니다. 최종 판단은 정보보호위원회 의결로, 해석이 갈리는 사안은 감독당국 질의로 확정합니다.</p>
             </div>
             <Report saas={saas} usage={usage} nature={nature} l1={l1} ent={ent} applied={applied} comp={comp} v={verdict} />
           </>}
