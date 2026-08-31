@@ -83,7 +83,7 @@ export function WorkbenchPage() {
         setSaas('dooray'); setUsage('doc'); setNature('id_only'); setL1('no')
         const all: Record<number, boolean> = {}; for (let i = 0; i < 12; i++) all[i] = true
         setApplied(all); setComp(all); setStep(5)
-      }}>예시로 채워 판정 보기</Button>} />
+      }}>예시 판정 보기</Button>} />
       <PageTip id="workbench">새로 도입할 SaaS가 제2조의3 예외 요건에 맞는지 여섯 단계로 판정하고 검토서를 냅니다.</PageTip>
       <div className="grid grid-cols-[180px_1fr] items-start gap-6 max-md:grid-cols-1">
         <nav className="sticky top-[120px] rounded-lg border bg-card p-2.5">
@@ -96,7 +96,16 @@ export function WorkbenchPage() {
         <main className="min-w-0 rounded-lg border bg-card px-8 py-7">
           <div className={cn('mb-6 rounded-lg border bg-muted px-4 text-[13.5px] leading-relaxed text-body', premise ? 'py-3' : 'py-2.5')}>
             <div className="flex items-center gap-2.5 font-semibold text-ink">전제 조건<span className="text-xs font-medium text-faint">전자금융감독규정 시행세칙 제2조의3 제1항 제3호</span><Button variant="ghost" size="xs" className="ml-auto text-body" onClick={() => setPremise(v => !v)}>{premise ? '접기' : '펼치기'}</Button></div>
-            {premise && <div className="mt-1.5">이 판정은 해당 SaaS가 침해사고대응기관(금융보안원)의 CSP 안전성 평가에서 '충족'을 받았음을 전제로 한다(시행세칙 별표7 제1통제). 충족 여부는 금융보안원 CSP 안전성 평가 통합지원시스템의 SaaS 제공자 평가 이력에서 확인한다. 본 도구는 그 다음 관문인 <b className="font-semibold text-ink">"이용자의 고유식별정보 또는 개인신용정보를 처리하지 않을 것"</b> 요건의 검토를 구조화한다.</div>}
+            {premise && (
+              <dl className="mt-2.5 grid grid-cols-[74px_1fr] gap-x-4 gap-y-1.5 text-[13px] leading-[21px]">
+                <dt className="text-faint">전제</dt>
+                <dd className="text-body">해당 SaaS가 금융보안원 CSP 안전성 평가에서 충족을 받았을 것 (별표7 제1통제)</dd>
+                <dt className="text-faint">확인처</dt>
+                <dd className="text-body">금융보안원 CSP 안전성 평가 통합지원시스템의 SaaS 제공자 평가 이력</dd>
+                <dt className="text-faint">이 도구</dt>
+                <dd className="text-body">다음 관문인 <b className="font-semibold text-ink">고유식별정보와 개인신용정보를 처리하지 않을 것</b> 요건을 검토</dd>
+              </dl>
+            )}
           </div>
 
           {step === 0 && <>
