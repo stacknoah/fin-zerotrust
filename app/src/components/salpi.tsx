@@ -20,20 +20,17 @@ export function Dot({ tone, className }: { tone: 'ok' | 'soon' | 'over' | 'bad' 
   return <span className={cn('inline-block size-1.5 rounded-full', c, className)} />
 }
 
-/* 페이지 첫 방문에 한 번 뜨는 한 줄 안내 */
+/* 페이지에 들어올 때마다 잠깐 뜨는 한 줄 안내 */
 export function PageTip({ id, children }: { id: string; children: ReactNode }) {
-  const key = 'salpi_tip_' + id
-  const [open, setOpen] = useState(() => { try { return !sessionStorage.getItem(key) } catch { return true } })
-  const close = () => { try { sessionStorage.setItem(key, '1') } catch { void 0 } setOpen(false) }
   const [gone, setGone] = useState(false)
+  const [done, setDone] = useState(false)
   useEffect(() => {
-    if (!open) return
+    setGone(false); setDone(false)
     const fade = setTimeout(() => setGone(true), 7000)
-    const done = setTimeout(close, 7500)
-    return () => { clearTimeout(fade); clearTimeout(done) }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open])
-  if (!open) return null
+    const end = setTimeout(() => setDone(true), 7600)
+    return () => { clearTimeout(fade); clearTimeout(end) }
+  }, [id])
+  if (done) return null
   return (
     <div className={cn('tip-in relative mb-4 inline-flex max-w-[720px] items-start rounded-xl bg-ink px-4 py-2.5 text-[13.5px] leading-5 text-white shadow-[var(--shadow-float)] transition-opacity duration-500', gone && 'opacity-0')}>
       <span className="absolute -top-[5px] left-7 size-[10px] rotate-45 rounded-[2px] bg-ink" />
