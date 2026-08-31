@@ -149,7 +149,7 @@ export const useStore = create<State>((set, get) => ({
       get().logEvent('sys', ok ? 'AI 연결됨, 미확인 목적지는 Kanana가 분류' : 'AI 미연결, 내장 분류로 동작')
     }
     set(st => ({ feed: { ...st.feed, on: true, started: true } }))
-    get().logEvent('sys', '관측 시작, 데모 피드(가상)')
+    get().logEvent('sys', '관측 시작, 데모 피드(합성)')
     if (timer) clearInterval(timer)
     timer = setInterval(() => get().feedTick(), 2500)
     get().feedTick()

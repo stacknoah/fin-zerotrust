@@ -160,7 +160,7 @@ export function LandingPage() {
           <BoundaryMap data={data} compact />
           <div className="flex items-center gap-4 border-t border-[rgba(19,23,34,.06)] px-5 py-2.5 text-[12px] text-faint">
             <span className="flex items-center gap-2 font-medium text-ink"><i className="size-[7px] rounded-full bg-ok breathe" />관측 중</span>
-            <span className="ml-auto font-mono text-[11px] text-dim">가상 데이터</span>
+            <span className="ml-auto font-mono text-[11px] text-dim">합성 데이터</span>
           </div>
         </div>
       </section>
