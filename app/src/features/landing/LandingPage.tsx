@@ -47,7 +47,7 @@ export function LandingPage() {
         <div>
           <h2 className="text-[34px] font-semibold leading-[1.2] tracking-[-0.02em] text-ink">한 바이트도<br />반출되지 않습니다</h2>
           <p className="mt-4 text-[15px] leading-[1.7] text-faint">
-            로그도 문서도 망 안에 머뭅니다.<br />추론은 사내에서 도는 국산 3B 모델 <span className="font-mono text-body">Kanana</span>가 맡습니다.
+            로그도 문서도 망 안에서 관리합니다.<br />추론은 사내에서 운용하는 한국 오픈소스 모델 <span className="font-mono text-body">Kanana</span>가 맡습니다.
           </p>
           <div className="mt-5 flex flex-wrap gap-1.5">
             {['목적지 분류', '위험 서술', '신용정보 결합 탐지'].map(t => (
@@ -110,8 +110,8 @@ export function LandingPage() {
       {/* 기존 도구와의 경계 */}
       <section className="mx-auto mt-24 max-w-[1200px] px-6">
         <div className="mx-auto mb-8 max-w-[640px] text-center">
-          <h2 className="text-[30px] font-semibold leading-[1.2] tracking-[-0.02em] text-ink">기존 보안 장비와 무엇이 다른가</h2>
-          <p className="mt-3 text-[15px] leading-[1.7] text-faint">SWG와 CASB는 연결을 막고, DLP는 문서를 검사합니다.<br />규제 요건 판정과 승인 대장, 반기 보고는 어느 장비도 하지 않습니다.</p>
+          <h2 className="text-[30px] font-semibold leading-[1.2] tracking-[-0.02em] text-ink">기존 보안 도구와 무엇이 다른가</h2>
+          <p className="mt-3 text-[15px] leading-[1.7] text-faint">SWG와 CASB는 연결을 막고, DLP는 문서를 검사합니다.<br />규제 요건 판정과 승인 대장, 반기 보고는 어느 도구도 하지 않습니다.</p>
         </div>
         <div className="surface overflow-hidden">
           <div className="grid grid-cols-[1fr_repeat(3,130px)] border-b border-[rgba(19,23,34,.07)] px-6 py-3 text-[12px] font-medium text-faint">
