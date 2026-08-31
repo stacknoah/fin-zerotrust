@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 import { IconCheck, IconArrowRight } from '@tabler/icons-react'
 
-const STEPS = ['대상 선택', '데이터 성격', '자동 수집 정보', '담당자 입력', 'AI 검사 연계', '판정']
+const STEPS = ['대상 선택', '데이터 성격', '자동 수집 정보', '담당자 입력', 'AI 검사', '판정']
 
 function Seg<T extends string>({ value, options, onChange }: { value: T; options: [T, string][]; onChange: (v: T) => void }) {
   return (
@@ -84,7 +84,7 @@ export function WorkbenchPage() {
         const all: Record<number, boolean> = {}; for (let i = 0; i < 12; i++) all[i] = true
         setApplied(all); setComp(all); setStep(5)
       }}>예시 판정 보기</Button>} />
-      <PageTip id="workbench">새로 도입할 SaaS가 제2조의3 예외 요건에 맞는지 여섯 단계로 판정하고 검토서를 냅니다.</PageTip>
+      <PageTip id="workbench">새로 도입할 SaaS가 전자금융감독규정 예외 요건에 맞는지 여섯 단계로 판정하고 검토서를 냅니다.</PageTip>
       <div className="grid grid-cols-[180px_1fr] items-start gap-6 max-md:grid-cols-1">
         <nav className="sticky top-[120px] rounded-lg border bg-card p-2.5">
           {STEPS.map((s, i) => (
@@ -123,7 +123,6 @@ export function WorkbenchPage() {
               <Seg value={profile.sector} options={[['bank', '은행, 금융지주'], ['mid', '저축은행, 캐피탈'], ['fintech', '핀테크, 전자금융업자']]} onChange={v => setProfile(p => ({ ...p, sector: v }))} />
               <span className="ml-1.5 text-[11px] text-faint">보안 라이선스</span>
               <Seg value={profile.e5} options={[['yes', 'E5급 보유'], ['no', '미보유'], ['unknown', '미확인']]} onChange={v => setProfile(p => ({ ...p, e5: v }))} />
-              <span className="text-[11.5px] text-faint">프로필에 따라 조치 제안이 달라진다</span>
             </div>
             <div className="flex flex-col gap-2">{USAGES.map(u => <Opt key={u.key} on={usage === u.key} t={u.t} d={u.d} onClick={() => setUsage(u.key)} />)}</div>
             {nav(!!saas && !!usage)}

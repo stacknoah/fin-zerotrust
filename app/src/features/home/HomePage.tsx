@@ -34,8 +34,8 @@ function Welcome() {
             </li>
           ))}
         </ol>
-        <p className="mt-2.5 text-[12px] text-dim">합성 데이터 위에서 실제 AI가 판단합니다</p>
-        <div className="mt-4 flex justify-end gap-2">
+        <p className="mt-3 text-[12px] text-dim">합성 데이터 위에서 실제 AI가 판단합니다</p>
+        <div className="mt-3 flex justify-end gap-2">
           <Button variant="outline" onClick={close}>둘러보기</Button>
           <Button onClick={() => { close(); startFeed() }}>데모 실행하며 시작</Button>
         </div>
@@ -56,9 +56,9 @@ function MapHud() {
     <>
       <span className="absolute top-4 left-4 z-10 flex h-9 items-center gap-2.5 rounded-full bg-card pr-4 pl-3.5 shadow-[var(--shadow-float)]">
         <i className={cn('size-2 rounded-full', tone === 'bad' ? 'bg-bad' : tone === 'ok' ? 'bg-ok' : 'bg-dim', feed.on && tone !== 'idle' && 'breathe')} />
-        <b className="text-[13.5px] font-semibold text-ink">{tone === 'idle' ? '관측 전' : tone === 'bad' ? '경계 불일치' : '경계 일치'}</b>
-        {tone === 'bad' && <span className="text-[12.5px] font-medium text-bad-fg">미승인 <span className="font-mono nums">{rogues.length}</span>건</span>}
-        {tone === 'ok' && <span className="text-[12.5px] text-faint">전부 승인 연결</span>}
+        <b className="text-[13.5px] font-semibold text-ink">{tone === 'idle' ? '관측 전' : tone === 'bad' ? '미승인 연결 발견' : '모두 승인된 연결'}</b>
+        {tone === 'bad' && <span className="font-mono text-[12.5px] font-semibold text-bad-fg nums">{rogues.length}건</span>}
+        
       </span>
       <span className="absolute top-4 right-4 z-10">
         {feed.on

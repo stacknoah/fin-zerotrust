@@ -6,9 +6,16 @@ import type { Conduit } from '@/data/ledger'
 import { textW, ddayLabel } from '@/lib/format'
 import { buildMap, core, bz, W, type MapNode } from './layout'
 import { cn } from '@/lib/utils'
+import { IconSun, IconMoon, IconMaximize, IconMinimize, IconBuildingBank, IconServer2, IconCloud, IconHome, IconDeviceDesktop, IconAlertTriangle } from '@tabler/icons-react'
 import { Pill } from '@/components/salpi'
 
 const SVGNS = 'http://www.w3.org/2000/svg'
+
+/* 구역마다 성격을 드러내는 최소 아이콘 */
+const ZONE_ICON: Record<string, typeof IconCloud> = {
+  fin: IconBuildingBank, dmz: IconServer2, saas: IconCloud,
+  tele: IconHome, remote: IconDeviceDesktop, rogue: IconAlertTriangle,
+}
 
 function fractionAt(path: SVGPathElement, x: number, y: number) {
   const L = path.getTotalLength(); let best = 0, bd = 1e9
@@ -49,6 +56,18 @@ export function BoundaryMap({ data, compact }: { data?: MapData; compact?: boole
   const svgRef = useRef<SVGSVGElement>(null)
   const pktRef = useRef<SVGGElement>(null)
   const [hover, setHover] = useState<{ key: string; x: number; y: number } | null>(null)
+  const [dark, setDark] = useState(false)
+  const [fs, setFs] = useState(false)
+  useEffect(() => {
+    const h = () => setFs(!!document.fullscreenElement)
+    document.addEventListener('fullscreenchange', h)
+    return () => document.removeEventListener('fullscreenchange', h)
+  }, [])
+  const toggleFs = () => {
+    const el = wrapRef.current; if (!el) return
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {})
+    else el.requestFullscreen().catch(() => {})
+  }
 
   // 관측 점 흐름
   useEffect(() => {
@@ -88,14 +107,15 @@ export function BoundaryMap({ data, compact }: { data?: MapData; compact?: boole
 
   const chipW = 44
   return (
-    <div ref={wrapRef} className={cn('relative overflow-hidden', compact ? '' : 'surface-float', live && 'map-live')}>
-      <div className="dotgrid absolute inset-0 opacity-70" />
-      <div className="pointer-events-none absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 55%, rgba(255,255,255,.9) 0%, rgba(255,255,255,.35) 45%, rgba(255,255,255,0) 75%)' }} />
+    <div ref={wrapRef} className={cn('map-wrap relative overflow-hidden', compact ? '' : 'surface-float', live && 'map-live', dark && 'map-dark', fs && 'flex flex-col justify-center')}
+      style={dark ? { background: '#0e1420' } : undefined}>
+      <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(var(--m-dot) 1px, transparent 1.2px)', backgroundSize: '22px 22px', opacity: .7 }} />
+      <div className="pointer-events-none absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 55%, var(--m-veil) 0%, var(--m-veil2) 45%, transparent 75%)' }} />
       <svg ref={svgRef} viewBox={`0 0 ${W} ${model.H}`} width="100%" className={cn('relative block', compact ? '' : 'px-3 pt-2')} style={{ fontFamily: 'var(--font-sans)' }}>
         {/* 면: 구역과 경계 */}
         {model.zones.map(z => <rect key={z.key} className={cn('map-zone', z.key === 'rogue' && 'bad')} x={z.x} y={z.y} width={z.w} height={z.h} rx="14" />)}
         <rect className="map-bz" x={bz.x} y={bz.y} width={bz.w} height={bz.h} rx="16" />
-        <text x={bz.x + bz.w - 14} y={bz.y + bz.h - 12} fontSize="11" fontWeight="500" fill="#3f63b8" letterSpacing=".01em" textAnchor="end">내부 업무망 경계</text>
+        <text x={bz.x + bz.w - 14} y={bz.y + bz.h - 12} fontSize="11" fontWeight="500" fill="var(--m-bz-text)" letterSpacing=".01em" textAnchor="end">내부 업무망 경계</text>
         {/* 선 */}
         {model.edges.map(e => (
           <g key={e.key}>
@@ -110,11 +130,12 @@ export function BoundaryMap({ data, compact }: { data?: MapData; compact?: boole
           const tw = z.st ? z.st.t.replace(/\s/g, '').length * 8.6 + (z.st.t.split(' ').length - 1) * 4 : 0
           return (
             <g key={z.key + '-t'} style={{ pointerEvents: 'none' }}>
-              <text x={z.x + 16} y={z.y + 22} fontSize="12" fontWeight="600" fill="#131722" letterSpacing="-.01em">{z.title}</text>
-              <text x={z.x + 16 + textW(z.title, 12) + 8} y={z.y + 22} fontSize="11" fontWeight="500" fill="#9aa1ad" fontFamily="var(--font-mono)">{z.n}</text>
+              {(() => { const I = ZONE_ICON[z.key]; return I ? <I x={z.x + 15} y={z.y + 10} width={14} height={14} stroke={1.8} color={z.key === 'rogue' ? '#c4302b' : 'var(--m-sub)'} /> : null })()}
+              <text x={z.x + 36} y={z.y + 22} fontSize="12" fontWeight="600" fill="var(--m-text)" letterSpacing="-.01em">{z.title}</text>
+              <text x={z.x + 36 + textW(z.title, 12) + 8} y={z.y + 22} fontSize="11" fontWeight="500" fill="var(--m-sub)" fontFamily="var(--font-mono)">{z.n}</text>
               {z.st && <>
                 <circle cx={z.x + z.w - 16 - tw - 9} cy={z.y + 18} r="3" fill={z.st.cls === 'ok' ? '#1a7f37' : z.st.cls === 'soon' ? '#b26a00' : '#c4302b'} />
-                <text x={z.x + z.w - 16} y={z.y + 22} fontSize="11" fontWeight="500" fill={z.st.cls === 'ok' ? '#6b7280' : z.st.cls === 'soon' ? '#8a5200' : '#a3261f'} textAnchor="end">{z.st.t}</text>
+                <text x={z.x + z.w - 16} y={z.y + 22} fontSize="11" fontWeight="500" fill={z.st.cls === 'ok' ? 'var(--m-dim)' : z.st.cls === 'soon' ? '#b7791f' : '#d0574f'} textAnchor="end">{z.st.t}</text>
               </>}
             </g>
           )
@@ -135,7 +156,7 @@ export function BoundaryMap({ data, compact }: { data?: MapData; compact?: boole
           )
         })}
       </svg>
-      {!compact && <Legend live={live} scanned={scanned} lastScan={lastScan} />}
+      {!compact && <Legend dark={dark} fs={fs} onDark={() => setDark(v => !v)} onFs={toggleFs} />}
       {hover && !data && <Popover hoverKey={hover.key} x={hover.x} y={hover.y} wrap={wrapRef.current} />}
     </div>
   )
@@ -145,20 +166,20 @@ function Node({ n, sel, enter, ai, onClick, onEnter, onLeave }: { n: MapNode; se
   const dot = n.st === 'ok' ? '#1a7f37' : n.st === 'soon' ? '#b26a00' : '#c4302b'
   return (
     <g className={cn('map-node cursor-pointer', sel && 'sel', n.rogue && 'rogue', enter && 'enter')} onClick={onClick} onMouseEnter={onEnter} onMouseLeave={onLeave}>
-      <rect x={n.x} y={n.y + 1} width={n.w} height="44" rx="8" fill="rgba(19,23,34,.04)" />
+      <rect x={n.x} y={n.y + 1} width={n.w} height="44" rx="8" fill="var(--m-zone-line)" />
       <rect className="bg" x={n.x} y={n.y} width={n.w} height="44" rx="8" />
       <circle cx={n.x + 16} cy={n.y + 22} r="3" fill={dot} />
-      <text x={n.x + 28} y={n.y + 26.5} fontSize={n.rogue && n.name.length > 15 ? 10.5 : 13} fontWeight="500" fill={n.rogue ? '#a3261f' : '#131722'} letterSpacing="-.01em" fontFamily={n.rogue ? 'var(--font-mono)' : undefined} style={{ pointerEvents: 'none' }}>{n.name}</text>
-      {n.aux && <text x={n.x + n.w - 14} y={n.y + 26.5} fontSize="12" fontWeight="500" fill="#3f4655" textAnchor="end" fontFamily="var(--font-mono)" style={{ pointerEvents: 'none' }}>{n.aux}</text>}
-      {n.rogue && ai && <g style={{ pointerEvents: 'none' }}><rect x={n.x + n.w - 62} y={n.y + 13} width="48" height="18" rx="9" fill="#eaf0fd" /><text x={n.x + n.w - 38} y={n.y + 25.5} fontSize="9.5" fontWeight="600" fill="#2157d1" textAnchor="middle">AI 분류</text></g>}
+      <text x={n.x + 28} y={n.y + 26.5} fontSize={n.rogue && n.name.length > 15 ? 10.5 : 13} fontWeight="500" fill={n.rogue ? 'var(--m-rogue-text, #a3261f)' : 'var(--m-text)'} letterSpacing="-.01em" fontFamily={n.rogue ? 'var(--font-mono)' : undefined} style={{ pointerEvents: 'none' }}>{n.name}</text>
+      {n.aux && <text x={n.x + n.w - 14} y={n.y + 26.5} fontSize="12" fontWeight="500" fill="var(--m-chip-text)" textAnchor="end" fontFamily="var(--font-mono)" style={{ pointerEvents: 'none' }}>{n.aux}</text>}
+      {n.rogue && ai && <g style={{ pointerEvents: 'none' }}><rect x={n.x + n.w - 62} y={n.y + 13} width="48" height="18" rx="9" fill="var(--m-ai-chip, #eaf0fd)" /><text x={n.x + n.w - 38} y={n.y + 25.5} fontSize="9.5" fontWeight="600" fill="var(--m-ai-text, #2157d1)" textAnchor="middle">AI 분류</text></g>}
     </g>
   )
 }
 
 function Hub({ rogues, ledgerN, scanned, lastScan }: { rogues: number; ledgerN: number; scanned: boolean; lastScan: string | null }) {
-  const row = (dy: number, k: string, v: string | number, cls = '#131722') => (
+  const row = (dy: number, k: string, v: string | number, cls = 'var(--m-text)') => (
     <g key={k}>
-      <text x={core.x + 20} y={core.y + dy} fontSize="12" fill="#697386">{k}</text>
+      <text x={core.x + 20} y={core.y + dy} fontSize="12" fill="var(--m-dim)">{k}</text>
       <text x={core.x + core.w - 20} y={core.y + dy} fontSize="12.5" fontWeight="500" fill={cls} textAnchor="end" fontFamily="var(--font-mono)">{v}</text>
     </g>
   )
@@ -168,23 +189,31 @@ function Hub({ rogues, ledgerN, scanned, lastScan }: { rogues: number; ledgerN: 
         <radialGradient id="hubShadow" cx="50%" cy="50%" r="50%"><stop offset="0" stopColor="#131722" stopOpacity=".14" /><stop offset=".6" stopColor="#131722" stopOpacity=".04" /><stop offset="1" stopColor="#131722" stopOpacity="0" /></radialGradient>
       </defs>
       <rect x={core.x - 24} y={core.y - 8} width={core.w + 48} height={core.h + 44} rx="36" fill="url(#hubShadow)" />
-      <rect x={core.x} y={core.y} width={core.w} height={core.h} rx="12" fill="#ffffff" stroke="#131722" strokeWidth="1.5" />
-      <text x={core.x + 20} y={core.y + 27} fontSize="14" fontWeight="600" fill="#131722" letterSpacing="-.01em">내부업무망</text>
-      <text x={core.x + core.w - 20} y={core.y + 27} fontSize="11" fontWeight="500" fill="#8792a2" textAnchor="end" fontFamily="var(--font-mono)">단말 152대</text>
-      <line x1={core.x + 16} y1={core.y + 41.5} x2={core.x + core.w - 16} y2={core.y + 41.5} stroke="rgba(19,23,34,.1)" />
+      <rect x={core.x} y={core.y} width={core.w} height={core.h} rx="12" fill="var(--m-hub)" stroke="var(--m-hub-line)" strokeWidth="1.5" />
+      <text x={core.x + 20} y={core.y + 27} fontSize="14" fontWeight="600" fill="var(--m-text)" letterSpacing="-.01em">내부업무망</text>
+      <text x={core.x + core.w - 20} y={core.y + 27} fontSize="11" fontWeight="500" fill="var(--m-sub)" textAnchor="end" fontFamily="var(--font-mono)">단말 152대</text>
+      <line x1={core.x + 16} y1={core.y + 41.5} x2={core.x + core.w - 16} y2={core.y + 41.5} stroke="var(--m-hub-div)" />
       {row(63, '승인 연결', ledgerN)}
-      {row(87, '미승인 연결', scanned ? rogues : '-', scanned ? (rogues ? '#c4302b' : '#1f8a4c') : '#8792a2')}
+      {row(87, '미승인 연결', scanned ? rogues : '-', scanned ? (rogues ? '#d0574f' : '#2f9e5c') : 'var(--m-sub)')}
     </g>
   )
 }
 
-function Legend({ live, scanned, lastScan }: { live: boolean; scanned: boolean; lastScan: string | null }) {
+function Legend({ dark, fs, onDark, onFs }: { dark: boolean; fs: boolean; onDark: () => void; onFs: () => void }) {
   const Line = ({ cls }: { cls: string }) => <i className={cn('mr-2 inline-block w-4 align-[3px] border-t', cls)} />
+  const Ctl = ({ on, title, children }: { on?: boolean; title: string; children: React.ReactNode }) => (
+    <button onClick={title === '전체화면' || title === '전체화면 나가기' ? onFs : onDark} title={title}
+      className="inline-flex size-7 items-center justify-center rounded-md transition-colors"
+      style={{ color: on ? 'var(--m-text)' : 'var(--m-sub)', background: on ? 'rgba(125,140,170,.16)' : 'transparent' }}>{children}</button>
+  )
   return (
-    <div className="relative flex items-center gap-5 border-t border-[rgba(19,23,34,.07)] bg-card px-5 py-2.5 text-xs text-faint">
-      <span className="flex items-center gap-4"><span className="font-mono text-[10.5px] tracking-[.04em] text-dim">연결</span><span><Line cls="border-[#8fa9e6] border-t-[1.25px]" />승인</span><span><Line cls="border-[#c4302b] border-dashed border-t-[1.5px]" />미승인</span></span>
-      <span className="ml-4 flex items-center gap-4 border-l border-[rgba(19,23,34,.08)] pl-5"><span className="font-mono text-[10.5px] tracking-[.04em] text-dim">기한</span><span><i className="mr-1.5 inline-block size-1.5 rounded-full bg-ok" />정상</span><span><i className="mr-1.5 inline-block size-1.5 rounded-full bg-warn" />임박</span><span><i className="mr-1.5 inline-block size-1.5 rounded-full bg-bad" />경과</span></span>
-      {scanned && <span className="ml-auto font-mono text-[11px] text-dim">{live ? '관측 중, ' : ''}마지막 대조 {lastScan}</span>}
+    <div className="relative flex items-center gap-5 px-5 py-2 text-xs" style={{ borderTop: '1px solid var(--m-zone-line)', color: 'var(--m-dim)' }}>
+      <span className="flex items-center gap-4"><span className="font-mono text-[10.5px] tracking-[.04em]" style={{ color: 'var(--m-sub)' }}>연결</span><span><Line cls="border-t-[1.25px]" />승인</span><span><Line cls="border-[#c4302b] border-dashed border-t-[1.5px]" />미승인</span></span>
+      <span className="ml-4 flex items-center gap-4 pl-5" style={{ borderLeft: '1px solid var(--m-zone-line)' }}><span className="font-mono text-[10.5px] tracking-[.04em]" style={{ color: 'var(--m-sub)' }}>기한</span><span><i className="mr-1.5 inline-block size-1.5 rounded-full bg-ok" />정상</span><span><i className="mr-1.5 inline-block size-1.5 rounded-full bg-warn" />임박</span><span><i className="mr-1.5 inline-block size-1.5 rounded-full bg-bad" />경과</span></span>
+      <span className="ml-auto flex items-center gap-0.5">
+        <Ctl on={dark} title="어둡게 보기">{dark ? <IconSun className="size-4" stroke={1.7} /> : <IconMoon className="size-4" stroke={1.7} />}</Ctl>
+        <Ctl on={fs} title={fs ? '전체화면 나가기' : '전체화면'}>{fs ? <IconMinimize className="size-4" stroke={1.7} /> : <IconMaximize className="size-4" stroke={1.7} />}</Ctl>
+      </span>
     </div>
   )
 }

@@ -116,20 +116,42 @@
 @utility nums { font-variant-numeric: tabular-nums; }
 
 /* 지도 */
-.map-zone { fill: rgba(19,23,34,.035); stroke: rgba(19,23,34,.06); stroke-width: 1; }
+.map-wrap {
+  --m-zone: rgba(19,23,34,.035); --m-zone-line: rgba(19,23,34,.06);
+  --m-bz: rgba(33,87,209,.045); --m-bz-line: rgba(33,87,209,.28); --m-bz-text: #3f63b8;
+  --m-node: #fff; --m-node-line: rgba(19,23,34,.12); --m-node-hover: rgba(19,23,34,.28);
+  --m-text: #131722; --m-sub: #9aa1ad; --m-dim: #6b7280;
+  --m-chip: #fff; --m-chip-line: rgba(19,23,34,.18); --m-chip-text: #3f4655; --m-cut: #f3f6fc;
+  --m-hub: #fff; --m-hub-line: #131722; --m-hub-div: rgba(19,23,34,.1);
+  --m-edge: #8fa9e6; --m-dot: rgba(19,23,34,.10); --m-veil: rgba(255,255,255,.9); --m-veil2: rgba(255,255,255,.35);
+}
+.map-wrap.map-dark {
+  --m-zone: rgba(255,255,255,.04); --m-zone-line: rgba(255,255,255,.08);
+  --m-bz: rgba(96,140,235,.12); --m-bz-line: rgba(125,163,240,.4); --m-bz-text: #9dbcf5;
+  --m-node: #182031; --m-node-line: rgba(255,255,255,.14); --m-node-hover: rgba(255,255,255,.34);
+  --m-text: #e8edf6; --m-sub: #78829a; --m-dim: #9aa5b8;
+  --m-chip: #182031; --m-chip-line: rgba(255,255,255,.24); --m-chip-text: #c2ccdd; --m-cut: #0e1420;
+  --m-hub: #182031; --m-hub-line: #cfd8ec; --m-hub-div: rgba(255,255,255,.14);
+  --m-edge: #7695de; --m-dot: rgba(255,255,255,.09); --m-veil: rgba(14,20,32,.55); --m-veil2: rgba(14,20,32,.2);
+  --m-rogue-text: #e58079; --m-ai-chip: rgba(33,87,209,.28); --m-ai-text: #a9c4ff;
+}
+.map-zone { fill: var(--m-zone); stroke: var(--m-zone-line); stroke-width: 1; }
 .map-zone.bad { fill: rgba(196,48,43,.045); stroke: rgba(196,48,43,.14); }
-.map-bz { fill: rgba(33,87,209,.045); stroke: rgba(33,87,209,.28); stroke-width: 1; }
-.map-node rect.bg { fill: #fff; stroke: rgba(19,23,34,.12); stroke-width: 1; transition: stroke 150ms, filter 150ms; }
-.map-node:hover rect.bg { stroke: rgba(19,23,34,.28); }
+.map-dark .map-zone.bad { fill: rgba(214,80,74,.10); stroke: rgba(214,80,74,.28); }
+.map-bz { fill: var(--m-bz); stroke: var(--m-bz-line); stroke-width: 1; }
+.map-node rect.bg { fill: var(--m-node); stroke: var(--m-node-line); stroke-width: 1; transition: stroke 150ms, filter 150ms; }
+.map-node:hover rect.bg { stroke: var(--m-node-hover); }
 .map-node.sel rect.bg { stroke: #2157d1; stroke-width: 1.5; }
 .map-node.rogue rect.bg { stroke: rgba(196,48,43,.5); }
 .map-node.rogue:hover rect.bg { stroke: #c4302b; }
 .map-node.enter { animation: nodeIn 600ms cubic-bezier(.3,0,0,1) both; transform-box: fill-box; transform-origin: center; }
 @keyframes nodeIn { from { opacity: 0; transform: translateY(6px); } }
-.map-edge { fill: none; stroke: #8fa9e6; stroke-width: 1.25; stroke-linecap: round; stroke-linejoin: round; transition: stroke 150ms; vector-effect: non-scaling-stroke; }
-.map-edge.soon { stroke: #8fa9e6; }
+.map-edge { fill: none; stroke: var(--m-edge); stroke-width: 1.25; stroke-linecap: round; stroke-linejoin: round; transition: stroke 150ms; vector-effect: non-scaling-stroke; }
+.map-edge.soon { stroke: var(--m-edge); }
 .map-edge.over { stroke: #b26a00; }
 .map-edge.rogue { stroke: #c4302b; stroke-width: 1.5; stroke-dasharray: 3 4; }
+.map-dark .map-edge.over { stroke: #d9902f; }
+.map-dark .map-edge.rogue { stroke: #e2645c; }
 .map-edge.sel { stroke: #2157d1; stroke-width: 1.75; }
 .map-edge.enter { animation: edgeIn 700ms cubic-bezier(.3,0,0,1) both; }
 @keyframes edgeIn { from { opacity: 0; } }
@@ -139,12 +161,13 @@
 .map-hit:hover + .map-edge { stroke: #2157d1; }
 .map-halo { fill: none; stroke: rgba(33,87,209,.14); stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; }
 .map-chip { cursor: pointer; }
-.map-chip .cut { fill: none; stroke: #f3f6fc; stroke-width: 4; }
-.map-chip .pill { fill: #fff; stroke: rgba(19,23,34,.18); stroke-width: 1; transition: stroke 150ms; }
+.map-chip .cut { fill: none; stroke: var(--m-cut); stroke-width: 4; }
+.map-chip .pill { fill: var(--m-chip); stroke: var(--m-chip-line); stroke-width: 1; transition: stroke 150ms; }
 .map-chip:hover .pill { stroke: #2157d1; }
 .map-chip.soon .pill { stroke: rgba(178,106,0,.6); } .map-chip.over .pill { stroke: rgba(196,48,43,.6); } .map-chip.sel .pill { stroke: #2157d1; }
-.map-chip .t { font-size: 10px; font-weight: 500; fill: #3f4655; letter-spacing: .02em; font-family: var(--font-mono); }
+.map-chip .t { font-size: 10px; font-weight: 500; fill: var(--m-chip-text); letter-spacing: .02em; font-family: var(--font-mono); }
 .map-chip.soon .t { fill: #8a5200; } .map-chip.over .t { fill: #a3261f; }
+.map-dark .map-chip.soon .t { fill: #dda43f; } .map-dark .map-chip.over .t { fill: #e58079; }
 .pkt { fill: #2157d1; opacity: .8; pointer-events: none; offset-rotate: 0deg; animation: pkOut var(--pk-dur, 1100ms) linear forwards; }
 .pkt.in { animation-name: pkIn; }
 .pkt.rogue { fill: #c4302b; }

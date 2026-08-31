@@ -31,7 +31,6 @@ export function ReportPage() {
         <Check ok n={saas.length}>SaaS 반기 자체평가 대상 정리</Check>
         <Check ok={detects > 0} n={detects}>내용검사 증적{detects ? '' : ', 아직 없음'}</Check>
         <Check ok={!rogues.length} n={rogues.length}>{rogues.length ? '미승인 연결 조치 대기' : '미승인 연결 전부 조치됨'}</Check>
-        <p className="border-t border-[rgba(19,23,34,.06)] px-5 py-3.5 text-[12.5px] leading-5 text-faint">보고서는 장부와 검사 기록에서 그대로 생성됩니다. 오른쪽 미리보기가 인쇄 결과와 같습니다.</p>
       </Panel>
       <div className="print-area surface-float p-10 font-[Apple_SD_Gothic_Neo,Pretendard,sans-serif] text-[10.5pt] leading-[1.7] text-[#111]">
         <h3 className="border-b-2 border-[#111] pb-2 text-[16pt] font-bold tracking-tight">망분리 적용 예외 운영 현황 및 반기 자체평가 보고 (초안)</h3>
