@@ -62,14 +62,17 @@ export function LandingPage() {
       </section>
 
       {/* 로컬 AI: 무엇을 하고 왜 사내에서 도는지 */}
-      <section className="mx-auto mt-20 grid max-w-[1200px] items-center gap-10 px-6 lg:grid-cols-[5fr_6fr] lg:gap-14">
-        <div>
+      <section className="mx-auto mt-24 max-w-[1200px] px-6">
+        <div className="mx-auto max-w-[640px] text-center">
           <h2 className="text-[34px] font-semibold leading-[1.2] tracking-[-0.02em] text-ink">추론은 망 안에서 끝납니다</h2>
           <p className="mt-4 text-[15px] leading-[1.7] text-faint">
             망분리 환경에서는 로그와 문서를 외부 AI API로 보낼 수 없습니다.<br />추론은 사내 AI 모델 <span className="font-mono text-body">Kanana</span><sup className="text-[11px]">*</sup>가 맡습니다.
           </p>
           <p className="mt-2 text-[12.5px] text-dim">* 카카오가 공개한 국산 3B 모델</p>
-          <ul className="mt-6">
+        </div>
+        <div className="mt-12 grid items-center gap-10 lg:grid-cols-[5fr_6fr] lg:gap-14">
+        <div>
+          <ul>
             {[
               ['목적지 분류', '처음 보는 도메인이 무슨 서비스인지 분류합니다'],
               ['위험 서술', '왜 위험한지 한 문장으로 설명합니다'],
@@ -130,6 +133,7 @@ export function LandingPage() {
               3. <mark className="rounded-[2px]" style={{ background: 'linear-gradient(transparent 45%, #ffd9d6 45%)', color: 'inherit' }}>정해나 고객 재방문 상담 진행.</mark> <span className="text-faint">지시어로 이어진 다음 줄의 연체 이력과 결합</span>
             </p>
           </div>
+        </div>
         </div>
       </section>
 
