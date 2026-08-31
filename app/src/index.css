@@ -7,7 +7,7 @@
 @theme inline {
   --font-sans: "Pretendard Variable", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
   --font-heading: var(--font-sans);
-  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-mono: "IBM Plex Mono", "Pretendard Variable", "Apple SD Gothic Neo", "Malgun Gothic", ui-monospace, monospace;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
