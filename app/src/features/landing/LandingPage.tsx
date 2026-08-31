@@ -47,7 +47,7 @@ export function LandingPage() {
         <div>
           <h2 className="text-[34px] font-semibold leading-[1.2] tracking-[-0.02em] text-ink">한 바이트도<br />반출되지 않습니다</h2>
           <p className="mt-4 text-[15px] leading-[1.7] text-faint">
-            로그도 문서도 망 안에서 관리합니다.<br />추론은 사내에서 운용하는 한국 오픈소스 모델 <span className="font-mono text-body">Kanana</span>가 맡습니다.
+            로그도 문서도 사내망 내부에서 관리합니다.<br />카카오 AI 모델 <span className="font-mono text-body">Kanana</span>를 로컬에서 운용합니다.
           </p>
           <div className="mt-5 flex flex-wrap gap-1.5">
             {['목적지 분류', '위험 서술', '신용정보 결합 탐지'].map(t => (
