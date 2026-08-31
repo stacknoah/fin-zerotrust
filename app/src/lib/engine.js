@@ -184,6 +184,12 @@ const SalpiEngine = (function () {
 입력: 4. 김민수 고객 방문 예정.
 출력: {"findings":[{"label":"identifier_only","evidence_span":"김민수 고객 방문 예정","identifier":"김민수","credit_context":""}]}
 
+[예시 3-1] 메모 형식의 결합
+입력:
+2) 상담메모: 한지우 고객 문의 접수.
+   → 예금 잔액 부족 안내함.
+출력: {"findings":[{"label":"combined","evidence_span":"상담메모: 한지우 고객 문의 접수","identifier":"한지우","credit_context":"예금 잔액 부족"}]}
+
 [예시 4] 지시어로 이어지는 결합
 입력:
 5. 최윤호 님 재방문.
@@ -347,6 +353,19 @@ const SalpiEngine = (function () {
     return wins.length ? wins : [text];
   }
 
+  // 집중 재질의. 이름 곁에 신용 문맥이 있는데 1차 판정이 결합을 못 냈을 때, 그 이름 하나만 좁혀 다시 묻는다
+  async function llmFocus(name, ctx, o) {
+    const prompt = `문맥: "${ctx}"
+질문: 이 문맥에서 ${name}의 신용 상태(대출, 연체, 상환, 한도, 카드, 보험 등)를 알 수 있는가?
+"해당 고객", "→" 같은 지시나 이어지는 줄도 ${name}를 가리키면 인정한다.
+반드시 JSON 하나만: {"combined": true 또는 false, "credit_context": "근거 구절"}`;
+    const out = await fetchJSON(llmBase(o) + '/api/generate', {
+      model: o.model, prompt, format: 'json', stream: false,
+      options: { temperature: 0, num_predict: 128 },
+    }, o.timeoutMs);
+    try { return JSON.parse(out.response); } catch (e) { return null; }
+  }
+
   async function llmOnce(chunk, o, hint) {
     const out = await fetchJSON(llmBase(o) + '/api/generate', {
       model: o.model,
@@ -418,7 +437,33 @@ const SalpiEngine = (function () {
             : '식별정보 단독. 다른 신용정보와 결합될 때에만 신용정보',
         });
       }
-      if (emit) emit({ type: 'result', i: wi, total: windows.length, ms: Date.now() - t0, accepted: winAccepted, dropped: winDropped });
+      // 2차 패스: 이름 줄 곁에 신용 문맥이 실재하는데 결합 판정이 없으면 그 이름만 좁혀 재질의
+      const units = splitUnits(chunk);
+      for (let ui = 0; ui < units.length; ui++) {
+        for (const nm of findNames(units[ui].text)) {
+          const ctx = combinedContext(units, ui);
+          if (!CREDIT_KW.test(ctx)) continue;
+          if (hits.some(h => h.label === 'combined' && h.identifier === nm.name && ctx.includes(h.span))) continue;
+          if (seen.has('combined|' + norm(units[ui].text))) continue;
+          let ans = null;
+          try { ans = await llmFocus(nm.name, ctx, o); } catch (e) { continue; }
+          if (!ans || ans.combined !== true) continue;
+          const f = { label: 'combined', evidence_span: units[ui].text, identifier: nm.name, credit_context: norm(ans.credit_context) || ctx.replace(units[ui].text, '').trim() };
+          const v = verifyFinding(f, chunk);
+          if (!v.ok) continue;
+          const span = norm(f.evidence_span);
+          if (seen.has('combined|' + span)) continue;
+          seen.add('combined|' + span);
+          repaired++;
+          if (emit) emit({ type: 'result', i: wi, total: windows.length, ms: 0, accepted: [{ label: 'combined', span: span.slice(0, 40) }], dropped: [] });
+          hits.push({
+            layer: 'combine', mode: 'llm', label: 'combined', tag: '결합',
+            span, index: norm(text).indexOf(span),
+            identifier: nm.name, credit_context: f.credit_context, confidence: 'high',
+            note: `식별정보(${nm.name})와 신용정보(${f.credit_context})가 결합. 재질의로 확인. 개인신용정보에 해당(신용정보법 제2조)`,
+          });
+        }
+      }
     }
     if (emit) emit({ type: 'done', windows: windows.length, accepted: hits.length, dropped: rejected.filter(r => r.reason !== 'label_none').length });
     return { hits, rejected, repaired };
