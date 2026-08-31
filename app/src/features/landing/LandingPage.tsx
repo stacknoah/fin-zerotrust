@@ -52,7 +52,7 @@ export function LandingPage() {
           망을 넘는 모든 연결을 관측하고,<br /><span><span className="text-[#c4302b]">미승인 연결</span>은 증적으로 남깁니다</span>
         </h1>
         <p className="mx-auto mt-5 max-w-[600px] text-[17px] leading-[1.65] text-faint">
-          발견에서 끝나는 도구와 다릅니다.<br />발견한 연결을 제2조의3 요건으로 판정해 등재와 차단 요청, 반기 보고까지 잇습니다.
+          미승인 연결 발견에서 끝나는 도구와 다릅니다.<br />이를 제2조의3 요건으로 판정해 등재, 차단 요청, 반기 보고서 작성까지 한 파이프라인으로 관리합니다.
         </p>
         <div className="mt-8 flex items-center justify-center">
           <button onClick={enter} className="inline-flex h-11 items-center gap-1.5 rounded-full bg-ink px-6 text-[15px] font-medium text-white transition hover:bg-ink/90">
