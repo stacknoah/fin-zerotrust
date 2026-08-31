@@ -100,8 +100,8 @@ export function LandingPage() {
       {/* 기존 도구와의 경계 */}
       <section className="mx-auto mt-24 max-w-[1200px] px-6">
         <div className="mx-auto mb-8 max-w-[640px] text-center">
-          <h2 className="text-[30px] font-semibold leading-[1.2] tracking-[-0.02em] text-ink">보안 장비가 있어도 남는 일</h2>
-          <p className="mt-3 text-[15px] leading-[1.7] text-faint">기존 장비는 연결을 막거나 문서를 검사합니다.<br />규제가 요구하는 판정과 대장, 보고는 여전히 사람 몫입니다.</p>
+          <h2 className="text-[30px] font-semibold leading-[1.2] tracking-[-0.02em] text-ink">기존 보안 장비와 무엇이 다른가</h2>
+          <p className="mt-3 text-[15px] leading-[1.7] text-faint">SWG와 CASB는 연결을 막고, DLP는 문서를 검사합니다.<br />규제 요건 판정과 승인 대장, 반기 보고는 어느 장비도 하지 않습니다.</p>
         </div>
         <div className="surface overflow-hidden">
           <div className="grid grid-cols-[1fr_repeat(3,130px)] border-b border-[rgba(19,23,34,.07)] px-6 py-3 text-[12px] font-medium text-faint">
