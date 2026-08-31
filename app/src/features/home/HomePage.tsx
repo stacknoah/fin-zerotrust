@@ -142,18 +142,18 @@ function ActivityPanels() {
   )
   return (
     <div className="mt-4 grid grid-cols-[7fr_5fr] gap-4">
-      <section className="surface overflow-hidden">
-        <Head t="관측 피드" />
-        <div className="min-h-[150px] px-5 pt-1 pb-4 font-mono text-[11.5px] leading-[21px]">
-          {lines.length ? lines.map((l, i) => <FeedLine key={i} l={l} ledger={ledger} />) : <div className="text-[12.5px] text-dim">수신 없음</div>}
-        </div>
-      </section>
       <section className="overflow-hidden rounded-[14px] bg-[#f7faff] shadow-[0_0_0_1px_rgba(33,87,209,.14),var(--shadow-card)]">
         <Head t="AI 활동" extra={detReady
           ? <span className="inline-flex items-center gap-1.5 rounded-full bg-card px-2.5 py-0.5 font-mono text-[10.5px] text-body shadow-[var(--shadow-ring)]"><i className="size-1.5 rounded-full bg-ok" />Kanana 2 3B, {window.SALPI_LLM_ENDPOINT ? '원격' : '로컬'} 추론</span>
           : <span className="inline-flex items-center gap-1.5 rounded-full bg-card px-2.5 py-0.5 font-mono text-[10.5px] text-faint shadow-[var(--shadow-ring)]"><i className="size-1.5 rounded-full bg-dim" />AI 미연결</span>} />
         <div className="min-h-[150px] pt-0.5 pb-2">
           {evs.length ? evs.map(e => <EventRow key={e.id} e={e} />) : <div className="px-5 text-[12.5px] text-dim">기록 없음{detReady ? '' : ', AI 미연결'}</div>}
+        </div>
+      </section>
+      <section className="surface overflow-hidden">
+        <Head t="관측 피드" />
+        <div className="min-h-[150px] px-5 pt-1 pb-4 font-mono text-[11.5px] leading-[21px]">
+          {lines.length ? lines.map((l, i) => <FeedLine key={i} l={l} ledger={ledger} />) : <div className="text-[12.5px] text-dim">수신 없음</div>}
         </div>
       </section>
     </div>
