@@ -100,7 +100,7 @@ export function WorkbenchPage() {
           </div>
 
           {step === 0 && <>
-            <h2 className="mb-5 text-[21px] font-bold tracking-tight text-ink">어떤 SaaS를, 어떤 업무에 도입하려 하는가</h2>
+            <h2 className="mb-5 text-[21px] font-bold tracking-tight text-ink">도입 예정 SaaS</h2>
             <div className="mb-6 grid grid-cols-[repeat(auto-fill,minmax(170px,1fr))] gap-2.5">
               {SAAS_LIST.map(s => (
                 <button key={s.key} type="button" onClick={() => setSaas(s.key)} className={cn('flex items-center gap-3 rounded-xl border px-4 py-3.5 text-left transition', saas === s.key ? 'border-ink ring-1 ring-ink' : 'border-[rgba(19,23,34,.1)] hover:border-[rgba(19,23,34,.25)]')}>
