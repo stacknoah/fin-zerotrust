@@ -23,7 +23,7 @@ function teleInit(): TeleSession[] {
   const t0 = Date.now()
   return Array.from({ length: 23 }, (_, i) => ({
     id: 's' + i, user: TELE_NAMES[i], dept: TELE_DEPTS[i % TELE_DEPTS.length], region: TELE_REGIONS[i % 5],
-    since: new Date(t0 - (20 + Math.floor(Math.random() * 180)) * 60000).toTimeString().slice(0, 5), mfa: true, check: 'ok', checkNote: '',
+    since: new Date(t0 - (20 + Math.floor(Math.random() * 180)) * 60000).toTimeString().slice(0, 5), mfa: i !== 7, check: 'ok', checkNote: '',
   }))
 }
 
@@ -208,6 +208,9 @@ function teleTick(t: State['tele'], tick: number, logEvent: State['logEvent']): 
     if (forceFail || (tick > 30 && Math.random() < 0.12)) {
       sess.check = 'fail'; sess.checkNote = TELE_FAIL[Math.floor(Math.random() * TELE_FAIL.length)]
       logEvent('tele', `재택 단말 점검 미통과: ${sess.user}(${sess.dept}), ${sess.checkNote}`)
+    } else if (Math.random() < 0.08) {
+      sess.mfa = false
+      logEvent('tele', `다중인증 재인증 대기: ${sess.user}(${sess.dept})`)
     }
     sessions.push(sess)
   } else if (r > 0.84 && sessions.length > 12) {
