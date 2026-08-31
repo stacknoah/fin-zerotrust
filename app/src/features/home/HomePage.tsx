@@ -23,13 +23,13 @@ function Welcome() {
       <DialogContent className="max-w-[480px] p-7">
         <DialogTitle className="text-[19px] font-semibold tracking-[-0.01em] text-ink">살피 데모에 들어오셨습니다</DialogTitle>
         <DialogDescription className="mt-1 text-[13.5px] leading-5 text-faint">
-          가상 금융회사 페이몬의 정보보호팀 콘솔입니다. 승인된 연결 9건이 대장에 올라 있습니다.
+          가상 금융회사 페이몬의 정보보호팀 콘솔입니다.<br />승인된 연결 9건이 대장에 올라 있습니다.
         </DialogDescription>
         <ol className="mt-4">
           {[
             ['데모 실행', '합성 방화벽 로그가 들어오고, 승인 대장과 실시간으로 대조합니다'],
-            ['미승인 발견', '대장에 없는 연결이 지도에 빨갛게 뜨고, 로컬 AI가 정체를 분류합니다'],
-            ['판정과 보고', '등재나 차단을 결정하면 그 기록이 그대로 반기 보고서가 됩니다'],
+            ['미승인 발견', '대장에 없는 연결이 지도에 빨갛게 표시되고, 로컬 AI가 어떤 서비스인지 알아냅니다'],
+            ['판정과 보고', '등재나 차단을 결정하면 그 기록이 그대로 반기 보고서에 반영됩니다'],
           ].map(([t, d], i) => (
             <li key={t} className="flex gap-3 border-t border-[rgba(19,23,34,.06)] py-2.5 first:border-t-0">
               <span className="mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-[rgba(19,23,34,.06)] font-mono text-[10.5px] font-semibold text-body">{i + 1}</span>
