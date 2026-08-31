@@ -94,7 +94,7 @@ export function ContentPage() {
   return (
     <div className="view-in">
       <PageHeader title="내용 검사" crumb="내용 검사" />
-      <PageTip id="content">SaaS로 나가는 문서에서 이름과 신용정보가 한 문맥에 묶인 곳을 사내 AI가 찾아냅니다.</PageTip>
+      <PageTip id="content">SaaS 예외는 개인신용정보를 처리하지 않는다는 조건으로 열립니다. 문서에 이름과 신용정보가 함께 담기면 그 조건이 깨지므로, 사내 AI가 나가는 문서에서 그런 구간을 찾아냅니다.</PageTip>
       <div className="grid grid-cols-[1fr_320px] gap-4">
         <Panel title="검사 대상" right={detReady ? <span className="inline-flex items-center gap-1.5 text-xs text-ok-fg"><i className="size-1.5 rounded-full bg-ok" />모델 연결됨</span> : <span className="inline-flex items-center gap-1.5 text-xs text-faint"><i className="size-1.5 rounded-full bg-dim" />AI 미연결, 빠른 검사만</span>}>
           <div className="flex flex-wrap items-center gap-3 px-5 pb-3">

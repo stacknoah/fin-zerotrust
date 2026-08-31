@@ -13,7 +13,7 @@ export function Mark({ className }: { className?: string }) {
 }
 
 const TABS = [
-  { to: '/map', t: '경계 지도', Icon: IconTopologyStar3 },
+  { to: '/map', t: '관제 화면', Icon: IconTopologyStar3 },
   { to: '/ledger', t: '연결 대장', Icon: IconListDetails },
   { to: '/content', t: '내용 검사', Icon: IconFileSearch },
   { to: '/report', t: '반기 보고', Icon: IconReport },
@@ -118,7 +118,7 @@ export function Shell() {
           <nav className="flex shrink-0 items-center gap-0.5">
             {TABS.map(t => <Tab key={t.to} {...t} badge={t.to === '/logs' ? rogues.length : 0} />)}
             <span className="mx-2 h-4 w-px bg-[rgba(19,23,34,.1)]" />
-            <Tab to="/workbench" t="판정 워크벤치" Icon={IconChecklist} />
+            <Tab to="/workbench" t="SaaS 도입 판정" Icon={IconChecklist} />
           </nav>
           <span className="ml-auto flex min-w-0 items-center gap-2.5">
             <Search />
