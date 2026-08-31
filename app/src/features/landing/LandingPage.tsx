@@ -66,12 +66,9 @@ export function LandingPage() {
         <div>
           <h2 className="text-[34px] font-semibold leading-[1.2] tracking-[-0.02em] text-ink">추론은 망 안에서 끝납니다</h2>
           <p className="mt-4 text-[15px] leading-[1.7] text-faint">
-            망분리 환경에서는 로그와 문서를 외부 AI API로 보낼 수 없습니다.
-            그래서 추론은 사내에서 도는 소형 모델 <span className="font-mono text-body">Kanana</span>가 맡습니다.
+            망분리 환경에서는 로그와 문서를 외부 AI API로 보낼 수 없습니다.<br />추론은 사내 AI 모델 <span className="font-mono text-body">Kanana</span><sup className="text-[11px]">*</sup>가 맡습니다.
           </p>
-          <p className="mt-2 text-[13.5px] leading-[1.7] text-dim">
-            카카오가 공개한 국산 3B 모델. 양자화하면 2.2GB라 업무망 서버는 물론 단말에도 올릴 수 있습니다.
-          </p>
+          <p className="mt-2 text-[12.5px] text-dim">* 카카오가 공개한 국산 3B 모델</p>
           <ul className="mt-6">
             {[
               ['목적지 분류', '처음 보는 도메인이 무슨 서비스인지 분류합니다'],
