@@ -4,7 +4,7 @@ import { Engine } from '@/lib/engineLoad'
 import type { ScanResult } from '@/lib/engine'
 import { SAAS_LIST, USAGES, NATURES, AV_LABEL, DET_SAMPLE } from '@/data/ledger'
 import { entriesFor, judge, HAS_CONTROL, type Entry, type Verdict } from '@/lib/judge'
-import { PageHeader, Panel, Pill } from '@/components/salpi'
+import { PageHeader, Panel, Pill, PageTip } from '@/components/salpi'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Textarea } from '@/components/ui/textarea'
@@ -84,6 +84,7 @@ export function WorkbenchPage() {
         const all: Record<number, boolean> = {}; for (let i = 0; i < 12; i++) all[i] = true
         setApplied(all); setComp(all); setStep(5)
       }}>예시로 채워 판정 보기</Button>} />
+      <PageTip id="workbench">새로 도입할 SaaS가 제2조의3 예외 요건에 맞는지 여섯 단계로 판정하고 검토서를 냅니다.</PageTip>
       <div className="grid grid-cols-[180px_1fr] items-start gap-6 max-md:grid-cols-1">
         <nav className="sticky top-[120px] rounded-lg border bg-card p-2.5">
           {STEPS.map((s, i) => (

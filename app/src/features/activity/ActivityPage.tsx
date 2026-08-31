@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useStore, type EventKind } from '@/store'
-import { PageHeader, Panel } from '@/components/salpi'
+import { PageHeader, Panel, PageTip } from '@/components/salpi'
 import { Button } from '@/components/ui/button'
 import { EventRow, FeedLine } from '@/features/home/HomePage'
 import { cn } from '@/lib/utils'
@@ -38,6 +38,7 @@ export function ActivityPage() {
         }}>증적 내보내기</Button>
         {feed.on ? <Button variant="outline" onClick={pauseFeed}>일시정지</Button> : <Button onClick={startFeed}>{feed.started ? '관측 재개' : '데모 실행'}</Button>}
       </>} />
+      <PageTip id="activity">AI가 무엇을 언제 어떤 근거로 판단했는지 전부 남습니다. 이 기록이 곧 감독당국에 낼 증적입니다.</PageTip>
       <div className="grid grid-cols-[7fr_5fr] items-start gap-4">
         <Panel title="AI 활동" right={detReady ? <span className="inline-flex items-center gap-1.5 font-mono text-[11px]"><i className="size-1.5 rounded-full bg-ok" />Kanana 2 3B, {window.SALPI_LLM_ENDPOINT ? '원격' : '로컬'} 추론</span> : 'AI 미연결'} className="bg-[#f7faff] shadow-[0_0_0_1px_rgba(33,87,209,.14),var(--shadow-card)]">
           <div className="flex gap-1.5 px-5 pb-3">

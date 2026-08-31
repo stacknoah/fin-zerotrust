@@ -1,4 +1,5 @@
-import type { ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
+import { IconX } from '@tabler/icons-react'
 import { cn } from '@/lib/utils'
 import { ddayLabel, dueState } from '@/lib/format'
 
@@ -18,6 +19,27 @@ export function DDay({ due, soon }: { due: string; soon?: boolean }) {
 export function Dot({ tone, className }: { tone: 'ok' | 'soon' | 'over' | 'bad' | 'gray'; className?: string }) {
   const c = { ok: 'bg-ok', soon: 'bg-warn', over: 'bg-bad', bad: 'bg-bad', gray: 'bg-dim' }[tone]
   return <span className={cn('inline-block size-1.5 rounded-full', c, className)} />
+}
+
+/* 페이지 첫 방문에 한 번 뜨는 한 줄 안내 */
+export function PageTip({ id, children }: { id: string; children: ReactNode }) {
+  const key = 'salpi_tip_' + id
+  const [open, setOpen] = useState(() => { try { return !sessionStorage.getItem(key) } catch { return true } })
+  const close = () => { try { sessionStorage.setItem(key, '1') } catch { void 0 } setOpen(false) }
+  useEffect(() => {
+    if (!open) return
+    const t = setTimeout(close, 12000)
+    return () => clearTimeout(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open])
+  if (!open) return null
+  return (
+    <div className="tip-in relative mb-4 inline-flex max-w-[720px] items-start gap-3 rounded-xl bg-ink py-2.5 pr-2.5 pl-4 text-[13.5px] leading-5 text-white shadow-[var(--shadow-float)]">
+      <span className="absolute -top-[5px] left-7 size-[10px] rotate-45 rounded-[2px] bg-ink" />
+      <span className="pt-px">{children}</span>
+      <button onClick={close} aria-label="닫기" className="-mt-0.5 shrink-0 rounded-md p-1 text-white/45 transition hover:bg-white/10 hover:text-white"><IconX className="size-3.5" stroke={2} /></button>
+    </div>
+  )
 }
 
 export function PageHeader({ title, actions, crumb, lead }: { title: string; actions?: ReactNode; crumb?: string; lead?: ReactNode }) {

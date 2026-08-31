@@ -37,7 +37,7 @@ function Welcome() {
             </li>
           ))}
         </ol>
-        <p className="mt-3 text-[12px] text-dim">데이터는 합성이지만 AI 추론은 실제로 돕니다 (Kanana 2 3B, 망 안 추론).</p>
+        <p className="mt-3 text-[12px] text-dim">합성 데이터 위에서 실제 AI가 판단합니다</p>
         <div className="mt-5 flex justify-end gap-2">
           <Button variant="outline" onClick={close}>둘러보기</Button>
           <Button onClick={() => { close(); startFeed() }}>데모 실행하며 시작</Button>

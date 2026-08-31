@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useStore, contentCount } from '@/store'
-import { PageHeader, Panel, Pill, DDay, MonoCode } from '@/components/salpi'
+import { PageHeader, Panel, Pill, DDay, MonoCode, PageTip } from '@/components/salpi'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useWizard } from '@/features/wizard/RegisterDialog'
@@ -19,6 +19,7 @@ export function LedgerPage() {
   return (
     <div className="view-in">
       <PageHeader title="연결 대장" crumb="연결 대장" actions={<Button onClick={() => open({ name: '새 SaaS' })}>SaaS 연결 등재</Button>} />
+      <PageTip id="ledger">승인된 연결과 새로 발견된 미승인 연결을 한 표에서 봅니다. 재승인 기한이 임박한 줄은 주황으로 뜹니다.</PageTip>
       <Panel className="overflow-hidden">
         <Table>
           <TableHeader><TableRow className="hover:bg-transparent">

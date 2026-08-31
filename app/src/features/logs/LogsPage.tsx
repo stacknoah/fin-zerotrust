@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useStore } from '@/store'
 import { SAMPLE_LOG } from '@/data/ledger'
 import { reconcile, type LogRow } from '@/lib/reconcile'
-import { PageHeader, Panel, Pill } from '@/components/salpi'
+import { PageHeader, Panel, Pill, PageTip } from '@/components/salpi'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -26,6 +26,7 @@ export function LogsPage() {
   return (
     <div className="view-in">
       <PageHeader title="로그 대조" crumb="로그 대조" actions={<><Button variant="outline" onClick={() => setText(SAMPLE_LOG)}>샘플 로그 넣기</Button><Button onClick={() => setRec(runScan(text))}>대조 실행</Button></>} />
+      <PageTip id="logs">방화벽 로그를 붙여넣으면 승인 대장에 없는 목적지만 걸러 남깁니다.</PageTip>
       <div className="grid grid-cols-[1fr_320px] gap-4">
         <Panel title="로그 입력" right={<span className="font-mono text-[11px]">HOST 단위 집계</span>}>
           {feed.started && !text && (

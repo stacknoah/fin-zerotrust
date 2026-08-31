@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { useStore, teleStat, type TeleSession } from '@/store'
-import { PageHeader, Panel, Pill, DDay, MonoCode } from '@/components/salpi'
+import { PageHeader, Panel, Pill, DDay, MonoCode, PageTip } from '@/components/salpi'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
@@ -100,6 +100,7 @@ export function TeleworkPage() {
       <PageHeader title="재택근무" crumb="재택근무"
         lead={<span><b className="font-semibold text-ink nums">{ts.n}명</b> 접속 중{ts.fail ? <>, 단말 점검 미통과 <b className="font-semibold text-bad-fg nums">{ts.fail}명</b></> : ', 단말 점검 전원 통과'}, 다중인증 통과 {mfa}%</span>}
         actions={feed.on ? <Button variant="outline" onClick={pauseFeed}>일시정지</Button> : <Button onClick={startFeed}>{feed.started ? '관측 재개' : '데모 실행'}</Button>} />
+      <PageTip id="telework">누가 언제부터 접속했고 단말 점검을 통과했는지 한 줄씩 봅니다. 빨간 줄이 조치가 필요한 세션입니다.</PageTip>
       <Panel className="mb-4" title="세션 타임라인" count={ts.n} right={<span>근거 ①항 2호, 단말 보호대책은 제12조, <MonoCode>{c.domains[0]} :{c.ports}</MonoCode></span>}>
         <Timeline sessions={sessions} />
       </Panel>
