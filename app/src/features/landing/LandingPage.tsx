@@ -1,7 +1,17 @@
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '@/store'
 import { Mark } from '@/features/layout/Shell'
-import { IconArrowRight } from '@tabler/icons-react'
+import { IconArrowRight, IconCheck } from '@tabler/icons-react'
+
+function Cell({ on, mine }: { on: boolean; mine?: boolean }) {
+  return (
+    <span className="flex justify-center">
+      {on
+        ? <IconCheck className={mine ? 'size-[18px] text-primary' : 'size-[18px] text-[#8f96a1]'} stroke={2.5} />
+        : <span className="h-px w-3 rounded bg-[rgba(19,23,34,.18)]" />}
+    </span>
+  )
+}
 
 export function LandingPage() {
   const login = useStore(s => s.login)
@@ -108,17 +118,17 @@ export function LandingPage() {
             <span /><span className="text-center">SWG, CASB</span><span className="text-center">DLP</span><span className="text-center text-ink">살피</span>
           </div>
           {[
-            ['미승인 목적지 발견', '있음', '없음'],
-            ['문서 속 민감정보 탐지', '없음', '있음'],
-            ['신용정보법 제2조의 결합 법리 판정', '없음', '없음'],
-            ['제2조의3 요건 판정과 승인 대장', '없음', '없음'],
-            ['반기 자체평가 보고서 생성', '없음', '없음'],
+            ['미승인 목적지 발견', true, false],
+            ['문서 속 민감정보 탐지', false, true],
+            ['신용정보법 제2조의 결합 법리 판정', false, false],
+            ['제2조의3 요건 판정과 승인 대장', false, false],
+            ['반기 자체평가 보고서 생성', false, false],
           ].map(([t, a, d]) => (
-            <div key={String(t)} className="grid grid-cols-[1fr_repeat(3,130px)] items-center border-b border-[rgba(19,23,34,.05)] px-6 py-2.5 text-[13.5px] last:border-b-0">
+            <div key={String(t)} className="grid grid-cols-[1fr_repeat(3,130px)] items-center border-b border-[rgba(19,23,34,.05)] px-6 py-3 text-[13.5px] last:border-b-0">
               <span className="text-ink">{t}</span>
-              <span className={a === '있음' ? 'text-center text-body' : 'text-center text-dim'}>{a}</span>
-              <span className={d === '없음' ? 'text-center text-dim' : 'text-center text-body'}>{d}</span>
-              <span className="text-center font-medium text-primary">있음</span>
+              <Cell on={a as boolean} />
+              <Cell on={d as boolean} />
+              <Cell on mine />
             </div>
           ))}
         </div>
