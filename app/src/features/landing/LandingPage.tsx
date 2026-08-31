@@ -67,8 +67,11 @@ export function LandingPage() {
         <div>
           <h2 className="text-[34px] font-semibold leading-[1.2] tracking-[-0.02em] text-ink">추론은 망 안에서 끝납니다</h2>
           <p className="mt-4 text-[15px] leading-[1.7] text-faint">
-            망분리 환경에서는 로그와 문서를 외부 AI API로 보낼 수 없습니다.<br />그래서 살피의 추론은 사내에서 도는 소형 모델 <span className="font-mono text-body">Kanana</span>를 사용합니다.
-            카카오가 공개한 국산 3B 모델로, 양자화하면 2.2GB라 업무망 서버는 물론 단말에도 올릴 수 있습니다.
+            망분리 환경에서는 로그와 문서를 외부 AI API로 보낼 수 없습니다.
+            그래서 추론은 사내에서 도는 소형 모델 <span className="font-mono text-body">Kanana</span>가 맡습니다.
+          </p>
+          <p className="mt-2 text-[13.5px] leading-[1.7] text-dim">
+            카카오가 공개한 국산 3B 모델. 양자화하면 2.2GB라 업무망 서버는 물론 단말에도 올릴 수 있습니다.
           </p>
           <ul className="mt-6">
             {[
@@ -84,12 +87,19 @@ export function LandingPage() {
           <p className="mt-4 text-[13px] text-dim">AI는 후보를 낼 뿐 위반 확정은 검증 규칙이 하고, 확신이 없으면 미분류로 남겨 사람에게 넘깁니다</p>
           <div className="mt-4 rounded-xl bg-[rgba(19,23,34,.035)] p-4 text-[13px] leading-6 text-body">
             <div>결합 탐지: 합성 평가셋(문서 200건, 위반 591건) 재현율 <span className="font-mono font-semibold nums">88.7%</span>, 정밀도 <span className="font-mono font-semibold nums">97.6%</span></div>
-            <div className="mt-1.5 mb-2 space-y-1">
-              <div className="flex items-center gap-2"><span className="w-[52px] text-[11px] text-faint">규칙만</span><span className="h-[6px] rounded-full bg-[rgba(19,23,34,.18)]" style={{ width: '52.3%' }} /><span className="font-mono text-[11px] text-faint nums">52.3%</span></div>
-              <div className="flex items-center gap-2"><span className="w-[52px] text-[11px] text-faint">규칙+AI</span><span className="h-[6px] rounded-full bg-primary" style={{ width: '88.7%' }} /><span className="font-mono text-[11px] font-semibold text-ink nums">88.7%</span></div>
+            <div className="mt-2 mb-2.5 space-y-1.5">
+              {[['규칙만', 52.3, false], [' 규칙+AI', 88.7, true]].map(([l, v, ai]) => (
+                <div key={String(l)} className="flex items-center gap-2.5">
+                  <span className="w-[54px] shrink-0 text-[11px] text-faint">{String(l).trim()}</span>
+                  <div className="h-[6px] flex-1 overflow-hidden rounded-full bg-[rgba(19,23,34,.07)]">
+                    <div className={ai ? 'h-full rounded-full bg-primary' : 'h-full rounded-full bg-[rgba(19,23,34,.28)]'} style={{ width: v + '%' }} />
+                  </div>
+                  <span className={ai ? 'w-[46px] shrink-0 text-right font-mono text-[11px] font-semibold text-ink nums' : 'w-[46px] shrink-0 text-right font-mono text-[11px] text-faint nums'}>{v}%</span>
+                </div>
+              ))}
             </div>
             <div>처음 보는 도메인 분류: 정적 카테고리 목록 <span className="font-mono font-semibold nums">0%</span>, Kanana <span className="font-mono font-semibold nums">81.8%</span> (무명 22종)</div>
-            <div>4배 큰 Mi:dm 11.5B와 F1 동률(<span className="font-mono font-semibold nums">93.8</span>), 속도 2.7배. 같은 Q4 양자화, 같은 M4 Pro 기준</div>
+            <div>4배 큰 Mi:dm 11.5B와 F1 동률(<span className="font-mono font-semibold nums">93.8</span>), 속도는 2.7배</div>
             <div className="mt-1 text-[12px] text-dim">평가셋 생성 규칙과 채점 코드는 <a className="underline underline-offset-2" href="https://github.com/stacknoah/fin-zerotrust/tree/main/eval" target="_blank" rel="noreferrer">저장소 eval</a>에 공개</div>
           </div>
         </div>
