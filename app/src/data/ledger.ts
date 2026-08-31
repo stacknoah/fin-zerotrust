@@ -30,11 +30,11 @@ export const INITIAL_LEDGER: Conduit[] = [
     approved: '2023-11-02 의결 제2023-19호', controls: '전용회선, 포트 한정',
     review: { type: '위원회 재승인', due: '2026-11', soon: true } },
   { id: 'C-04', name: '유지보수 원격접속', type: '원격접속', basis: '제2조의3 ①항 2호', zone: 'remote',
-    domains: ['vpn.paymon.co.kr'], ports: '443', dir: '인바운드',
+    domains: ['vpn.wowpay.co.kr'], ports: '443', dir: '인바운드',
     approved: '2025-02-14 의결 제2025-02호', controls: '별표7 원격접속: 유휴차단, 서약서, 기록, 다중인증',
     review: { type: '위원회 재승인', due: '2027-02' } },
   { id: 'C-09', name: '재택근무 VPN', type: '원격접속', basis: '제2조의3 ①항 2호', zone: 'tele',
-    domains: ['ra.paymon.co.kr'], ports: '443', dir: '인바운드',
+    domains: ['ra.wowpay.co.kr'], ports: '443', dir: '인바운드',
     approved: '2025-09-30 의결 제2025-07호', controls: '규정 제12조 단말 보안대책, 별표7 원격접속: 다중인증, 단말 보안 점검, 화면 캡처와 클립보드 차단, 세션 기록',
     review: { type: '위원회 재승인', due: '2027-09' } },
   { id: 'C-05', name: 'NHN 두레이', type: 'SaaS', basis: '제2조의3 ①항 3호', zone: 'saas', saasKey: 'dooray',
@@ -46,11 +46,11 @@ export const INITIAL_LEDGER: Conduit[] = [
     approved: '2026-06-15 의결 제2026-09호, 금보원 충족 확인', controls: '별표7 SaaS 10개 통제 + Purview DLP(E5)',
     review: { type: '반기 자체평가 (제4항)', due: '2026-12-15', soon: true } },
   { id: 'C-07', name: '오픈뱅킹 API GW', type: '외부연결 불가피', basis: '제2조의3 ②항 2호 나목', zone: 'dmz',
-    domains: ['openapi.paymon.co.kr'], ports: '443', dir: '양방향',
+    domains: ['openapi.wowpay.co.kr'], ports: '443', dir: '양방향',
     approved: '2023-08-01 의결 제2023-12호', controls: 'DMZ 격리, WAF, 포트 한정',
     review: { type: '위원회 재승인', due: '2026-08', soon: true } },
   { id: 'C-08', name: '계열사 공동 회계시스템', type: '계열사 공동', basis: '제2조의3 ②항 2호 다목', zone: 'dmz',
-    domains: ['erp.paymon-holdings.com'], ports: '8443', dir: '양방향',
+    domains: ['erp.wowpay-holdings.com'], ports: '8443', dir: '양방향',
     approved: '2024-01-25 의결 제2024-01호', controls: '포트 한정, 구간 암호화',
     review: { type: '위원회 재승인', due: '2027-01' } },
 ]
@@ -78,7 +78,7 @@ export const KNOWN_SAAS: Record<string, string> = { 'notion.so': 'notion', 'door
 
 const _d = new Date().toISOString().slice(0, 10)
 // 라이브 데모 피드와 같은 미승인 6종이 나오도록 구성한 샘플. 날짜는 열어본 날
-export const SAMPLE_LOG = `${_d} 09:02:11 SRC=10.20.1.15 HOST=paymon.dooray.com DPT=443 ACTION=ALLOW
+export const SAMPLE_LOG = `${_d} 09:02:11 SRC=10.20.1.15 HOST=wowpay.dooray.com DPT=443 ACTION=ALLOW
 ${_d} 09:05:43 SRC=10.20.1.22 HOST=teams.microsoft.com DPT=443 ACTION=ALLOW
 ${_d} 09:12:07 SRC=10.20.1.15 HOST=kftc.or.kr DPT=8583 ACTION=ALLOW
 ${_d} 09:31:54 SRC=10.20.2.8  HOST=chatgpt.com DPT=443 ACTION=ALLOW

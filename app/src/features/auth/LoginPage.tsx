@@ -22,13 +22,13 @@ export function LoginPage() {
         <div className="surface-float px-8 pt-9 pb-7">
           <div className="flex items-center gap-2 text-[17px] font-semibold tracking-tight text-ink"><Mark className="size-6" />살피</div>
           <h1 className="mt-5 text-[20px] font-semibold tracking-[-0.01em] text-ink">콘솔 로그인</h1>
-          <p className="mt-1 text-[13.5px] text-faint">망분리 경계 관제, 페이몬 정보보호팀</p>
+          <p className="mt-1 text-[13.5px] text-faint">망분리 경계 관제, 와우페이 정보보호팀</p>
           <Button onClick={enter} className="mt-6 h-11 w-full text-[14.5px] font-medium">데모 열기<IconArrowRight className="size-4" stroke={2} /></Button>
           <p className="mt-3 text-center text-[12.5px] text-dim"><span className="font-mono">demo</span>, 계정 입력 없이 바로 진입</p>
           {form ? (
             <form className="mt-5 border-t border-[rgba(19,23,34,.07)] pt-5" onSubmit={e => { e.preventDefault(); enter() }}>
               <label className="mb-1.5 block text-[13px] font-medium text-body" htmlFor="lg-id">아이디</label>
-              <Input id="lg-id" defaultValue="paymon.sec" autoComplete="off" className="h-10 bg-card" />
+              <Input id="lg-id" defaultValue="wowpay.sec" autoComplete="off" className="h-10 bg-card" />
               <label className="mt-3.5 mb-1.5 block text-[13px] font-medium text-body" htmlFor="lg-pw">비밀번호</label>
               <Input id="lg-pw" type="password" defaultValue="demo-pass" autoComplete="off" className="h-10 bg-card" />
               <Button type="submit" variant="outline" className="mt-5 h-10 w-full text-sm font-medium">로그인</Button>

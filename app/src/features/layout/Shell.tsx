@@ -123,7 +123,7 @@ export function Shell() {
           <span className="ml-auto flex min-w-0 items-center gap-2.5">
             <Search />
             <AIStatus />
-            <button onClick={logout} title="로그아웃" className="ml-1 inline-flex size-8 items-center justify-center rounded-full bg-ink text-[12px] font-semibold text-white transition hover:opacity-80">페</button>
+            <button onClick={logout} title="로그아웃" className="ml-1 inline-flex size-8 items-center justify-center rounded-full bg-ink text-[12px] font-semibold text-white transition hover:opacity-80">와</button>
           </span>
         </div>
       </header>

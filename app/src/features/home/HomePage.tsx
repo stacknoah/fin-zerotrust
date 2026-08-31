@@ -23,7 +23,7 @@ function Welcome() {
       <DialogContent className="max-w-[480px] p-7">
         <DialogTitle className="text-[19px] font-semibold tracking-[-0.01em] text-ink">데모는 이렇게 흘러갑니다</DialogTitle>
         <DialogDescription className="mt-1 text-[13.5px] leading-5 text-faint">
-          가상 금융회사 페이몬의 정보보호팀 콘솔입니다.<br />승인된 연결 9건이 대장에 올라 있습니다.
+          가상 금융회사 와우페이의 정보보호팀 콘솔입니다.
         </DialogDescription>
         <ol className="mt-4">
           {[

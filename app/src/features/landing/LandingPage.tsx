@@ -15,7 +15,7 @@ const PREVIEW_ROGUES: Rogue[] = [
 const PREVIEW_TELE: TeleSession[] = Array.from({ length: 26 }, (_, i) => ({
   id: 'p' + i, user: '', dept: '', region: '', since: '', mfa: true, check: i === 3 ? 'fail' : 'ok', checkNote: '',
 }))
-const PREVIEW_HOSTS = ['kftc.or.kr', 'paymon.dooray.com', 'chatgpt.com', 'ra.paymon.co.kr', 'office.com', 'kcredit.or.kr', 'anydesk.com', 'nicevan.co.kr', 'ra.paymon.co.kr', 'chatgpt.com']
+const PREVIEW_HOSTS = ['kftc.or.kr', 'wowpay.dooray.com', 'chatgpt.com', 'ra.wowpay.co.kr', 'office.com', 'kcredit.or.kr', 'anydesk.com', 'nicevan.co.kr', 'ra.wowpay.co.kr', 'chatgpt.com']
 
 function usePreview(): MapData {
   const [hit, setHit] = useState({ id: 0, hosts: [] as string[] })

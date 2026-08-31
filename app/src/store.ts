@@ -169,7 +169,7 @@ export const useStore = create<State>((set, get) => ({
     for (let i = 0; i < n; i++) lines.push(feedLine(f.tick, s.ledger))
     // 재택 세션 변화와 재택 줄
     const tele = teleTick(s.tele, f.tick, get().logEvent)
-    lines.push(`${today()} ${now()} SRC=ext HOST=ra.paymon.co.kr DPT=443 ACTION=ALLOW`)
+    lines.push(`${today()} ${now()} SRC=ext HOST=ra.wowpay.co.kr DPT=443 ACTION=ALLOW`)
     if (lines.length > 400) lines.splice(0, lines.length - 400)
     f.lines = lines; f.received += n; f.last = now()
     const hitHosts = lines.slice(-(n + 1)).map(l => ((l.match(/HOST=(\S+)/) || [])[1] || '').toLowerCase())
