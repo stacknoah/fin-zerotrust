@@ -1,40 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useStore, type TeleSession } from '@/store'
+import { useStore } from '@/store'
 import { Mark } from '@/features/layout/Shell'
-import { BoundaryMap, type MapData } from '@/features/map/BoundaryMap'
-import { INITIAL_LEDGER, CLASSIFY } from '@/data/ledger'
-import type { Rogue } from '@/lib/reconcile'
 import { IconArrowRight } from '@tabler/icons-react'
-
-/* 랜딩 미리보기용 고정 데이터. 스토어를 건드리지 않는다 */
-const PREVIEW_ROGUES: Rogue[] = [
-  { host: 'chatgpt.com', info: { count: 8, srcs: new Set(['10.20.1.15', '10.20.3.57']), ports: new Set(['443']) }, cls: { ...CLASSIFY['chatgpt.com'], ai: true } },
-  { host: 'anydesk.com', info: { count: 3, srcs: new Set(['10.20.2.4']), ports: new Set(['443', '6568']) }, cls: { ...CLASSIFY['anydesk.com'], ai: true } },
-]
-const PREVIEW_TELE: TeleSession[] = Array.from({ length: 26 }, (_, i) => ({
-  id: 'p' + i, user: '', dept: '', region: '', since: '', mfa: true, check: i === 3 ? 'fail' : 'ok', checkNote: '',
-}))
-const PREVIEW_HOSTS = ['kftc.or.kr', 'wowpay.dooray.com', 'chatgpt.com', 'ra.wowpay.co.kr', 'office.com', 'kcredit.or.kr', 'anydesk.com', 'nicevan.co.kr', 'ra.wowpay.co.kr', 'chatgpt.com']
-
-function usePreview(): MapData {
-  const [hit, setHit] = useState({ id: 0, hosts: [] as string[] })
-  const k = useRef(0)
-  useEffect(() => {
-    const t = setInterval(() => {
-      const hosts = [PREVIEW_HOSTS[k.current % PREVIEW_HOSTS.length], PREVIEW_HOSTS[(k.current + 3) % PREVIEW_HOSTS.length]]
-      k.current++
-      setHit(h => ({ id: h.id + 1, hosts }))
-    }, 1700)
-    return () => clearInterval(t)
-  }, [])
-  return useMemo(() => ({ ledger: INITIAL_LEDGER, rogues: PREVIEW_ROGUES, tele: PREVIEW_TELE, hit, live: true, scanned: true, lastScan: '09:41' }), [hit])
-}
 
 export function LandingPage() {
   const login = useStore(s => s.login)
   const nav = useNavigate()
-  const data = usePreview()
   const enter = () => { try { sessionStorage.removeItem('salpi_intro') } catch { void 0 } login(); nav('/map') }
   return (
     <div className="min-h-dvh bg-background" style={{ background: 'radial-gradient(ellipse 80% 55% at 50% -12%, #e8eefb 0%, rgba(247,248,250,0) 60%), var(--background)' }}>
@@ -128,6 +99,10 @@ export function LandingPage() {
 
       {/* 기존 도구와의 경계 */}
       <section className="mx-auto mt-24 max-w-[1200px] px-6">
+        <div className="mx-auto mb-8 max-w-[640px] text-center">
+          <h2 className="text-[30px] font-semibold leading-[1.2] tracking-[-0.02em] text-ink">보안 장비가 있어도 남는 일</h2>
+          <p className="mt-3 text-[15px] leading-[1.7] text-faint">기존 장비는 연결을 막거나 문서를 검사합니다.<br />규제가 요구하는 판정과 대장, 보고는 여전히 사람 몫입니다.</p>
+        </div>
         <div className="surface overflow-hidden">
           <div className="grid grid-cols-[1fr_repeat(3,130px)] border-b border-[rgba(19,23,34,.07)] px-6 py-3 text-[12px] font-medium text-faint">
             <span /><span className="text-center">SWG, CASB</span><span className="text-center">DLP</span><span className="text-center text-ink">살피</span>
@@ -148,24 +123,6 @@ export function LandingPage() {
           ))}
         </div>
       </section>
-
-      {/* 제품 실물: 경계 지도가 실제로 돈다 */}
-      <section className="mx-auto mt-24 max-w-[1200px] px-6 pb-24">
-        <div className="overflow-hidden rounded-[16px] bg-card shadow-[var(--shadow-float)]">
-          <div className="flex items-center gap-2 border-b border-[rgba(19,23,34,.06)] px-4 py-2.5">
-            <span className="flex gap-1.5"><i className="size-2.5 rounded-full bg-[#e3e6ea]" /><i className="size-2.5 rounded-full bg-[#e3e6ea]" /><i className="size-2.5 rounded-full bg-[#e3e6ea]" /></span>
-            <span className="mx-auto flex h-6 items-center rounded-md bg-muted px-8 font-mono text-[11px] text-dim">salpi.pages.dev/map</span>
-            <span className="w-12" />
-          </div>
-          <BoundaryMap data={data} compact />
-          <div className="flex items-center gap-4 border-t border-[rgba(19,23,34,.06)] px-5 py-2.5 text-[12px] text-faint">
-            <span className="flex items-center gap-2 font-medium text-ink"><i className="size-[7px] rounded-full bg-ok breathe" />관측 중</span>
-            <span className="ml-auto font-mono text-[11px] text-dim">합성 데이터</span>
-          </div>
-        </div>
-      </section>
-
-
 
       <footer className="border-t border-[rgba(19,23,34,.06)]">
         <div className="mx-auto flex h-14 max-w-[1200px] items-center px-6 text-[12px] text-dim">

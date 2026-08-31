@@ -103,7 +103,7 @@ export function WorkbenchPage() {
                 <dt className="text-faint">확인처</dt>
                 <dd className="text-body">금융보안원 CSP 안전성 평가 통합지원시스템의 SaaS 제공자 평가 이력</dd>
                 <dt className="text-faint">판정 범위</dt>
-                <dd className="text-body">다음 관문인 <b className="font-semibold text-ink">고유식별정보와 개인신용정보를 처리하지 않을 것</b> 요건</dd>
+                <dd className="font-semibold text-ink">고유식별정보와 개인신용정보를 처리하지 않을 것</dd>
               </dl>
             )}
           </div>
