@@ -95,7 +95,7 @@ export function BoundaryMap({ data, compact }: { data?: MapData; compact?: boole
         {/* 면: 구역과 경계 */}
         {model.zones.map(z => <rect key={z.key} className={cn('map-zone', z.key === 'rogue' && 'bad')} x={z.x} y={z.y} width={z.w} height={z.h} rx="14" />)}
         <rect className="map-bz" x={bz.x} y={bz.y} width={bz.w} height={bz.h} rx="16" />
-        <text x={bz.x + 16} y={bz.y + bz.h - 12} fontSize="11" fontWeight="500" fill="#3f63b8" letterSpacing=".01em">내부 업무망 경계</text>
+        <text x={bz.x + bz.w - 14} y={bz.y + bz.h - 12} fontSize="11" fontWeight="500" fill="#3f63b8" letterSpacing=".01em" textAnchor="end">내부 업무망 경계</text>
         {/* 선 */}
         {model.edges.map(e => (
           <g key={e.key}>
