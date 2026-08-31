@@ -4,7 +4,7 @@ import { useStore, detectCount, contentCount, type EventKind } from '@/store'
 import { BoundaryMap } from '@/features/map/BoundaryMap'
 import { Button } from '@/components/ui/button'
 import { Pill, DDay, Empty, MonoCode, PageTip } from '@/components/salpi'
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { useWizard } from '@/features/wizard/RegisterDialog'
 import { cn } from '@/lib/utils'
 import { IconShieldCheck, IconArrowRight, IconPlayerPlay, IconPlayerPause, IconX } from '@tabler/icons-react'
@@ -21,13 +21,10 @@ function Welcome() {
   return (
     <Dialog open={open} onOpenChange={v => { if (!v) close() }}>
       <DialogContent className="max-w-[480px] p-7">
-        <DialogTitle className="text-[19px] font-semibold tracking-[-0.01em] text-ink">데모는 이렇게 흘러갑니다</DialogTitle>
-        <DialogDescription className="mt-1 text-[13.5px] leading-5 text-faint">
-          가상 금융회사 와우페이의 정보보호팀 콘솔입니다.
-        </DialogDescription>
-        <ol className="mt-4">
+        <DialogTitle className="text-[19px] font-semibold tracking-[-0.01em] text-ink">가상 금융회사 와우페이의 정보보호팀 콘솔입니다</DialogTitle>
+        <ol className="mt-5">
           {[
-            ['데모 실행', '합성 방화벽 로그가 들어오고, 승인 대장과 실시간으로 대조합니다'],
+            ['데모 실행', '가상 방화벽 로그가 들어오고, 승인 대장과 실시간으로 대조합니다'],
             ['미승인 발견', '대장에 없는 연결이 지도에 빨갛게 표시되고, 로컬 AI가 어떤 서비스인지 판단합니다'],
             ['판정과 보고', '등재나 차단을 결정하면 그 기록이 그대로 반기 보고서에 반영됩니다'],
           ].map(([t, d], i) => (
@@ -37,7 +34,7 @@ function Welcome() {
             </li>
           ))}
         </ol>
-        <p className="mt-3 text-[12px] text-dim">합성 데이터 위에서 실제 AI가 판단합니다</p>
+        <p className="mt-3 text-[12px] text-dim">가상 데이터 위에서 실제 AI가 판단합니다</p>
         <div className="mt-5 flex justify-end gap-2">
           <Button variant="outline" onClick={close}>둘러보기</Button>
           <Button onClick={() => { close(); startFeed() }}>데모 실행하며 시작</Button>
@@ -98,7 +95,7 @@ function Ticker() {
         <Item l="수신" n={feed.received + '줄'} />
         <Item l="AI 분류" n={feed.aiCount + '건'} />
       </>}
-      <span className="ml-auto font-mono text-[11px] text-dim">{feed.started ? `데모 피드(합성)${feed.last ? ', 마지막 수신 ' + feed.last : ''}` : '합성 데이터'}</span>
+      <span className="ml-auto font-mono text-[11px] text-dim">{feed.started ? `데모 피드(가상)${feed.last ? ', 마지막 수신 ' + feed.last : ''}` : '가상 데이터'}</span>
     </div>
   )
 }
