@@ -125,9 +125,31 @@ export function ContentPage() {
               </li>
             ))}
           </ol>
-          <div className="mx-5 mb-4 rounded-lg bg-muted px-3.5 py-2.5 text-[12px] leading-5 text-body">
-            합성 문서 200건, 위반 591건으로 측정한 결과 재현율 <b className="font-mono font-semibold nums">95.9%</b>, 정밀도 <b className="font-mono font-semibold nums">98.1%</b>.
-            규칙만 쓰면 재현율 52.3%에 그친다. 검사 방해 지시문을 심은 주입 공격 문서도 평가셋에 포함. AI가 후보를 늘리고 검증 규칙이 오탐을 걷어낸 수치. 생성 규칙과 채점 코드는 저장소 eval 폴더에 공개. 측정 환경은 Apple M4 Pro, 로컬 추론. 관측은 도메인 단위로 집계해 처음 본 목적지에만 추론을 부르므로 호출량은 로그 줄 수와 무관. 같은 평가셋에서 Kanana 3B는 4배 큰 Mi:dm 11.5B와 F1 동률(93.8), 속도 2.7배.
+          <div className="mx-5 mb-4 rounded-lg bg-muted px-4 py-3">
+            <div className="flex items-baseline gap-2">
+              <span className="font-mono text-[24px] font-semibold leading-7 text-primary nums">95.9%</span>
+              <span className="text-[12.5px] text-body">결합 위반 재현율</span>
+              <span className="text-[11.5px] text-dim">정밀도 98.1%</span>
+            </div>
+            <div className="mt-2 space-y-1">
+              {[['규칙만', 52.3, false], ['규칙+AI', 95.9, true]].map(([l, v, ai]) => (
+                <div key={String(l)} className="flex items-center gap-2">
+                  <span className="w-[46px] shrink-0 text-[10.5px] text-faint">{String(l)}</span>
+                  <div className="h-[5px] flex-1 overflow-hidden rounded-full bg-[rgba(19,23,34,.08)]">
+                    <div className={ai ? 'h-full rounded-full bg-primary' : 'h-full rounded-full bg-[rgba(19,23,34,.28)]'} style={{ width: v + '%' }} />
+                  </div>
+                  <span className={ai ? 'w-[40px] shrink-0 text-right font-mono text-[10.5px] font-semibold text-ink nums' : 'w-[40px] shrink-0 text-right font-mono text-[10.5px] text-faint nums'}>{v}%</span>
+                </div>
+              ))}
+            </div>
+            <details className="mt-2.5 [&[open]_summary]:text-ink">
+              <summary className="cursor-pointer list-none text-[11.5px] text-dim transition hover:text-body">측정 조건 보기</summary>
+              <div className="mt-1.5 text-[11.5px] leading-[18px] text-faint">
+                합성 문서 200건, 위반 591건. 검사 방해 지시문을 심은 주입 공격 문서 포함. Apple M4 Pro 로컬 추론.
+                4배 큰 Mi:dm 11.5B와 F1 동률(93.8)에 속도는 2.7배.
+                생성 규칙과 채점 코드는 <a className="underline underline-offset-2" href="https://github.com/stacknoah/fin-zerotrust/tree/main/eval" target="_blank" rel="noreferrer">저장소 eval</a>에 공개.
+              </div>
+            </details>
           </div>
         </Panel>
       </div>
