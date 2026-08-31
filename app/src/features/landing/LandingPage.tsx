@@ -64,41 +64,40 @@ export function LandingPage() {
       {/* 로컬 AI: 무엇을 하고 왜 사내에서 도는지 */}
       <section className="mx-auto mt-20 grid max-w-[1200px] items-center gap-10 px-6 lg:grid-cols-[5fr_6fr] lg:gap-14">
         <div>
-          <h2 className="text-[34px] font-semibold leading-[1.2] tracking-[-0.02em] text-ink">데이터가 못 나가서,<br />AI를 들여왔습니다</h2>
+          <h2 className="text-[34px] font-semibold leading-[1.2] tracking-[-0.02em] text-ink">한 바이트도<br />밖으로 나가지 않습니다</h2>
           <p className="mt-4 text-[15px] leading-[1.7] text-faint">
-            망 밖으로는 아무것도 보내지 않습니다.<br />추론은 사내에서 도는 국산 3B 모델 <span className="font-mono text-body">Kanana</span>가 맡습니다.
+            로그도 문서도 망 안에 머뭅니다.<br />추론은 사내에서 도는 국산 3B 모델 <span className="font-mono text-body">Kanana</span>가 맡습니다.
           </p>
           <div className="mt-5 flex flex-wrap gap-1.5">
             {['목적지 분류', '위험 서술', '신용정보 결합 탐지'].map(t => (
               <span key={t} className="inline-flex h-7 items-center rounded-full bg-[rgba(19,23,34,.05)] px-3 text-[12.5px] font-medium text-body">{t}</span>
             ))}
           </div>
-          <div className="mt-7">
-            <div className="flex items-baseline gap-2.5">
-              <span className="font-mono text-[40px] font-semibold leading-none tracking-tight text-ink nums">88.7%</span>
-              <span className="text-[13.5px] text-body">결합 탐지 재현율</span>
-              <span className="text-[12.5px] text-dim">정밀도 97.6%</span>
-            </div>
-            <div className="mt-3 space-y-1.5">
-              {[['규칙만', 52.3, false], ['규칙+AI', 88.7, true]].map(([l, v, ai]) => (
-                <div key={String(l)} className="flex items-center gap-2.5">
-                  <span className="w-[54px] shrink-0 text-[11px] text-faint">{String(l)}</span>
-                  <div className="h-[6px] flex-1 overflow-hidden rounded-full bg-[rgba(19,23,34,.07)]">
-                    <div className={ai ? 'h-full rounded-full bg-primary' : 'h-full rounded-full bg-[rgba(19,23,34,.28)]'} style={{ width: v + '%' }} />
-                  </div>
-                  <span className={ai ? 'w-[46px] shrink-0 text-right font-mono text-[11px] font-semibold text-ink nums' : 'w-[46px] shrink-0 text-right font-mono text-[11px] text-faint nums'}>{v}%</span>
+          <div className="mt-7 flex items-baseline gap-2.5">
+            <span className="font-mono text-[44px] font-semibold leading-none tracking-tight text-primary nums">97.6%</span>
+            <span className="text-[14px] text-body">판정 정밀도</span>
+            <span className="text-[12.5px] text-dim">채택된 판정이 실제 위반인 비율</span>
+          </div>
+          <div className="mt-4 space-y-1.5">
+            {[['규칙만', 52.3, false], ['규칙+AI', 88.7, true]].map(([l, v, ai]) => (
+              <div key={String(l)} className="flex items-center gap-2.5">
+                <span className="w-[54px] shrink-0 text-[11px] text-faint">{String(l)}</span>
+                <div className="h-[6px] flex-1 overflow-hidden rounded-full bg-[rgba(19,23,34,.07)]">
+                  <div className={ai ? 'h-full rounded-full bg-primary' : 'h-full rounded-full bg-[rgba(19,23,34,.28)]'} style={{ width: v + '%' }} />
                 </div>
-              ))}
-            </div>
+                <span className={ai ? 'w-[46px] shrink-0 text-right font-mono text-[11px] font-semibold text-ink nums' : 'w-[46px] shrink-0 text-right font-mono text-[11px] text-faint nums'}>{v}%</span>
+              </div>
+            ))}
+            <div className="pt-0.5 text-[11.5px] text-dim">결합 위반 재현율. AI를 더하면 같은 문서에서 위반을 1.7배 잡습니다</div>
           </div>
           <div className="mt-6 grid grid-cols-2 gap-3">
-            <div className="rounded-xl bg-[rgba(19,23,34,.035)] p-4">
-              <div className="font-mono text-[26px] font-semibold leading-7 text-ink nums">81.8%</div>
-              <div className="mt-1 text-[12.5px] leading-4 text-faint">처음 보는 도메인 분류<br />목록 대조는 0%</div>
+            <div className="surface p-4">
+              <div className="font-mono text-[24px] font-semibold leading-7 text-ink nums">0% <span className="text-[15px] text-dim">→</span> 81.8%</div>
+              <div className="mt-1 text-[12.5px] leading-4 text-faint">처음 보는 도메인 분류<br />목록 대조 대비</div>
             </div>
-            <div className="rounded-xl bg-[rgba(19,23,34,.035)] p-4">
-              <div className="font-mono text-[26px] font-semibold leading-7 text-ink nums">2.7배</div>
-              <div className="mt-1 text-[12.5px] leading-4 text-faint">4배 큰 Mi:dm과 F1 동률<br />속도는 2.7배</div>
+            <div className="surface p-4">
+              <div className="font-mono text-[24px] font-semibold leading-7 text-ink nums">2.7배</div>
+              <div className="mt-1 text-[12.5px] leading-4 text-faint">4배 큰 Mi:dm과 F1 동률<br />속도는 2.7배 빠름</div>
             </div>
           </div>
           <p className="mt-4 text-[12px] leading-5 text-dim">AI는 후보만 내고 확정은 검증 규칙이 합니다. 평가셋(문서 200건)과 채점 코드는 <a className="underline underline-offset-2" href="https://github.com/stacknoah/fin-zerotrust/tree/main/eval" target="_blank" rel="noreferrer">저장소 eval</a>에 공개.</p>
