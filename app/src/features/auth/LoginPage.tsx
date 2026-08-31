@@ -14,7 +14,7 @@ export function LoginPage() {
   const [form, setForm] = useState(false)
   const dest = (loc.state as { from?: string } | null)?.from || '/map'
   if (authed) return <Navigate to={dest} replace />
-  const enter = () => { login(); nav(dest, { replace: true }) }
+  const enter = () => { try { sessionStorage.removeItem('salpi_intro') } catch { void 0 } login(); nav(dest, { replace: true }) }
   return (
     <div className="relative flex min-h-dvh items-center justify-center bg-background p-5">
       <div className="dotgrid pointer-events-none absolute inset-0 opacity-60" />
