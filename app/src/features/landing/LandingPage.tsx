@@ -62,7 +62,7 @@ export function LandingPage() {
       </section>
 
       {/* 로컬 AI: 무엇을 하고 왜 사내에서 도는지 */}
-      <section className="mx-auto mt-20 grid max-w-[1200px] grid-cols-[5fr_6fr] items-center gap-14 px-6">
+      <section className="mx-auto mt-20 grid max-w-[1200px] items-center gap-10 px-6 lg:grid-cols-[5fr_6fr] lg:gap-14">
         <div>
           <h2 className="text-[34px] font-semibold leading-[1.2] tracking-[-0.02em] text-ink">추론은 망 안에서 끝납니다</h2>
           <p className="mt-4 text-[15px] leading-[1.7] text-faint">
