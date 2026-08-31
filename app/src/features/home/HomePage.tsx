@@ -1,15 +1,51 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore, detectCount, contentCount, type EventKind } from '@/store'
 import { BoundaryMap } from '@/features/map/BoundaryMap'
 import { Button } from '@/components/ui/button'
 import { Pill, DDay, Empty, MonoCode } from '@/components/salpi'
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { useWizard } from '@/features/wizard/RegisterDialog'
 import { cn } from '@/lib/utils'
 import { IconShieldCheck, IconArrowRight, IconPlayerPlay, IconPlayerPause, IconX } from '@tabler/icons-react'
 
 export const EV_KO: Record<EventKind, string> = { rogue: '발견', ai: 'AI', block: '차단', register: '등재', content: '검사', scan: '대조', sys: '상태', tele: '재택' }
 export const EV_TONE: Record<EventKind, string> = { rogue: 'text-bad-fg', ai: 'text-primary', block: 'text-bad-fg', register: 'text-ok-fg', content: 'text-primary', scan: 'text-faint', sys: 'text-faint', tele: 'text-warn-fg' }
+
+
+/* 첫 진입 안내. 세션당 한 번 */
+function Welcome() {
+  const startFeed = useStore(s => s.startFeed)
+  const [open, setOpen] = useState(() => { try { return !sessionStorage.getItem('salpi_intro') } catch { return true } })
+  const close = () => { try { sessionStorage.setItem('salpi_intro', '1') } catch { void 0 } setOpen(false) }
+  return (
+    <Dialog open={open} onOpenChange={v => { if (!v) close() }}>
+      <DialogContent className="max-w-[480px] p-7">
+        <DialogTitle className="text-[19px] font-semibold tracking-[-0.01em] text-ink">살피 데모에 들어오셨습니다</DialogTitle>
+        <DialogDescription className="mt-1 text-[13.5px] leading-5 text-faint">
+          가상 금융회사 페이몬의 정보보호팀 콘솔입니다. 승인된 연결 9건이 대장에 올라 있습니다.
+        </DialogDescription>
+        <ol className="mt-4">
+          {[
+            ['데모 실행', '합성 방화벽 로그가 들어오고, 승인 대장과 실시간으로 대조합니다'],
+            ['미승인 발견', '대장에 없는 연결이 지도에 빨갛게 뜨고, 로컬 AI가 정체를 분류합니다'],
+            ['판정과 보고', '등재나 차단을 결정하면 그 기록이 그대로 반기 보고서가 됩니다'],
+          ].map(([t, d], i) => (
+            <li key={t} className="flex gap-3 border-t border-[rgba(19,23,34,.06)] py-2.5 first:border-t-0">
+              <span className="mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-[rgba(19,23,34,.06)] font-mono text-[10.5px] font-semibold text-body">{i + 1}</span>
+              <span className="text-[13.5px] leading-5 text-body"><b className="mr-1.5 font-semibold text-ink">{t}</b>{d}</span>
+            </li>
+          ))}
+        </ol>
+        <p className="mt-3 text-[12px] text-dim">데이터는 합성이지만 AI 추론은 실제로 돕니다 (Kanana 2 3B, 망 안 추론).</p>
+        <div className="mt-5 flex justify-end gap-2">
+          <Button variant="outline" onClick={close}>둘러보기</Button>
+          <Button onClick={() => { close(); startFeed() }}>데모 실행하며 시작</Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+}
 
 /* 지도 위 판정 칩과 실행 버튼 */
 function MapHud() {
@@ -224,6 +260,7 @@ function Bottom() {
 export function HomePage() {
   return (
     <div className="view-in">
+      <Welcome />
       <Ticker />
       <div className="relative">
         <MapHud />
