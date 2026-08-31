@@ -21,7 +21,7 @@ function Welcome() {
   return (
     <Dialog open={open} onOpenChange={v => { if (!v) close() }}>
       <DialogContent className="max-w-[480px] p-7">
-        <DialogTitle className="text-[19px] font-semibold tracking-[-0.01em] text-ink">살피 데모에 들어오셨습니다</DialogTitle>
+        <DialogTitle className="text-[19px] font-semibold tracking-[-0.01em] text-ink">데모는 이렇게 흘러갑니다</DialogTitle>
         <DialogDescription className="mt-1 text-[13.5px] leading-5 text-faint">
           가상 금융회사 페이몬의 정보보호팀 콘솔입니다.<br />승인된 연결 9건이 대장에 올라 있습니다.
         </DialogDescription>
@@ -240,13 +240,13 @@ function Bottom() {
   return (
     <div className="mt-4 grid grid-cols-2 overflow-hidden surface">
       <section>
-        <header className="flex items-center px-5 pt-4 pb-2 text-[14px] font-semibold text-ink">다가오는 의무<span className="ml-2 font-mono text-[12px] font-normal text-dim nums">{due.length}</span></header>
+        <header className="flex items-center px-5 pt-4 pb-2 text-[14px] font-semibold text-ink">임박 기한<span className="ml-2 font-mono text-[12px] font-normal text-dim nums">{due.length}</span></header>
         {due.length ? due.map(c => (
           <div key={c.id} className="flex items-center gap-3 border-t border-[rgba(19,23,34,.06)] px-5 py-2.5 text-[13px] text-body"><span className="font-mono text-[11.5px] text-dim">{c.id}</span><span className="text-ink">{c.name}</span><span className="text-faint">{c.review.type.replace(' (제4항)', '')}</span><span className="ml-auto flex items-center gap-2"><span className="font-mono text-xs text-faint nums">{c.review.due}</span><DDay due={c.review.due} /></span></div>
         )) : <div className="px-5 py-3 text-sm text-dim">없음</div>}
       </section>
       <section className="border-l border-[rgba(19,23,34,.07)]">
-        <header className="flex items-center px-5 pt-4 pb-2 text-[14px] font-semibold text-ink">미승인 연결 조치<span className="ml-2 font-mono text-[12px] font-normal text-dim nums">{rogues.length}</span></header>
+        <header className="flex items-center px-5 pt-4 pb-2 text-[14px] font-semibold text-ink">미승인 연결<span className="ml-2 font-mono text-[12px] font-normal text-dim nums">{rogues.length}</span></header>
         {rogues.length ? rogues.map(r => (
           <div key={r.host} className="flex items-center gap-3 border-t border-[rgba(19,23,34,.06)] px-5 py-2 text-sm"><span className="font-mono text-[13px] font-medium text-bad-fg">{r.host}</span><span className="text-[12px] text-faint">{r.cls.kind}</span><span className="ml-auto flex gap-1.5">
             {r.cls.saasLike && <Button size="sm" className="h-7 px-3 text-[12px]" onClick={() => open({ host: r.host, name: r.host, fromRogue: true, cls: r.cls })}>판정</Button>}
