@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useStore, detectCount, contentCount, type EventKind } from '@/store'
 import { BoundaryMap } from '@/features/map/BoundaryMap'
 import { Button } from '@/components/ui/button'
-import { Pill, DDay, Empty, MonoCode } from '@/components/salpi'
+import { Pill, DDay, Empty, MonoCode, PageTip } from '@/components/salpi'
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { useWizard } from '@/features/wizard/RegisterDialog'
 import { cn } from '@/lib/utils'
@@ -28,12 +28,12 @@ function Welcome() {
         <ol className="mt-4">
           {[
             ['데모 실행', '합성 방화벽 로그가 들어오고, 승인 대장과 실시간으로 대조합니다'],
-            ['미승인 발견', '대장에 없는 연결이 지도에 빨갛게 표시되고, 로컬 AI가 어떤 서비스인지 알아냅니다'],
+            ['미승인 발견', '대장에 없는 연결이 지도에 빨갛게 표시되고, 로컬 AI가 어떤 서비스인지 판단합니다'],
             ['판정과 보고', '등재나 차단을 결정하면 그 기록이 그대로 반기 보고서에 반영됩니다'],
           ].map(([t, d], i) => (
-            <li key={t} className="flex gap-3 border-t border-[rgba(19,23,34,.06)] py-2.5 first:border-t-0">
-              <span className="mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-[rgba(19,23,34,.06)] font-mono text-[10.5px] font-semibold text-body">{i + 1}</span>
-              <span className="text-[13.5px] leading-5 text-body"><b className="mr-1.5 font-semibold text-ink">{t}</b>{d}</span>
+            <li key={t} className="flex gap-3 border-t border-[rgba(19,23,34,.06)] py-3 first:border-t-0">
+              <span className="mt-px inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-[rgba(19,23,34,.06)] font-mono text-[10.5px] font-semibold text-body">{i + 1}</span>
+              <span className="text-[13.5px] leading-5"><b className="block font-semibold text-ink">{t}</b><span className="mt-0.5 block text-body">{d}</span></span>
             </li>
           ))}
         </ol>
@@ -262,6 +262,7 @@ export function HomePage() {
     <div className="view-in">
       <Welcome />
       <Ticker />
+      <PageTip id="map">망을 넘는 연결을 한 장에 그립니다. 파란 선이 승인된 연결, 빨간 점선이 승인 없이 뚫린 연결입니다.</PageTip>
       <div className="relative">
         <MapHud />
         <BoundaryMap />
