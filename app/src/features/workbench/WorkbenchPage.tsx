@@ -84,7 +84,7 @@ export function WorkbenchPage() {
         const all: Record<number, boolean> = {}; for (let i = 0; i < 12; i++) all[i] = true
         setApplied(all); setComp(all); setStep(5)
       }}>예시 판정 보기</Button>} />
-      <PageTip id="workbench">새로 도입할 SaaS가 전자금융감독규정 예외 요건에 맞는지 여섯 단계로 판정하고 검토서를 냅니다.</PageTip>
+      <PageTip id="workbench">새로 도입할 SaaS가 전자금융감독규정 예외 요건에 맞는지 여섯 단계로 판정하고 검토서를 생성합니다.</PageTip>
       <div className="grid grid-cols-[180px_1fr] items-start gap-6 max-md:grid-cols-1">
         <nav className="sticky top-[120px] rounded-lg border bg-card p-2.5">
           {STEPS.map((s, i) => (

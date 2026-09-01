@@ -24,7 +24,7 @@ export function ReportPage() {
   return (
     <div className="view-in">
       <PageHeader title="반기 보고" crumb="반기 보고" actions={<Button onClick={() => window.print()}>인쇄 / PDF 저장</Button>} />
-      <PageTip id="report">지금까지의 판정과 조치 기록이 그대로 반기 자체평가 보고서 초안이 됩니다.</PageTip>
+      <PageTip id="report">지금까지의 판정과 조치 기록을 모아 반기 자체평가 보고서 초안을 생성합니다.</PageTip>
       <div className="grid grid-cols-[340px_1fr] items-start gap-6">
       <Panel title="제출 전 점검" className="sticky top-[76px]">
         <Check ok n={ledger.length}>예외 운영 현황 집계 완료</Check>

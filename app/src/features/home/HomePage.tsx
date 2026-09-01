@@ -259,7 +259,7 @@ export function HomePage() {
     <div className="view-in">
       <Welcome />
       <Ticker />
-      <PageTip id="map">망을 넘는 연결을 한 장에 그립니다. 파란 선이 승인된 연결, 빨간 점선이 승인 없이 오간 연결입니다.</PageTip>
+      <PageTip id="map">망분리 경계를 오가는 연결을 한 화면에 모았습니다. 파란 선이 승인된 연결, 빨간 점선이 승인 없이 오간 연결입니다.</PageTip>
       <div className="relative">
         <MapHud />
         <BoundaryMap />
