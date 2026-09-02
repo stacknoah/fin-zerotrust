@@ -66,7 +66,7 @@
 }
 
 :root {
-  --background: #f7f8fa;
+  --background: #eef1f5;
   --foreground: #131722;
   --card: #ffffff;
   --card-foreground: #131722;
@@ -99,8 +99,8 @@
   --sidebar-border: #e6e8ec;
   --sidebar-ring: #2157d1;
   --shadow-ring: 0 0 0 1px rgba(19,23,34,.07);
-  --shadow-card: 0 0 0 1px rgba(19,23,34,.07), 0 1px 2px rgba(19,23,34,.04);
-  --shadow-float: 0 0 0 1px rgba(11,13,24,.06), 0 1px 2px rgba(11,13,24,.024), 0 3px 6px rgba(11,13,24,.03), 0 8px 14px rgba(11,13,24,.035), 0 16px 28px rgba(11,13,24,.04);
+  --shadow-card: 0 0 0 1px rgba(19,23,34,.06), 0 1px 2px rgba(19,23,34,.05), 0 4px 12px rgba(19,23,34,.05), inset 0 1px 0 rgba(255,255,255,.8);
+  --shadow-float: 0 0 0 1px rgba(11,13,24,.07), 0 1px 2px rgba(11,13,24,.03), 0 4px 8px rgba(11,13,24,.04), 0 12px 20px rgba(11,13,24,.05), 0 24px 40px rgba(11,13,24,.06);
 }
 
 @layer base {
@@ -117,6 +117,7 @@
 
 /* 지도 */
 .map-wrap {
+  --m-bg: #fff;
   --m-zone: rgba(19,23,34,.035); --m-zone-line: rgba(19,23,34,.06);
   --m-bz: rgba(33,87,209,.045); --m-bz-line: rgba(33,87,209,.28); --m-bz-text: #3f63b8;
   --m-node: #fff; --m-node-line: rgba(19,23,34,.12); --m-node-hover: rgba(19,23,34,.28);
@@ -125,16 +126,19 @@
   --m-hub: #fff; --m-hub-line: #131722; --m-hub-div: rgba(19,23,34,.1);
   --m-edge: #8fa9e6; --m-dot: rgba(19,23,34,.10); --m-veil: rgba(255,255,255,.9); --m-veil2: rgba(255,255,255,.35);
 }
+/* 저녁 톤. 관제실처럼 가라앉되 새까맣지 않게. 위가 살짝 밝은 방사형으로 깊이를 준다 */
 .map-wrap.map-dark {
-  --m-zone: rgba(255,255,255,.04); --m-zone-line: rgba(255,255,255,.08);
-  --m-bz: rgba(96,140,235,.12); --m-bz-line: rgba(125,163,240,.4); --m-bz-text: #9dbcf5;
-  --m-node: #182031; --m-node-line: rgba(255,255,255,.14); --m-node-hover: rgba(255,255,255,.34);
-  --m-text: #e8edf6; --m-sub: #78829a; --m-dim: #9aa5b8;
-  --m-chip: #182031; --m-chip-line: rgba(255,255,255,.24); --m-chip-text: #c2ccdd; --m-cut: #0e1420;
-  --m-hub: #182031; --m-hub-line: #cfd8ec; --m-hub-div: rgba(255,255,255,.14);
-  --m-edge: #7695de; --m-dot: rgba(255,255,255,.09); --m-veil: rgba(14,20,32,.55); --m-veil2: rgba(14,20,32,.2);
-  --m-rogue-text: #e58079; --m-ai-chip: rgba(33,87,209,.28); --m-ai-text: #a9c4ff;
+  --m-bg: radial-gradient(ellipse 90% 70% at 50% 0%, #2a3549 0%, #1e2739 55%, #1a2232 100%);
+  --m-zone: rgba(255,255,255,.045); --m-zone-line: rgba(255,255,255,.09);
+  --m-bz: rgba(96,140,235,.13); --m-bz-line: rgba(140,175,245,.42); --m-bz-text: #a9c4f7;
+  --m-node: #2a3448; --m-node-line: rgba(255,255,255,.16); --m-node-hover: rgba(255,255,255,.38);
+  --m-text: #eaeff8; --m-sub: #8792a8; --m-dim: #a6b0c4;
+  --m-chip: #2a3448; --m-chip-line: rgba(255,255,255,.26); --m-chip-text: #cdd6e5; --m-cut: #1e2739;
+  --m-hub: #2c374c; --m-hub-line: #d8e0ef; --m-hub-div: rgba(255,255,255,.15);
+  --m-edge: #7f9de2; --m-dot: rgba(255,255,255,.10); --m-veil: rgba(30,39,57,.55); --m-veil2: rgba(30,39,57,.2);
+  --m-rogue-text: #ec8a83; --m-ai-chip: rgba(33,87,209,.32); --m-ai-text: #b3caff;
 }
+.map-wrap.map-dark.surface-float { box-shadow: 0 0 0 1px rgba(11,13,24,.35), 0 2px 4px rgba(11,13,24,.12), 0 12px 24px rgba(11,13,24,.18), 0 28px 48px rgba(11,13,24,.16), inset 0 1px 0 rgba(255,255,255,.06); }
 .map-zone { fill: var(--m-zone); stroke: var(--m-zone-line); stroke-width: 1; }
 .map-zone.bad { fill: rgba(196,48,43,.045); stroke: rgba(196,48,43,.14); }
 .map-dark .map-zone.bad { fill: rgba(214,80,74,.10); stroke: rgba(214,80,74,.28); }

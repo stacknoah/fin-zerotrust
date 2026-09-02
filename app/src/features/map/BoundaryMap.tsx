@@ -56,7 +56,7 @@ export function BoundaryMap({ data, compact }: { data?: MapData; compact?: boole
   const svgRef = useRef<SVGSVGElement>(null)
   const pktRef = useRef<SVGGElement>(null)
   const [hover, setHover] = useState<{ key: string; x: number; y: number } | null>(null)
-  const [dark, setDark] = useState(false)
+  const [dark, setDark] = useState(!compact)
   const [fs, setFs] = useState(false)
   useEffect(() => {
     const h = () => setFs(!!document.fullscreenElement)
@@ -108,7 +108,7 @@ export function BoundaryMap({ data, compact }: { data?: MapData; compact?: boole
   const chipW = 44
   return (
     <div ref={wrapRef} className={cn('map-wrap relative overflow-hidden', compact ? '' : 'surface-float', live && 'map-live', dark && 'map-dark', fs && 'flex flex-col justify-center')}
-      style={dark ? { background: '#0e1420' } : undefined}>
+      style={{ background: 'var(--m-bg)' }}>
       <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(var(--m-dot) 1px, transparent 1.2px)', backgroundSize: '22px 22px', opacity: .7 }} />
       <div className="pointer-events-none absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 55%, var(--m-veil) 0%, var(--m-veil2) 45%, transparent 75%)' }} />
       <svg ref={svgRef} viewBox={`0 0 ${W} ${model.H}`} width="100%" className={cn('relative block', compact ? '' : 'px-3 pt-2')} style={{ fontFamily: 'var(--font-sans)' }}>
@@ -211,7 +211,7 @@ function Legend({ dark, fs, onDark, onFs }: { dark: boolean; fs: boolean; onDark
       <span className="flex items-center gap-4"><span className="font-mono text-[10.5px] tracking-[.04em]" style={{ color: 'var(--m-sub)' }}>연결</span><span><Line cls="border-t-[1.25px]" />승인</span><span><Line cls="border-[#c4302b] border-dashed border-t-[1.5px]" />미승인</span></span>
       <span className="ml-4 flex items-center gap-4 pl-5" style={{ borderLeft: '1px solid var(--m-zone-line)' }}><span className="font-mono text-[10.5px] tracking-[.04em]" style={{ color: 'var(--m-sub)' }}>기한</span><span><i className="mr-1.5 inline-block size-1.5 rounded-full bg-ok" />정상</span><span><i className="mr-1.5 inline-block size-1.5 rounded-full bg-warn" />임박</span><span><i className="mr-1.5 inline-block size-1.5 rounded-full bg-bad" />경과</span></span>
       <span className="ml-auto flex items-center gap-0.5">
-        <Ctl on={dark} title="어둡게 보기">{dark ? <IconSun className="size-4" stroke={1.7} /> : <IconMoon className="size-4" stroke={1.7} />}</Ctl>
+        <Ctl on={dark} title={dark ? "밝게 보기" : "어둡게 보기"}>{dark ? <IconSun className="size-4" stroke={1.7} /> : <IconMoon className="size-4" stroke={1.7} />}</Ctl>
         <Ctl on={fs} title={fs ? '전체화면 나가기' : '전체화면'}>{fs ? <IconMinimize className="size-4" stroke={1.7} /> : <IconMaximize className="size-4" stroke={1.7} />}</Ctl>
       </span>
     </div>

@@ -59,13 +59,15 @@ export function ContentPage() {
   const [target, setTarget] = useState(params.get('target') || saas[0]?.id || 'C-05')
   const [text, setText] = useState(DET_SAMPLE)
   const [res, setRes] = useState<ScanResult | null>(null)
+  const [resFor, setResFor] = useState('')   // 이 결과가 어느 본문의 것인지. 본문이 바뀌면 이전 결과는 숨긴다
   const [live, setLive] = useState<Live | null>(null)
   const [busy, setBusy] = useState(false)
   const [note, setNote] = useState('')
   const seq = useRef(0)
   const [recheck, setRecheck] = useState<number | null>(null)
-  const viols = useMemo(() => res ? res.hits.filter(h => h.severity === 'violation') : [], [res])
-  const fix = useMemo(() => res && viols.length ? remedy(text, res.hits) : null, [res, viols, text])
+  const cur = res && resFor === text ? res : null
+  const viols = useMemo(() => cur ? cur.hits.filter(h => h.severity === 'violation') : [], [cur])
+  const fix = useMemo(() => cur && viols.length ? remedy(text, cur.hits) : null, [cur, viols, text])
   // 교정본을 같은 엔진으로 다시 검사해 위반이 남는지 센다
   useEffect(() => {
     if (!fix) { setRecheck(null); return }
@@ -102,7 +104,7 @@ export function ContentPage() {
     if (mode === 'heuristic') setLive(null)
     const r = await Engine.scan(t, { mode, llm: { onEvent } })
     if (my !== seq.current) return
-    setBusy(false); setRes(r)
+    setBusy(false); setRes(r); setResFor(t)
     const viols = r.hits.filter(h => h.severity === 'violation')
     if (viols.length) {
       addContentLog(target, viols.map(v => ({ t: Date.now(), tag: v.tag, masked: mask(v.span).slice(0, 60) })))
@@ -201,9 +203,9 @@ export function ContentPage() {
       {text.trim() && (
         <Panel className="mt-3.5">
           <div className="divide-y px-5 py-1">
-            {busy && detMode === 'hybrid' && !res && <div className="py-3 text-[13px] text-faint">정밀 검사 중</div>}
-            {res?.degraded && <div className="py-3 text-[13px] text-warn-fg">{res.degraded}</div>}
-            {res && (res.hits.length ? res.hits.map((h, i) => (
+            {busy && !cur && <div className="py-3 text-[13px] text-faint">{detMode === 'hybrid' ? '정밀 검사 중' : '검사 중'}</div>}
+            {cur?.degraded && <div className="py-3 text-[13px] text-warn-fg">{cur.degraded}</div>}
+            {cur && (cur.hits.length ? cur.hits.map((h, i) => (
               <div key={i} className="flex items-baseline gap-3 py-2.5 text-[13px]">
                 <span className={cn('font-mono text-[11px] font-semibold whitespace-nowrap', h.severity === 'violation' ? 'text-bad-fg' : h.label === 'identifier_only' ? 'text-faint' : 'text-warn-fg')}>[{h.tag}]</span>
                 <code className="rounded bg-muted px-2 py-0.5 font-mono text-[12px] text-ink">{h.span.slice(0, 64)}</code>
@@ -227,9 +229,9 @@ export function ContentPage() {
           </div>
         </Panel>
       )}
-      {res && res.hits.length > 0 && !fix && text.trim() && (
+      {cur && cur.hits.length > 0 && !fix && text.trim() && (
         <Panel className="mt-3.5" title="원문 판정" right="위반 아님, 식별정보 구간 표시">
-          <Marked text={text} hits={res.hits} />
+          <Marked text={text} hits={cur.hits} />
         </Panel>
       )}
       {note && <div className="mt-3 flex items-center gap-2.5 surface px-4 py-2.5 text-sm text-ink"><Pill tone="ok">기록됨</Pill>{note}</div>}
