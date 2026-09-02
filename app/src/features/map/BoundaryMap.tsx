@@ -114,8 +114,11 @@ export function BoundaryMap({ data, compact }: { data?: MapData; compact?: boole
       <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(var(--m-dot) 1px, transparent 1.2px)', backgroundSize: '22px 22px', opacity: .7 }} />
       <div className="pointer-events-none absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 55%, var(--m-veil) 0%, var(--m-veil2) 45%, transparent 75%)' }} />
       <svg ref={svgRef} viewBox={`0 0 ${W} ${model.H}`} width="100%" className={cn('relative block', compact ? '' : 'px-3 pt-2')} style={{ fontFamily: 'var(--font-sans)' }}>
-        {/* 면: 구역과 경계 */}
-        {model.zones.map(z => <rect key={z.key} className={cn('map-zone', 'z-' + z.key, z.key === 'rogue' && 'bad')} x={z.x} y={z.y} width={z.w} height={z.h} rx="14" />)}
+        <defs>
+          <linearGradient id="zoneShine" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#fff" stopOpacity=".07" /><stop offset=".5" stopColor="#fff" stopOpacity="0" /></linearGradient>
+        </defs>
+        {/* 면: 구역과 경계. 어두운 지도에서는 위쪽이 살짝 밝은 윤기를 얹어 판이 떠 보이게 */}
+        {model.zones.map(z => <g key={z.key}><rect className={cn('map-zone', 'z-' + z.key, z.key === 'rogue' && 'bad')} x={z.x} y={z.y} width={z.w} height={z.h} rx="14" /><rect className="map-zone-shine" x={z.x + 1} y={z.y + 1} width={z.w - 2} height={z.h - 2} rx="13" fill="url(#zoneShine)" /></g>)}
         <rect className="map-bz" x={bz.x} y={bz.y} width={bz.w} height={bz.h} rx="16" />
         <text x={bz.x + bz.w - 14} y={bz.y + bz.h - 12} fontSize="11" fontWeight="500" fill="var(--m-bz-text)" letterSpacing=".01em" textAnchor="end">내부 업무망 경계</text>
         {/* 선 */}
@@ -124,6 +127,7 @@ export function BoundaryMap({ data, compact }: { data?: MapData; compact?: boole
             {sel === e.key && <path className="map-halo" d={e.d} />}
             <path className="map-hit" d={e.d} onClick={() => onClick(e.key)} />
             <path data-edge={e.key} className={cn('map-edge', e.kind, sel === e.key && 'sel', e.kind === 'rogue' && freshHosts.length && 'enter')} d={e.d} />
+            {live && e.kind !== 'rogue' && <path className="map-flow" d={e.d} />}
           </g>
         ))}
         <g ref={pktRef} />
@@ -158,7 +162,7 @@ export function BoundaryMap({ data, compact }: { data?: MapData; compact?: boole
           )
         })}
       </svg>
-      {!compact && <Legend dark={dark} fs={fs} onDark={() => setDark(v => !v)} onFs={toggleFs} />}
+      {!compact && <Legend live={live} dark={dark} fs={fs} onDark={() => setDark(v => !v)} onFs={toggleFs} />}
       {hover && !data && <Popover hoverKey={hover.key} x={hover.x} y={hover.y} wrap={wrapRef.current} />}
     </div>
   )
@@ -189,8 +193,10 @@ function Hub({ rogues, ledgerN, scanned, lastScan }: { rogues: number; ledgerN: 
     <g style={{ pointerEvents: 'none' }}>
       <defs>
         <radialGradient id="hubShadow" cx="50%" cy="50%" r="50%"><stop offset="0" stopColor="#131722" stopOpacity=".14" /><stop offset=".6" stopColor="#131722" stopOpacity=".04" /><stop offset="1" stopColor="#131722" stopOpacity="0" /></radialGradient>
+        <radialGradient id="hubGlow" cx="50%" cy="50%" r="50%"><stop offset="0" stopColor="#6f9bf0" stopOpacity=".28" /><stop offset=".55" stopColor="#6f9bf0" stopOpacity=".08" /><stop offset="1" stopColor="#6f9bf0" stopOpacity="0" /></radialGradient>
       </defs>
       <rect x={core.x - 24} y={core.y - 8} width={core.w + 48} height={core.h + 44} rx="36" fill="url(#hubShadow)" />
+      <rect className="hub-glow" x={core.x - 60} y={core.y - 44} width={core.w + 120} height={core.h + 110} rx="60" fill="url(#hubGlow)" />
       <rect x={core.x} y={core.y} width={core.w} height={core.h} rx="12" fill="var(--m-hub)" stroke="var(--m-hub-line)" strokeWidth="1.5" />
       <text x={core.x + 20} y={core.y + 27} fontSize="14" fontWeight="600" fill="var(--m-text)" letterSpacing="-.01em">내부업무망</text>
       <text x={core.x + core.w - 20} y={core.y + 27} fontSize="11" fontWeight="500" fill="var(--m-sub)" textAnchor="end" fontFamily="var(--font-mono)">단말 152대</text>
@@ -201,7 +207,16 @@ function Hub({ rogues, ledgerN, scanned, lastScan }: { rogues: number; ledgerN: 
   )
 }
 
-function Legend({ dark, fs, onDark, onFs }: { dark: boolean; fs: boolean; onDark: () => void; onFs: () => void }) {
+/* 관측 중일 때만 도는 시계. 관제실 콘솔의 LIVE 표시 */
+function Clock({ on }: { on: boolean }) {
+  const [t, setT] = useState(() => new Date())
+  useEffect(() => { if (!on) return; setT(new Date()); const id = setInterval(() => setT(new Date()), 1000); return () => clearInterval(id) }, [on])
+  return on
+    ? <span className="flex items-center gap-1.5 font-mono text-[11px] tracking-[.06em] nums" style={{ color: 'var(--m-text)' }}><i className="size-1.5 rounded-full bg-bad breathe" />LIVE {t.toTimeString().slice(0, 8)}</span>
+    : <span className="font-mono text-[11px] tracking-[.06em]" style={{ color: 'var(--m-sub)' }}>대기</span>
+}
+
+function Legend({ live, dark, fs, onDark, onFs }: { live: boolean; dark: boolean; fs: boolean; onDark: () => void; onFs: () => void }) {
   const Line = ({ cls }: { cls: string }) => <i className={cn('mr-2 inline-block w-4 align-[3px] border-t', cls)} />
   const Ctl = ({ on, title, children }: { on?: boolean; title: string; children: React.ReactNode }) => (
     <button onClick={title === '전체화면' || title === '전체화면 나가기' ? onFs : onDark} title={title}
@@ -212,9 +227,12 @@ function Legend({ dark, fs, onDark, onFs }: { dark: boolean; fs: boolean; onDark
     <div className="relative flex items-center gap-5 px-5 py-2 text-xs" style={{ borderTop: '1px solid var(--m-zone-line)', color: 'var(--m-dim)' }}>
       <span className="flex items-center gap-4"><span className="font-mono text-[10.5px] tracking-[.04em]" style={{ color: 'var(--m-sub)' }}>연결</span><span><Line cls="border-t-[1.25px]" />승인</span><span><Line cls="border-[#c4302b] border-dashed border-t-[1.5px]" />미승인</span></span>
       <span className="ml-4 flex items-center gap-4 pl-5" style={{ borderLeft: '1px solid var(--m-zone-line)' }}><span className="font-mono text-[10.5px] tracking-[.04em]" style={{ color: 'var(--m-sub)' }}>기한</span><span><i className="mr-1.5 inline-block size-1.5 rounded-full bg-ok" />정상</span><span><i className="mr-1.5 inline-block size-1.5 rounded-full bg-warn" />임박</span><span><i className="mr-1.5 inline-block size-1.5 rounded-full bg-bad" />경과</span></span>
-      <span className="ml-auto flex items-center gap-0.5">
+      <span className="ml-auto flex items-center gap-4">
+        <Clock on={live} />
+        <span className="flex items-center gap-0.5">
         <Ctl on={dark} title={dark ? "밝게 보기" : "어둡게 보기"}>{dark ? <IconSun className="size-4" stroke={1.7} /> : <IconMoon className="size-4" stroke={1.7} />}</Ctl>
         <Ctl on={fs} title={fs ? '전체화면 나가기' : '전체화면'}>{fs ? <IconMinimize className="size-4" stroke={1.7} /> : <IconMaximize className="size-4" stroke={1.7} />}</Ctl>
+        </span>
       </span>
     </div>
   )

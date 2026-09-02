@@ -164,6 +164,21 @@
 .map-dark .map-node.z-tele:hover rect.bg { stroke: rgba(95,186,245,.7); }
 .map-dark .map-node.z-remote:hover rect.bg { stroke: rgba(169,187,211,.7); }
 .map-dark .map-zone.bad { fill: rgba(214,80,74,.10); stroke: rgba(214,80,74,.28); }
+.map-zone-shine { opacity: 0; pointer-events: none; }
+.map-dark .map-zone-shine { opacity: 1; }
+/* 관측 중에는 승인 선 위로 밝은 점이 흐른다. 선 자체는 실선 그대로 */
+.map-flow { fill: none; stroke: #2157d1; stroke-width: 1.5; stroke-linecap: round; stroke-dasharray: 3 17; opacity: .35; pointer-events: none; vector-effect: non-scaling-stroke; animation: flow 1.3s linear infinite; }
+.map-dark .map-flow { stroke: #dbe7ff; opacity: .6; }
+@keyframes flow { to { stroke-dashoffset: -20; } }
+.map-dark .map-edge { stroke-opacity: .72; }
+.map-dark .map-edge.rogue, .map-dark .map-edge.sel, .map-dark .map-edge.over { stroke-opacity: 1; }
+.map-dark .map-bz { filter: drop-shadow(0 0 12px rgba(96,140,235,.22)); }
+.hub-glow { opacity: 0; pointer-events: none; }
+.map-dark .hub-glow { opacity: .55; }
+.map-dark.map-live .hub-glow { animation: hubBreathe 3.2s ease-in-out infinite; }
+@keyframes hubBreathe { 50% { opacity: 1; } }
+.map-live .map-node.rogue rect.bg { animation: rogueGlow 2.2s ease-in-out infinite; }
+@keyframes rogueGlow { 50% { filter: drop-shadow(0 0 7px rgba(226,100,92,.55)); stroke: rgba(236,138,131,.9); } }
 .map-bz { fill: var(--m-bz); stroke: var(--m-bz-line); stroke-width: 1; }
 .map-node rect.bg { fill: var(--m-node); stroke: var(--m-node-line); stroke-width: 1; transition: stroke 150ms, filter 150ms; }
 .map-node:hover rect.bg { stroke: var(--m-node-hover); }
@@ -211,7 +226,7 @@
 @keyframes viewIn { from { opacity: 0; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .map-live .map-edge.rogue, .map-node.enter, .map-edge.enter, .breathe, .view-in, .tip-in { animation: none; }
+  .map-live .map-edge.rogue, .map-node.enter, .map-edge.enter, .breathe, .view-in, .tip-in, .map-flow, .hub-glow, .map-live .map-node.rogue rect.bg { animation: none; }
   .pkt { display: none; }
 }
 
