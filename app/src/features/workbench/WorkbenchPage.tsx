@@ -4,7 +4,7 @@ import { Engine } from '@/lib/engineLoad'
 import type { ScanResult } from '@/lib/engine'
 import { SAAS_LIST, USAGES, NATURES, AV_LABEL, DET_SAMPLE } from '@/data/ledger'
 import { entriesFor, judge, HAS_CONTROL, type Entry, type Verdict } from '@/lib/judge'
-import { PageHeader, Panel, Pill, PageTip } from '@/components/salpi'
+import { PageHeader, Panel, Pill, PageIntro } from '@/components/salpi'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Textarea } from '@/components/ui/textarea'
@@ -76,15 +76,18 @@ export function WorkbenchPage() {
   )
   const verdict: Verdict | null = step === 5 ? judge({ nature, l1, entries: ent, applied, comp, profileE5: profile.e5 }) : null
   const restart = () => { setStep(0); setSaas(null); setUsage(null); setNature(null); setL1(null); setApplied({}); setComp({}) }
+  const showExample = () => {
+    setSaas('dooray'); setUsage('doc'); setNature('id_only'); setL1('no')
+    const all: Record<number, boolean> = {}; for (let i = 0; i < 12; i++) all[i] = true
+    setApplied(all); setComp(all); setStep(5)
+  }
 
   return (
     <div className="view-in">
-      <PageHeader title="SaaS 도입 판정" crumb="SaaS 도입 판정" actions={<Button onClick={() => {
-        setSaas('dooray'); setUsage('doc'); setNature('id_only'); setL1('no')
-        const all: Record<number, boolean> = {}; for (let i = 0; i < 12; i++) all[i] = true
-        setApplied(all); setComp(all); setStep(5)
-      }}>예시 판정 보기</Button>} />
-      <PageTip id="workbench">새로 도입할 SaaS가 전자금융감독규정 예외 요건에 맞는지 여섯 단계로 판정하고 검토서를 생성합니다.</PageTip>
+      <PageHeader title="SaaS 도입 판정" crumb="SaaS 도입 판정" actions={<Button onClick={showExample}>예시 판정 보기</Button>} />
+      <PageIntro id="workbench" title="새 SaaS를 들여도 되는지 여섯 단계로 판정합니다" tryText="[예시 판정 보기]로 완성된 판정을 먼저 보고, [처음부터]로 직접 진행해 보세요." action={{ label: '예시 판정 보기', onClick: showExample }}>
+        전자금융감독규정 예외 요건을 순서대로 확인하고 검토서를 생성합니다. 5단계에서 AI가 문서 내용 검사를 맡습니다.
+      </PageIntro>
       <div className="grid grid-cols-[180px_1fr] items-start gap-6 max-md:grid-cols-1">
         <nav className="sticky top-[120px] rounded-lg border bg-card p-2.5">
           {STEPS.map((s, i) => (

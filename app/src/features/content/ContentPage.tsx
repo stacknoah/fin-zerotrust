@@ -1,11 +1,14 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useStore } from '@/store'
 import { Engine } from '@/lib/engineLoad'
 import type { LlmEvent, ScanResult } from '@/lib/engine'
 import { DET_SAMPLE } from '@/data/ledger'
 import { mask } from '@/lib/format'
-import { PageHeader, Panel, Pill, PageTip } from '@/components/salpi'
+import { PageHeader, Panel, Pill, PageIntro } from '@/components/salpi'
+import { remedy } from '@/lib/remedy'
+import { Hi } from '@/features/home/TryBox'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -60,6 +63,23 @@ export function ContentPage() {
   const [busy, setBusy] = useState(false)
   const [note, setNote] = useState('')
   const seq = useRef(0)
+  const [recheck, setRecheck] = useState<number | null>(null)
+  const viols = useMemo(() => res ? res.hits.filter(h => h.severity === 'violation') : [], [res])
+  const fix = useMemo(() => res && viols.length ? remedy(text, res.hits) : null, [res, viols, text])
+  // 교정본을 같은 엔진으로 다시 검사해 위반이 남는지 센다
+  useEffect(() => {
+    if (!fix) { setRecheck(null); return }
+    let alive = true
+    setRecheck(null)
+    Engine.scan(fix.text, { mode: detMode }).then(r => { if (alive) setRecheck(r.hits.filter(h => h.severity === 'violation').length) })
+    return () => { alive = false }
+  }, [fix, detMode])
+  const apply = () => {
+    if (!fix) return
+    setText(fix.text)
+    logEvent('content', `AI 교정본 적용: 치환 ${fix.fixes.length}건, 재검사 위반 ${recheck ?? 0}건`)
+    toast.success(`교정본 적용. 치환 ${fix.fixes.length}건`)
+  }
 
   const onEvent = (ev: LlmEvent) => {
     if (ev.type === 'start') setLive({ windows: ev.windows, rows: [] })
@@ -94,7 +114,9 @@ export function ContentPage() {
   return (
     <div className="view-in">
       <PageHeader title="내용 검사" crumb="내용 검사" />
-      <PageTip id="content">SaaS는 개인신용정보를 처리하지 않아야 합니다. 문서에 이름과 신용정보가 함께 담기면 안 되므로, 사내 AI가 나가는 문서 내용을 검사합니다.</PageTip>
+      <PageIntro id="content" title="SaaS로 나가는 문서에서 개인신용정보를 잡아냅니다" tryText="예시 회의록을 검사하고 [교정본 적용]을 눌러 보세요. 재검사에서 위반이 0건이 됩니다." action={{ label: '예시 회의록 검사', onClick: () => setText(DET_SAMPLE) }}>
+        이름 하나는 위반이 아닙니다. 대출이나 연체 같은 신용정보와 한 문맥에 묶이는 순간 개인신용정보가 됩니다(신용정보법 제2조). 사내 AI가 그 결합을 찾아내고 교정본까지 만듭니다.
+      </PageIntro>
       <div className="grid grid-cols-[1fr_320px] gap-4">
         <Panel title="검사 대상" right={detReady ? <span className="inline-flex items-center gap-1.5 text-xs text-ok-fg"><i className="size-1.5 rounded-full bg-ok" />모델 연결됨</span> : <span className="inline-flex items-center gap-1.5 text-xs text-faint"><i className="size-1.5 rounded-full bg-dim" />AI 미연결, 빠른 검사만</span>}>
           <div className="flex flex-wrap items-center gap-3 px-5 pb-3">
@@ -191,8 +213,22 @@ export function ContentPage() {
           </div>
         </Panel>
       )}
-      {res && res.hits.length > 0 && text.trim() && (
-        <Panel className="mt-3.5" title="원문 판정" right="위반 구간 밑칠">
+      {fix && text.trim() && (
+        <Panel className="mt-3.5 bg-[#f7faff] shadow-[0_0_0_1px_rgba(33,87,209,.14),var(--shadow-card)]" title="AI 교정" count={<Pill tone="blue">치환 {fix.fixes.length}건</Pill>}
+          right={recheck == null ? <span className="inline-flex items-center gap-1.5"><i className="size-1.5 rounded-full bg-dim breathe" />교정본 재검사 중</span> : recheck === 0 ? <span className="font-medium text-ok-fg">교정본 재검사: 위반 0건, 반출 가능</span> : <span className="font-medium text-warn-fg">교정본 재검사: 위반 {recheck}건 남음</span>}>
+          <div className="grid grid-cols-2 divide-x divide-[rgba(33,87,209,.12)]">
+            <div className="px-5 pb-4"><div className="mb-1.5 text-[11.5px] font-medium text-bad-fg">원문</div><Hi text={text} spans={viols.map(v => v.span)} tone="bad" className="text-[13.5px] leading-[26px] text-ink" /></div>
+            <div className="px-5 pb-4"><div className="mb-1.5 text-[11.5px] font-medium text-ok-fg">교정본</div><Hi text={fix.text} spans={fix.fixes.map(f => f.to)} tone="ok" className="text-[13.5px] leading-[26px] text-ink" /></div>
+          </div>
+          <div className="flex flex-wrap items-center gap-2 border-t border-[rgba(33,87,209,.1)] px-5 py-3 text-[12px]">
+            {fix.fixes.map(f => <span key={f.from} className="inline-flex items-center gap-1.5 rounded-full bg-card px-2.5 py-0.5 text-body shadow-[var(--shadow-ring)]"><s className="text-bad-fg">{f.from}</s><span className="text-dim">→</span><b className="font-semibold text-ink">{f.to}</b><span className="text-faint">{f.why}</span></span>)}
+            {fix.kept.map(k => <span key={k} className="inline-flex items-center gap-1.5 rounded-full bg-card px-2.5 py-0.5 text-body shadow-[var(--shadow-ring)]"><b className="font-semibold text-ink">{k}</b><span className="text-faint">유지. 이름만으로는 위반이 아님</span></span>)}
+            <Button className="ml-auto h-9 px-4" disabled={recheck == null} onClick={apply}>교정본 적용</Button>
+          </div>
+        </Panel>
+      )}
+      {res && res.hits.length > 0 && !fix && text.trim() && (
+        <Panel className="mt-3.5" title="원문 판정" right="위반 아님, 식별정보 구간 표시">
           <Marked text={text} hits={res.hits} />
         </Panel>
       )}

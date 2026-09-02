@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useStore } from '@/store'
 import { SAMPLE_LOG } from '@/data/ledger'
 import { reconcile, type LogRow } from '@/lib/reconcile'
-import { PageHeader, Panel, Pill, PageTip } from '@/components/salpi'
+import { PageHeader, Panel, Pill, PageIntro } from '@/components/salpi'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -26,7 +26,9 @@ export function LogsPage() {
   return (
     <div className="view-in">
       <PageHeader title="로그 대조" crumb="로그 대조" actions={<><Button variant="outline" onClick={() => setText(SAMPLE_LOG)}>샘플 로그 넣기</Button><Button onClick={() => setRec(runScan(text))}>대조 실행</Button></>} />
-      <PageTip id="logs">방화벽 로그를 붙여넣으면 승인 대장에 없는 목적지를 필터링해 판정을 요청합니다.</PageTip>
+      <PageIntro id="logs" title="방화벽 로그를 붙여넣으면 미승인 목적지만 남습니다" tryText="샘플 로그로 대조를 실행해 보세요. 대장에 없는 목적지가 빨갛게 남고 AI 분류가 붙습니다." action={{ label: '샘플 로그로 대조', onClick: () => { setText(SAMPLE_LOG); setRec(runScan(SAMPLE_LOG)) } }}>
+        승인 대장과 대조해 대장에 없는 목적지를 걸러내고, 처음 본 목적지에는 로컬 AI가 정체와 위험을 붙입니다.
+      </PageIntro>
       <div className="grid grid-cols-[1fr_320px] gap-4">
         <Panel title="로그 입력" right={<span className="font-mono text-[11px]">HOST 단위 집계</span>}>
           {feed.started && !text && (

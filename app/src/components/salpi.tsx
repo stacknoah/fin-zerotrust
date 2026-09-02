@@ -1,5 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { cn } from '@/lib/utils'
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
 import { ddayLabel, dueState } from '@/lib/format'
 
 /* 상태 배지. 색은 의미가 있을 때만 */
@@ -20,22 +22,24 @@ export function Dot({ tone, className }: { tone: 'ok' | 'soon' | 'over' | 'bad' 
   return <span className={cn('inline-block size-1.5 rounded-full', c, className)} />
 }
 
-/* 페이지에 들어올 때마다 잠깐 뜨는 한 줄 안내 */
-export function PageTip({ id, children }: { id: string; children: ReactNode }) {
-  const [gone, setGone] = useState(false)
-  const [done, setDone] = useState(false)
-  useEffect(() => {
-    setGone(false); setDone(false)
-    const fade = setTimeout(() => setGone(true), 7000)
-    const end = setTimeout(() => setDone(true), 7600)
-    return () => { clearTimeout(fade); clearTimeout(end) }
-  }, [id])
-  if (done) return null
+/* 화면에 처음 들어올 때 한 번 뜨는 안내. 무엇을 하는 화면인지, 무엇을 눌러보면 되는지 */
+const introSeen = new Set<string>()
+export function PageIntro({ id, title, children, tryText, action }: { id: string; title: string; children: ReactNode; tryText: ReactNode; action?: { label: string; onClick: () => void } }) {
+  const [open, setOpen] = useState(() => !introSeen.has(id))
+  useEffect(() => { introSeen.add(id) }, [id])
+  const close = () => setOpen(false)
   return (
-    <div className={cn('tip-in relative mb-4 inline-flex max-w-[720px] items-start rounded-xl bg-ink px-4 py-2.5 text-[13.5px] leading-5 text-white shadow-[var(--shadow-float)] transition-opacity duration-500', gone && 'opacity-0')}>
-      <span className="absolute -top-[5px] left-7 size-[10px] rotate-45 rounded-[2px] bg-ink" />
-      <span>{children}</span>
-    </div>
+    <Dialog open={open} onOpenChange={v => { if (!v) close() }}>
+      <DialogContent className="max-w-[460px] p-6">
+        <DialogTitle className="pr-6 text-[19px] leading-[26px] font-semibold tracking-[-0.01em] text-ink">{title}</DialogTitle>
+        <p className="text-[13.5px] leading-[21px] text-body">{children}</p>
+        <div className="rounded-lg bg-accent px-3.5 py-3 text-[13.5px] leading-[21px] text-ink"><b className="mr-1.5 font-semibold text-primary">해보기</b>{tryText}</div>
+        <div className="flex justify-end gap-2">
+          <Button variant={action ? 'outline' : 'default'} onClick={close}>{action ? '둘러보기' : '확인'}</Button>
+          {action && <Button onClick={() => { close(); action.onClick() }}>{action.label}</Button>}
+        </div>
+      </DialogContent>
+    </Dialog>
   )
 }
 

@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { useStore, detectCount, contentCount, type EventKind } from '@/store'
 import { BoundaryMap } from '@/features/map/BoundaryMap'
 import { Button } from '@/components/ui/button'
-import { Pill, DDay, Empty, MonoCode, PageTip } from '@/components/salpi'
+import { Pill, DDay, Empty, MonoCode } from '@/components/salpi'
+import { TryBox } from '@/features/home/TryBox'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { useWizard } from '@/features/wizard/RegisterDialog'
 import { cn } from '@/lib/utils'
@@ -259,12 +260,12 @@ export function HomePage() {
     <div className="view-in">
       <Welcome />
       <Ticker />
-      <PageTip id="map">망분리 경계를 오가는 연결을 한 화면에 모았습니다. 파란 선이 승인된 연결, 빨간 점선이 승인 없이 오간 연결입니다.</PageTip>
       <div className="relative">
         <MapHud />
         <BoundaryMap />
       </div>
       <Detail />
+      <TryBox />
       <ActivityPanels />
       <Bottom />
     </div>

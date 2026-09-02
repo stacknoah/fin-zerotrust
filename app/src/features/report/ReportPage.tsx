@@ -1,6 +1,6 @@
 import { useStore, contentCount, detectCount } from '@/store'
 import { today } from '@/lib/format'
-import { PageHeader, Panel, PageTip } from '@/components/salpi'
+import { PageHeader, Panel, PageIntro } from '@/components/salpi'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { IconCheck, IconAlertCircle } from '@tabler/icons-react'
@@ -24,7 +24,9 @@ export function ReportPage() {
   return (
     <div className="view-in">
       <PageHeader title="반기 보고" crumb="반기 보고" actions={<Button onClick={() => window.print()}>인쇄 / PDF 저장</Button>} />
-      <PageTip id="report">지금까지의 판정과 조치 기록을 모아 반기 자체평가 보고서 초안을 생성합니다.</PageTip>
+      <PageIntro id="report" title="판정과 조치 기록이 그대로 반기 보고서가 됩니다" tryText="왼쪽 점검 항목을 확인하고, [인쇄 / PDF 저장]으로 실제 출력물을 열어 보세요.">
+        시행세칙 제2조의3 제4항의 반기 자체평가 보고서 초안을 지금까지의 기록으로 생성합니다. 따로 쓰는 문서가 아니라 콘솔에서 한 일의 결과물입니다.
+      </PageIntro>
       <div className="grid grid-cols-[340px_1fr] items-start gap-6">
       <Panel title="제출 전 점검" className="sticky top-[76px]">
         <Check ok n={ledger.length}>예외 운영 현황 집계 완료</Check>
