@@ -51,6 +51,7 @@ export function BoundaryMap({ data, compact }: { data?: MapData; compact?: boole
   const sel = data ? null : st.sel
   const setSel = st.setSel
   const freshHosts = data ? [] : st.freshHosts
+  const feedStat = data ? null : (st.feed.started ? { received: st.feed.received, ai: st.feed.aiCount } : null)
   const nav = useNavigate()
   const ts = useMemo(() => teleStat(tele), [tele])
   const model = useMemo(() => buildMap(ledger, rogues, ts), [ledger, rogues, ts])
@@ -162,7 +163,7 @@ export function BoundaryMap({ data, compact }: { data?: MapData; compact?: boole
           )
         })}
       </svg>
-      {!compact && <Legend live={live} dark={dark} fs={fs} onDark={() => setDark(v => !v)} onFs={toggleFs} />}
+      {!compact && <Legend live={live} stat={feedStat} dark={dark} fs={fs} onDark={() => setDark(v => !v)} onFs={toggleFs} />}
       {hover && !data && <Popover hoverKey={hover.key} x={hover.x} y={hover.y} wrap={wrapRef.current} />}
     </div>
   )
@@ -216,7 +217,7 @@ function Clock({ on }: { on: boolean }) {
     : <span className="font-mono text-[11px] tracking-[.06em]" style={{ color: 'var(--m-sub)' }}>대기</span>
 }
 
-function Legend({ live, dark, fs, onDark, onFs }: { live: boolean; dark: boolean; fs: boolean; onDark: () => void; onFs: () => void }) {
+function Legend({ live, stat, dark, fs, onDark, onFs }: { live: boolean; stat: { received: number; ai: number } | null; dark: boolean; fs: boolean; onDark: () => void; onFs: () => void }) {
   const Line = ({ cls }: { cls: string }) => <i className={cn('mr-2 inline-block w-4 align-[3px] border-t', cls)} />
   const Ctl = ({ on, title, children }: { on?: boolean; title: string; children: React.ReactNode }) => (
     <button onClick={title === '전체화면' || title === '전체화면 나가기' ? onFs : onDark} title={title}
@@ -228,6 +229,7 @@ function Legend({ live, dark, fs, onDark, onFs }: { live: boolean; dark: boolean
       <span className="flex items-center gap-4"><span className="font-mono text-[10.5px] tracking-[.04em]" style={{ color: 'var(--m-sub)' }}>연결</span><span><Line cls="border-t-[1.25px]" />승인</span><span><Line cls="border-[#c4302b] border-dashed border-t-[1.5px]" />미승인</span></span>
       <span className="ml-4 flex items-center gap-4 pl-5" style={{ borderLeft: '1px solid var(--m-zone-line)' }}><span className="font-mono text-[10.5px] tracking-[.04em]" style={{ color: 'var(--m-sub)' }}>기한</span><span><i className="mr-1.5 inline-block size-1.5 rounded-full bg-ok" />정상</span><span><i className="mr-1.5 inline-block size-1.5 rounded-full bg-warn" />임박</span><span><i className="mr-1.5 inline-block size-1.5 rounded-full bg-bad" />경과</span></span>
       <span className="ml-auto flex items-center gap-4">
+        {stat && <span className="flex items-center gap-3 font-mono text-[11px] tracking-[.02em] nums" style={{ color: 'var(--m-dim)' }}><span>수신 <b className="font-semibold" style={{ color: 'var(--m-text)' }}>{stat.received}</b>줄</span><span>AI 분류 <b className="font-semibold" style={{ color: 'var(--m-text)' }}>{stat.ai}</b>건</span></span>}
         <Clock on={live} />
         <span className="flex items-center gap-0.5">
         <Ctl on={dark} title={dark ? "밝게 보기" : "어둡게 보기"}>{dark ? <IconSun className="size-4" stroke={1.7} /> : <IconMoon className="size-4" stroke={1.7} />}</Ctl>

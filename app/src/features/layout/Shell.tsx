@@ -127,7 +127,7 @@ export function Shell() {
           </span>
         </div>
       </header>
-      <main className="mx-auto max-w-[1440px] px-8 pt-5 pb-16">
+      <main className="mx-auto max-w-[1440px] px-8 pt-6 pb-16">
         <Outlet />
         <footer className="flex items-center pt-10 text-xs text-dim"><span className="ml-auto font-mono text-[11px]">전자금융감독규정 시행세칙 제2조의3</span></footer>
       </main>

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useStore, detectCount, contentCount, type EventKind } from '@/store'
+import { useStore, contentCount, type EventKind } from '@/store'
 import { BoundaryMap } from '@/features/map/BoundaryMap'
 import { Button } from '@/components/ui/button'
 import { Pill, DDay, Empty, MonoCode } from '@/components/salpi'
@@ -67,37 +67,6 @@ function MapHud() {
           : <Button className={cn('h-9 px-4 shadow-[var(--shadow-float)]', !feed.started && 'demo-pulse')} onClick={startFeed}><IconPlayerPlay className="size-4" stroke={1.75} />{feed.started ? '관측 재개' : '데모 실행'}</Button>}
       </span>
     </>
-  )
-}
-
-/* 실황 띠: 장부 지표와 관측 수치를 한 줄에 */
-function Ticker() {
-  const ledger = useStore(s => s.ledger)
-  const rogues = useStore(s => s.rogues)
-  const scanned = useStore(s => s.scanned)
-  const contentLog = useStore(s => s.contentLog)
-  const feed = useStore(s => s.feed)
-  const saasDue = ledger.filter(c => c.review.soon && c.review.type.includes('반기')).length
-  const reviewDue = ledger.filter(c => c.review.soon && !c.review.type.includes('반기')).length
-  const hosts = new Set(feed.lines.map(l => (l.match(/HOST=(\S+)/) || [])[1]))
-  const Item = ({ l, n, tone }: { l: string; n: string | number; tone?: string }) => (
-    <span className="flex items-baseline gap-1.5 whitespace-nowrap"><span className="text-[11.5px] text-faint">{l}</span><b className={cn('font-mono text-[14px] font-semibold nums', n === 0 || n === '-' ? 'text-dim' : 'text-ink', tone)}>{n}</b></span>
-  )
-  return (
-    <div className="mb-3 flex h-10 items-center gap-5 surface px-4 text-[12.5px]">
-      <span className={cn('flex items-center gap-2 pr-4 font-medium', feed.on ? 'text-ink' : 'text-faint')}>
-        <i className={cn('size-[7px] rounded-full', feed.on ? 'bg-ok breathe' : feed.started ? 'bg-warn' : 'bg-dim')} />{feed.on ? '관측 중' : feed.started ? '일시정지' : '대기'}
-      </span>
-      <span className="h-4 w-px bg-[rgba(19,23,34,.1)]" />
-      <Item l="승인 연결" n={ledger.length} />
-      <span title="관측 전에는 셈하지 않습니다"><Item l="미승인 연결" n={scanned ? rogues.length : '-'} tone={rogues.length ? 'text-bad-fg' : ''} /></span>
-      {feed.started && <>
-        <span className="h-4 w-px bg-[rgba(19,23,34,.1)]" />
-        <Item l="수신" n={feed.received + '줄'} />
-        <Item l="AI 분류" n={feed.aiCount + '건'} />
-      </>}
-      <span className="ml-auto font-mono text-[11px] text-dim">{feed.started ? `데모 피드(합성)${feed.last ? ', 마지막 수신 ' + feed.last : ''}` : '합성 데이터'}</span>
-    </div>
   )
 }
 
@@ -259,7 +228,6 @@ export function HomePage() {
   return (
     <div className="view-in">
       <Welcome />
-      <Ticker />
       <div className="relative">
         <MapHud />
         <BoundaryMap />

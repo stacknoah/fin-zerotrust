@@ -43,16 +43,13 @@ export function PageIntro({ id, title, children, tryText, action }: { id: string
   )
 }
 
-export function PageHeader({ title, actions, crumb, lead }: { title: string; actions?: ReactNode; crumb?: string; lead?: ReactNode }) {
+/* 페이지 머리. 제목은 상단 탭이 이미 말해주므로 다시 쓰지 않고, 요약 한 줄과 동작 버튼만 둔다 */
+export function PageHeader({ actions, lead }: { title?: string; actions?: ReactNode; crumb?: string; lead?: ReactNode }) {
+  if (!actions && !lead) return null
   return (
-    <div className="mb-6">
-      <div className="flex items-end gap-6">
-        <div>
-          <h2 className="text-[26px] font-semibold leading-8 tracking-[-0.02em] text-ink">{title}</h2>
-          {lead && <p className="mt-1 text-[14px] text-faint">{lead}</p>}
-        </div>
-        {actions && <div className="ml-auto flex gap-2">{actions}</div>}
-      </div>
+    <div className="mb-5 flex min-h-9 items-center gap-4">
+      {lead && <p className="text-[14px] text-faint">{lead}</p>}
+      {actions && <div className="ml-auto flex gap-2">{actions}</div>}
     </div>
   )
 }
