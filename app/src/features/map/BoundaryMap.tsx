@@ -12,6 +12,8 @@ import { Pill } from '@/components/salpi'
 const SVGNS = 'http://www.w3.org/2000/svg'
 
 /* 구역마다 성격을 드러내는 최소 아이콘 */
+/* 구역별 색. 어두운 지도에서 구역이 서로 구분되게 하는 힌트 색이라 채도는 낮게 */
+const ZONE_HUE: Record<string, [string, string]> = { fin: ['#0f8f7f', '#4ccbb8'], dmz: ['#b26a00', '#e2ab4a'], saas: ['#6b5ce7', '#a99cff'], tele: ['#1b7fc4', '#5fbaf5'], remote: ['#5f7390', '#a9bbd3'], rogue: ['#c4302b', '#ec8a83'] }
 const ZONE_ICON: Record<string, typeof IconCloud> = {
   fin: IconBuildingBank, dmz: IconServer2, saas: IconCloud,
   tele: IconHome, remote: IconDeviceDesktop, rogue: IconAlertTriangle,
@@ -113,7 +115,7 @@ export function BoundaryMap({ data, compact }: { data?: MapData; compact?: boole
       <div className="pointer-events-none absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 55%, var(--m-veil) 0%, var(--m-veil2) 45%, transparent 75%)' }} />
       <svg ref={svgRef} viewBox={`0 0 ${W} ${model.H}`} width="100%" className={cn('relative block', compact ? '' : 'px-3 pt-2')} style={{ fontFamily: 'var(--font-sans)' }}>
         {/* 면: 구역과 경계 */}
-        {model.zones.map(z => <rect key={z.key} className={cn('map-zone', z.key === 'rogue' && 'bad')} x={z.x} y={z.y} width={z.w} height={z.h} rx="14" />)}
+        {model.zones.map(z => <rect key={z.key} className={cn('map-zone', 'z-' + z.key, z.key === 'rogue' && 'bad')} x={z.x} y={z.y} width={z.w} height={z.h} rx="14" />)}
         <rect className="map-bz" x={bz.x} y={bz.y} width={bz.w} height={bz.h} rx="16" />
         <text x={bz.x + bz.w - 14} y={bz.y + bz.h - 12} fontSize="11" fontWeight="500" fill="var(--m-bz-text)" letterSpacing=".01em" textAnchor="end">내부 업무망 경계</text>
         {/* 선 */}
@@ -130,8 +132,8 @@ export function BoundaryMap({ data, compact }: { data?: MapData; compact?: boole
           const tw = z.st ? z.st.t.replace(/\s/g, '').length * 8.6 + (z.st.t.split(' ').length - 1) * 4 : 0
           return (
             <g key={z.key + '-t'} style={{ pointerEvents: 'none' }}>
-              {(() => { const I = ZONE_ICON[z.key]; return I ? <I x={z.x + 15} y={z.y + 10} width={14} height={14} stroke={1.8} color={z.key === 'rogue' ? '#c4302b' : 'var(--m-sub)'} /> : null })()}
-              <text x={z.x + 36} y={z.y + 22} fontSize="12" fontWeight="600" fill="var(--m-text)" letterSpacing="-.01em">{z.title}</text>
+              {(() => { const I = ZONE_ICON[z.key]; const hue = ZONE_HUE[z.key]; return I ? <I x={z.x + 15} y={z.y + 10} width={14} height={14} stroke={1.8} color={hue ? hue[dark ? 1 : 0] : 'var(--m-sub)'} /> : null })()}
+              <text x={z.x + 36} y={z.y + 22} fontSize="12" fontWeight="600" fill={ZONE_HUE[z.key] ? ZONE_HUE[z.key][dark ? 1 : 0] : 'var(--m-text)'} letterSpacing="-.01em">{z.title}</text>
               <text x={z.x + 36 + textW(z.title, 12) + 8} y={z.y + 22} fontSize="11" fontWeight="500" fill="var(--m-sub)" fontFamily="var(--font-mono)">{z.n}</text>
               {z.st && <>
                 <circle cx={z.x + z.w - 16 - tw - 9} cy={z.y + 18} r="3" fill={z.st.cls === 'ok' ? '#1a7f37' : z.st.cls === 'soon' ? '#b26a00' : '#c4302b'} />
@@ -165,7 +167,7 @@ export function BoundaryMap({ data, compact }: { data?: MapData; compact?: boole
 function Node({ n, sel, enter, ai, onClick, onEnter, onLeave }: { n: MapNode; sel: boolean; enter: boolean; ai: boolean; onClick: () => void; onEnter: (e: React.MouseEvent<SVGGElement>) => void; onLeave: () => void }) {
   const dot = n.st === 'ok' ? '#1a7f37' : n.st === 'soon' ? '#b26a00' : '#c4302b'
   return (
-    <g className={cn('map-node cursor-pointer', sel && 'sel', n.rogue && 'rogue', enter && 'enter')} onClick={onClick} onMouseEnter={onEnter} onMouseLeave={onLeave}>
+    <g className={cn('map-node cursor-pointer', 'z-' + n.zone, sel && 'sel', n.rogue && 'rogue', enter && 'enter')} onClick={onClick} onMouseEnter={onEnter} onMouseLeave={onLeave}>
       <rect x={n.x} y={n.y + 1} width={n.w} height="44" rx="8" fill="var(--m-zone-line)" />
       <rect className="bg" x={n.x} y={n.y} width={n.w} height="44" rx="8" />
       <circle cx={n.x + 16} cy={n.y + 22} r="3" fill={dot} />

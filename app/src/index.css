@@ -130,17 +130,39 @@
 .map-wrap.map-dark {
   --m-bg: radial-gradient(ellipse 90% 70% at 50% 0%, #2a3549 0%, #1e2739 55%, #1a2232 100%);
   --m-zone: rgba(255,255,255,.045); --m-zone-line: rgba(255,255,255,.09);
-  --m-bz: rgba(96,140,235,.13); --m-bz-line: rgba(140,175,245,.42); --m-bz-text: #a9c4f7;
+  --m-bz: rgba(96,140,235,.16); --m-bz-line: rgba(140,175,245,.5); --m-bz-text: #b4ccf9;
   --m-node: #2a3448; --m-node-line: rgba(255,255,255,.16); --m-node-hover: rgba(255,255,255,.38);
   --m-text: #eaeff8; --m-sub: #8792a8; --m-dim: #a6b0c4;
   --m-chip: #2a3448; --m-chip-line: rgba(255,255,255,.26); --m-chip-text: #cdd6e5; --m-cut: #1e2739;
-  --m-hub: #2c374c; --m-hub-line: #d8e0ef; --m-hub-div: rgba(255,255,255,.15);
+  --m-hub: #34415a; --m-hub-line: #e2e9f6; --m-hub-div: rgba(255,255,255,.16);
   --m-edge: #7f9de2; --m-dot: rgba(255,255,255,.10); --m-veil: rgba(30,39,57,.55); --m-veil2: rgba(30,39,57,.2);
   --m-rogue-text: #ec8a83; --m-ai-chip: rgba(33,87,209,.32); --m-ai-text: #b3caff;
 }
 .map-wrap.map-dark.surface-float { box-shadow: 0 0 0 1px rgba(11,13,24,.35), 0 2px 4px rgba(11,13,24,.12), 0 12px 24px rgba(11,13,24,.18), 0 28px 48px rgba(11,13,24,.16), inset 0 1px 0 rgba(255,255,255,.06); }
 .map-zone { fill: var(--m-zone); stroke: var(--m-zone-line); stroke-width: 1; }
 .map-zone.bad { fill: rgba(196,48,43,.045); stroke: rgba(196,48,43,.14); }
+/* 구역별 색. 밝은 지도에서는 연하게, 어두운 지도에서는 면과 노드 판 자체를 그 색으로 물들여 층을 만든다 */
+.map-zone.z-fin { fill: rgba(15,143,127,.06); stroke: rgba(15,143,127,.22); }
+.map-zone.z-dmz { fill: rgba(178,106,0,.06); stroke: rgba(178,106,0,.22); }
+.map-zone.z-saas { fill: rgba(107,92,231,.06); stroke: rgba(107,92,231,.22); }
+.map-zone.z-tele { fill: rgba(27,127,196,.06); stroke: rgba(27,127,196,.22); }
+.map-zone.z-remote { fill: rgba(95,115,144,.07); stroke: rgba(95,115,144,.24); }
+.map-dark .map-zone.z-fin { fill: rgba(76,203,184,.09); stroke: rgba(76,203,184,.30); }
+.map-dark .map-zone.z-dmz { fill: rgba(226,171,74,.09); stroke: rgba(226,171,74,.30); }
+.map-dark .map-zone.z-saas { fill: rgba(169,156,255,.10); stroke: rgba(169,156,255,.32); }
+.map-dark .map-zone.z-tele { fill: rgba(95,186,245,.09); stroke: rgba(95,186,245,.30); }
+.map-dark .map-zone.z-remote { fill: rgba(169,187,211,.08); stroke: rgba(169,187,211,.26); }
+.map-dark .map-node.z-fin rect.bg { fill: #23403f; stroke: rgba(76,203,184,.34); }
+.map-dark .map-node.z-dmz rect.bg { fill: #3d3628; stroke: rgba(226,171,74,.34); }
+.map-dark .map-node.z-saas rect.bg { fill: #32304f; stroke: rgba(169,156,255,.36); }
+.map-dark .map-node.z-tele rect.bg { fill: #253d52; stroke: rgba(95,186,245,.34); }
+.map-dark .map-node.z-remote rect.bg { fill: #303a4b; stroke: rgba(169,187,211,.30); }
+.map-dark .map-node.z-rogue rect.bg { fill: #3d2a2c; }
+.map-dark .map-node.z-fin:hover rect.bg { stroke: rgba(76,203,184,.7); }
+.map-dark .map-node.z-dmz:hover rect.bg { stroke: rgba(226,171,74,.7); }
+.map-dark .map-node.z-saas:hover rect.bg { stroke: rgba(169,156,255,.7); }
+.map-dark .map-node.z-tele:hover rect.bg { stroke: rgba(95,186,245,.7); }
+.map-dark .map-node.z-remote:hover rect.bg { stroke: rgba(169,187,211,.7); }
 .map-dark .map-zone.bad { fill: rgba(214,80,74,.10); stroke: rgba(214,80,74,.28); }
 .map-bz { fill: var(--m-bz); stroke: var(--m-bz-line); stroke-width: 1; }
 .map-node rect.bg { fill: var(--m-node); stroke: var(--m-node-line); stroke-width: 1; transition: stroke 150ms, filter 150ms; }
