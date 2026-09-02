@@ -69,7 +69,7 @@ export function TryBox() {
     <section className="mt-4 overflow-hidden rounded-[14px] bg-[#f7faff] shadow-[0_0_0_1px_rgba(33,87,209,.14),var(--shadow-card)]">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-5 pt-4 pb-2.5">
         <span className="flex items-center gap-2 text-[14px] font-semibold text-ink"><IconSparkles className="size-4 text-primary" stroke={1.75} />AI에게 직접 시켜보기</span>
-        <span className="text-[12.5px] text-faint">아무 문장이나 넣어보세요. 이름과 신용정보가 함께 있으면 잡아서 고칩니다</span>
+        <span className="text-[12.5px] text-faint">SaaS로 반출되는 문서에서 개인신용정보를 탐지해 수정안을 제안합니다</span>
         <span className="ml-auto inline-flex items-center gap-1.5 rounded-full bg-card px-2.5 py-0.5 font-mono text-[10.5px] text-body shadow-[var(--shadow-ring)]"><i className={cn('size-1.5 rounded-full', detReady ? 'bg-ok' : 'bg-dim')} />{detReady ? 'Kanana 2 3B' : '규칙 검사'}</span>
       </div>
       <form className="flex gap-2 px-5" onSubmit={e => { e.preventDefault(); run(q) }}>
